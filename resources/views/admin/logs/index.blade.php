@@ -1,73 +1,44 @@
 <x-admin-layout title="User Activity Logs" breadcrumb="Track & audit all create, update, and delete actions in real-time">
-    <x-slot name="topbarAction">
-        @if($logs->count() > 0)
-            <form action="{{ route('admin.logs.clear') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear all user activity logs? This action cannot be undone.');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Clear Logs
-                </button>
-            </form>
-        @endif
-    </x-slot>
-
-    <!-- Filters & Search Bar -->
-    <div class="card" style="margin-bottom: 20px;">
-        <div class="card-body" style="padding: 16px;">
-            <form method="GET" action="{{ route('admin.logs.index') }}" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                <div style="flex: 1; min-width: 200px;">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-input" placeholder="Search description, user name, IP..." style="margin-bottom: 0;">
-                </div>
-
-                <div style="width: 150px;">
-                    <select name="module" class="form-select" onchange="this.form.submit()" style="margin-bottom: 0;">
-                        <option value="">All Modules</option>
-                        @foreach($modules as $mod)
-                            <option value="{{ $mod }}" {{ request('module') == $mod ? 'selected' : '' }}>{{ $mod }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div style="width: 140px;">
-                    <select name="action" class="form-select" onchange="this.form.submit()" style="margin-bottom: 0;">
-                        <option value="">All Actions</option>
-                        @foreach($actions as $act)
-                            <option value="{{ $act }}" {{ request('action') == $act ? 'selected' : '' }}>{{ strtoupper($act) }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-ghost">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    Filter
-                </button>
-
-                @if(request()->anyFilled(['search', 'module', 'action']))
-                    <a href="{{ route('admin.logs.index') }}" class="btn btn-ghost" style="color: var(--text-muted);">Reset</a>
-                @endif
-            </form>
-        </div>
-    </div>
 
     <!-- Logs Table -->
     <div class="card">
-        <div class="card-header">
-            <div>
-                <div class="card-title">Audit Trail & System Logs</div>
-                <div class="card-subtitle">Showing {{ $logs->firstItem() ?? 0 }} - {{ $logs->lastItem() ?? 0 }} of {{ $logs->total() }} total recorded activities</div>
-            </div>
-        </div>
-        <div style="overflow-x: auto;">
+        <x-datatable id="logsDataTable" title="Audit Trail & System Logs" subtitle="Real-time audit log of system activities & user actions" search-placeholder="Search description, user, IP..." :per-page-options="[10, 20, 50, 'all']" :default-per-page="10">
+            @if($logs->count() > 0)
+            <x-slot:actions>
+                <form action="{{ route('admin.logs.clear') }}" method="POST" onsubmit="event.preventDefault(); confirmDelete('Clear Activity Logs?', 'All recorded system audit logs will be deleted permanently.', this);">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Clear Logs
+                    </button>
+                </form>
+            </x-slot:actions>
+            @endif
+
+            <x-slot:filters>
+                <select class="datatable-filter-select" data-column="3">
+                    <option value="">All Modules</option>
+                    @foreach($modules as $mod)
+                        <option value="{{ $mod }}">{{ $mod }}</option>
+                    @endforeach
+                </select>
+
+                <select class="datatable-filter-select" data-column="2">
+                    <option value="">All Actions</option>
+                    @foreach($actions as $act)
+                        <option value="{{ $act }}">{{ strtoupper($act) }}</option>
+                    @endforeach
+                </select>
+            </x-slot:filters>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 160px;">Timestamp</th>
-                        <th>User</th>
-                        <th style="width: 100px;">Action</th>
-                        <th style="width: 130px;">Module</th>
-                        <th>Description & Details</th>
-                        <th style="width: 120px;">IP Address</th>
+                        <th style="width: 160px;" data-sortable="true">Timestamp</th>
+                        <th data-sortable="true">User</th>
+                        <th style="width: 100px;" data-sortable="true">Action</th>
+                        <th style="width: 130px;" data-sortable="true">Module</th>
+                        <th data-sortable="true">Description & Details</th>
+                        <th style="width: 120px;" data-sortable="true">IP Address</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -129,11 +100,6 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
-        @if($logs->hasPages())
-            <div style="padding: 16px; border-top: 1px solid var(--border);">
-                {{ $logs->links() }}
-            </div>
-        @endif
+        </x-datatable>
     </div>
 </x-admin-layout>

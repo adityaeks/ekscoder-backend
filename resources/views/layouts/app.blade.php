@@ -806,5 +806,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<x-sweetalert />
 </body>
 </html>

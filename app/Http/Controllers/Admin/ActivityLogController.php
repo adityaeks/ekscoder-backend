@@ -34,7 +34,7 @@ class ActivityLogController extends Controller
             $query->where('action', strtolower($request->action));
         }
 
-        $logs = $query->paginate(20)->withQueryString();
+        $logs = $query->get();
 
         $modules = UserLog::select('module')->distinct()->pluck('module');
         $actions = UserLog::select('action')->distinct()->pluck('action');

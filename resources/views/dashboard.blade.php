@@ -239,7 +239,7 @@
                         <td style="text-align:right">
                             <div style="display:flex; gap:6px; justify-content:flex-end;">
                                 <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-ghost" style="padding:4px 10px; font-size:11.5px;">Edit</a>
-                                <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Delete this project?')">
+                                <form action="{{ route('admin.projects.destroy', $project->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDelete('Delete \'{{ addslashes($project->title) }}\'?', 'This project will be permanently deleted.', this);">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-danger" style="padding:4px 10px; font-size:11.5px;">Delete</button>
                                 </form>

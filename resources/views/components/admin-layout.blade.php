@@ -514,8 +514,9 @@
         .btn-primary { background: var(--accent); color: var(--accent-text); font-weight: 700; }
         .btn-primary:hover { opacity: 0.9; }
         .btn-ghost { background: var(--bg-elevated); color: var(--text-secondary); border-color: var(--border); }
-        .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-light); }
+        .btn-ghost:hover { color: var(--text-primary); border-color: var(--border-light); background: var(--bg-hover); }
         .btn-danger { background: var(--rose-soft); color: var(--rose); border-color: rgba(244,63,94,0.2); }
+        .btn-danger:hover { background: rgba(244,63,94,0.2); color: var(--rose); }
 
         /* Tech Pills */
         .tech-pills { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -552,6 +553,107 @@
 
         .flash { padding: 12px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-muted); }
+
+        /* MODAL SYSTEM */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 580px;
+            max-height: min(650px, calc(100vh - 40px));
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            margin: auto;
+            transition: border-color 0.25s ease;
+        }
+
+        .modal-box form {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--bg-elevated);
+        }
+
+        @keyframes modalShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        .modal-box.modal-shake {
+            animation: modalShake 0.35s ease-in-out;
+            border-color: var(--rose) !important;
+        }
         /* COLLAPSIBLE SIDEBAR MINI MODE */
         .topbar-collapse-btn {
             display: inline-flex;
@@ -803,5 +905,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<x-sweetalert />
 </body>
 </html>

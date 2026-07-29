@@ -23,15 +23,7 @@
             <span class="nav-text">Dashboard</span>
         </a>
 
-        <div class="nav-section-label" style="margin-top:16px;">Manage Web Porto</div>
-
-        <a href="{{ route('admin.projects.index') }}" class="nav-item {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}" title="Projects">
-            <div class="nav-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            </div>
-            <span class="nav-text">Projects</span>
-        </a>
-
+        @can('orders.view')
         <div class="nav-section-label" style="margin-top:16px;">Order Management</div>
 
         @php $activeOrderCount = \App\Models\ProjectOrder::whereNotIn('status', ['completed', 'cancelled'])->count(); @endphp
@@ -43,9 +35,20 @@
             <span class="nav-text">Project Orders</span>
             <span class="nav-badge" id="sidebarOrdersBadge" style="{{ $activeOrderCount > 0 ? '' : 'display:none;' }}">{{ $activeOrderCount }}</span>
         </a>
+        @endcan
 
-        <div class="nav-section-label" style="margin-top:16px;">Account</div>
+        @can('projects.view')
+        <div class="nav-section-label" style="margin-top:16px;">Manage Web Porto</div>
 
+        <a href="{{ route('admin.projects.index') }}" class="nav-item {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}" title="Projects">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+            <span class="nav-text">Projects</span>
+        </a>
+        @endcan
+
+        <div class="nav-section-label" style="margin-top:16px;">System & Security</div>
         <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}" title="Profile">
             <div class="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -53,14 +56,32 @@
             <span class="nav-text">Profile</span>
         </a>
 
-        <div class="nav-section-label" style="margin-top:16px;">System & Security</div>
+        @can('users.view')
+        <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" title="User Management">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span class="nav-text">User Management</span>
+        </a>
+        @endcan
 
+        @can('roles.view')
+        <a href="{{ route('admin.roles.index') }}" class="nav-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}" title="Roles & Permissions">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <span class="nav-text">Roles & Permissions</span>
+        </a>
+        @endcan
+
+        @can('logs.view')
         <a href="{{ route('admin.logs.index') }}" class="nav-item {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}" title="User Activity Logs">
             <div class="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <span class="nav-text">Activity Logs</span>
         </a>
+        @endcan
 
         <div class="nav-section-label" style="margin-top:16px;">Developer</div>
 
@@ -77,7 +98,7 @@
             <div class="user-avatar" title="{{ Auth::user()->name }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
             <div class="user-info">
                 <div class="user-name">{{ Auth::user()->name }}</div>
-                <div class="user-role">Administrator</div>
+                <div class="user-role">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</div>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

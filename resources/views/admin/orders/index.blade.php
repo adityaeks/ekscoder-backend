@@ -163,31 +163,24 @@
 
     <!-- 2. TABLE DATA VIEW -->
     <div id="ordersTableView" class="card" style="display: none;">
-        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
-            <div>
-                <div class="card-title">All Project Orders Table</div>
-                <div class="card-subtitle">Tabular list view with inline status management & client info</div>
-            </div>
-
-            <!-- Table Live Search Box -->
-            <div class="input-prefix-group" style="max-width:280px; margin-left:auto;">
-                <span class="input-prefix" style="color:var(--text-muted); font-size:12px;">🔍</span>
-                <input type="text" id="tableSearchInput" onkeyup="filterOrdersTable()" oninput="filterOrdersTable()" placeholder="Search project, client, contact..." class="form-input prefixed" style="padding-top:6px; padding-bottom:6px; font-size:12px; border-radius:10px;">
-            </div>
-        </div>
-
-        <div style="overflow-x:auto;">
+        <x-datatable id="ordersDataTable" title="All Project Orders Table" subtitle="Tabular list view with inline status management & client info" search-placeholder="Search project, client, contact..." :per-page-options="[10, 20, 50, 'all']" :default-per-page="10">
+            <x-slot:actions>
+                <button onclick="openCreateModal()" class="topbar-btn topbar-btn-primary" style="padding:6px 12px; font-size:12px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Project Order
+                </button>
+            </x-slot:actions>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width:50px">No</th>
-                        <th>Project & Client</th>
-                        <th>Contact</th>
-                        <th>Budget & Payment</th>
-                        <th>Priority</th>
-                        <th>Status Stage</th>
-                        <th>Target Mulai</th>
-                        <th>Deadline</th>
+                        <th style="width:50px" data-sortable="true">No</th>
+                        <th data-sortable="true">Project & Client</th>
+                        <th data-sortable="true">Contact</th>
+                        <th data-sortable="true">Budget & Payment</th>
+                        <th data-sortable="true">Priority</th>
+                        <th data-sortable="true">Status Stage</th>
+                        <th data-sortable="true">Target Mulai</th>
+                        <th data-sortable="true">Deadline</th>
                         <th style="text-align:right">Actions</th>
                     </tr>
                 </thead>
@@ -197,7 +190,7 @@
                         @foreach($groupedOrders[$stKey] as $order)
                         <tr class="order-table-row">
                             <td>
-                                <span style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--text-muted); font-size:12px;">#{{ $rowCounter++ }}</span>
+                                <span class="datatable-row-index" style="font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--text-muted); font-size:12px;">#{{ $rowCounter++ }}</span>
                             </td>
                             <td>
                                 <div style="font-weight:700; color:var(--text-primary); font-size:13.5px; margin-bottom:2px;">{{ $order->title }}</div>
@@ -261,14 +254,9 @@
                         </tr>
                         @endforeach
                     @endforeach
-                    <tr id="noTableSearchMatchRow" style="display:none;">
-                        <td colspan="9" style="text-align:center; padding:35px 20px; color:var(--text-muted); font-size:13px;">
-                            🔍 No project orders match "<strong id="searchQueryTerm" style="color:var(--accent);"></strong>"
-                        </td>
-                    </tr>
                 </tbody>
             </table>
-        </div>
+        </x-datatable>
     </div>
 
     <!-- CREATE ORDER MODAL -->
@@ -835,6 +823,7 @@
                 tableView.style.display = 'block';
                 btnBoard.classList.remove('active');
                 btnTable.classList.add('active');
+                window.ekscoderDataTables['ordersDataTable']?.refreshRows();
             } else {
                 boardView.style.display = 'flex';
                 tableView.style.display = 'none';
@@ -1131,9 +1120,9 @@
         }
 
         function submitDeleteOrder() {
-            if (confirm('Are you sure you want to delete this order card?')) {
+            confirmDelete('Delete Project Order?', 'This project order card will be permanently deleted from your pipeline.', function() {
                 document.getElementById('deleteOrderForm').submit();
-            }
+            });
         }
 
         // Initial sync on load
