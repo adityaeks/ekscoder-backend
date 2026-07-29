@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\LogsActivity;
+
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     /**
      * Primary key is a string (slug/id like 'erp-system').
