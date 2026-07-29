@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    use HasFactory;
+
+    /**
+     * Primary key is a string (slug/id like 'erp-system').
+     */
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'id',
+        'number',
+        'title',
+        'category',
+        'year',
+        'description',
+        'technologies',
+        'image_bg',
+        'accent_color',
+        'link',
+        'featured',
+        'is_active',
+        'order',
+    ];
+
+    /**
+     * Attribute casts.
+     */
+    protected $casts = [
+        'technologies' => 'array',
+        'featured' => 'boolean',
+        'is_active' => 'boolean',
+        'order' => 'integer',
+    ];
+
+    /**
+     * Append camelCase attributes to JSON serialization for seamless frontend integration.
+     */
+    protected $appends = ['imageBg', 'accentColor'];
+
+    public function getImageBgAttribute(): string
+    {
+        return $this->attributes['image_bg'] ?? '';
+    }
+
+    public function getAccentColorAttribute(): string
+    {
+        return $this->attributes['accent_color'] ?? '';
+    }
+}
