@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\ProjectOrderController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\MonitoredSiteController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -110,6 +111,21 @@ Route::middleware('auth')->group(function () {
             'edit'    => 'can:roles.edit',
             'update'  => 'can:roles.edit',
             'destroy' => 'can:roles.delete',
+        ]);
+
+        // Website Health & Uptime Monitoring
+        Route::post('sites/{site}/check', [MonitoredSiteController::class, 'check'])
+            ->name('sites.check')
+            ->middleware('can:sites.check');
+
+        Route::resource('sites', MonitoredSiteController::class)->middleware([
+            'index'   => 'can:sites.view',
+            'show'    => 'can:sites.view',
+            'create'  => 'can:sites.create',
+            'store'   => 'can:sites.create',
+            'edit'    => 'can:sites.edit',
+            'update'  => 'can:sites.edit',
+            'destroy' => 'can:sites.delete',
         ]);
     });
 });

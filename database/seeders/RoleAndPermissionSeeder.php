@@ -50,6 +50,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'roles.edit',
                 'roles.delete',
             ],
+            'sites' => [
+                'sites.view',
+                'sites.create',
+                'sites.edit',
+                'sites.delete',
+                'sites.check',
+            ],
         ];
 
         // Create permissions
