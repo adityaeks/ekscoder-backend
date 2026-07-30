@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('user_name')->nullable();
             $table->string('action'); // 'create', 'update', 'delete', 'login'
             $table->string('module'); // 'Project', 'ProjectOrder', 'User'
-            $table->unsignedBigInteger('model_id')->nullable();
+            $table->string('model_id')->nullable();
             $table->text('description')->nullable();
             $table->json('changes')->nullable();
             $table->string('ip_address')->nullable();

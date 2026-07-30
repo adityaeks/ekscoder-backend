@@ -57,6 +57,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'sites.delete',
                 'sites.check',
             ],
+            'cloudflare' => [
+                'cloudflare.view',
+                'cloudflare.create',
+                'cloudflare.edit',
+                'cloudflare.delete',
+                'cloudflare.purge',
+            ],
         ];
 
         // Create permissions

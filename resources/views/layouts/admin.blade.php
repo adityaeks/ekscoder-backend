@@ -959,6 +959,18 @@
                 Profile
             </a>
 
+            <div class="nav-section-label" style="margin-top:16px;">Infrastructure</div>
+
+            <a href="{{ route('admin.cloudflare-zones.index') }}"
+               class="nav-item {{ request()->routeIs('admin.cloudflare-zones.*') ? 'active' : '' }}">
+                <div class="nav-icon" style="color:#f57c00;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                    </svg>
+                </div>
+                Cloudflare API
+            </a>
+
             <!-- API Link -->
             <div class="nav-section-label" style="margin-top:16px;">Developer</div>
 

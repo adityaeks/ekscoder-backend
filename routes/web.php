@@ -37,6 +37,8 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\MonitoredSiteController;
+use App\Http\Controllers\Admin\CloudflareZoneController;
+use App\Http\Controllers\Admin\CloudflareDnsController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -127,6 +129,40 @@ Route::middleware('auth')->group(function () {
             'update'  => 'can:sites.edit',
             'destroy' => 'can:sites.delete',
         ]);
+
+        // Cloudflare Integration Routes
+        Route::resource('cloudflare-zones', CloudflareZoneController::class)
+            ->only(['index', 'store', 'show', 'destroy'])
+            ->middleware([
+                'index'   => 'can:cloudflare.view',
+                'show'    => 'can:cloudflare.view',
+                'store'   => 'can:cloudflare.create',
+                'destroy' => 'can:cloudflare.delete',
+            ]);
+
+        Route::post('cloudflare-zones/{zone}/purge-cache', [CloudflareZoneController::class, 'purgeCache'])
+            ->name('cloudflare-zones.purge-cache')
+            ->middleware('can:cloudflare.purge');
+
+        Route::post('cloudflare-zones/{zone}/security', [CloudflareZoneController::class, 'updateSecurity'])
+            ->name('cloudflare-zones.update-security')
+            ->middleware('can:cloudflare.edit');
+
+        Route::post('cloudflare-zones/{zone}/dns', [CloudflareDnsController::class, 'store'])
+            ->name('cloudflare-dns.store')
+            ->middleware('can:cloudflare.edit');
+
+        Route::put('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'update'])
+            ->name('cloudflare-dns.update')
+            ->middleware('can:cloudflare.edit');
+
+        Route::patch('cloudflare-zones/{zone}/dns/{record}/proxy', [CloudflareDnsController::class, 'toggleProxy'])
+            ->name('cloudflare-dns.toggle-proxy')
+            ->middleware('can:cloudflare.edit');
+
+        Route::delete('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'destroy'])
+            ->name('cloudflare-dns.destroy')
+            ->middleware('can:cloudflare.edit');
     });
 });
 
