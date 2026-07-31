@@ -204,7 +204,7 @@
                         </td>
                         <td>
                             <div style="font-weight:700; color:var(--text-primary); font-size:13.5px;">{{ $project->title }}</div>
-                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; margin-top:1px;">{{ $project->id }}</div>
+                            <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; margin-top:1px;">{{ $project->slug }}</div>
                         </td>
                         <td>
                             <div style="font-weight:500; color:var(--text-secondary); font-size:12.5px;">{{ $project->category }}</div>

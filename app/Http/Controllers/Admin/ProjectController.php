@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProjectController extends Controller
 {
@@ -38,7 +39,7 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id' => 'required|string|unique:projects,id|max:255',
+            'slug' => 'required|string|unique:projects,slug|max:255',
             'number' => 'required|string|max:10',
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:255',
@@ -52,6 +53,9 @@ class ProjectController extends Controller
             'is_active' => 'boolean',
             'order' => 'integer',
         ]);
+
+        // Ensure slug is properly formatted
+        $validated['slug'] = Str::slug($validated['slug']);
 
         if (is_string($validated['technologies'])) {
             $validated['technologies'] = array_map('trim', explode(',', $validated['technologies']));
@@ -80,6 +84,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
+            'slug' => 'required|string|max:255|unique:projects,slug,' . $project->id,
             'number' => 'required|string|max:10',
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:255',
@@ -91,6 +96,9 @@ class ProjectController extends Controller
             'link' => 'nullable|url',
             'order' => 'integer',
         ]);
+
+        // Ensure slug is properly formatted
+        $validated['slug'] = Str::slug($validated['slug']);
 
         if (is_string($validated['technologies'])) {
             $validated['technologies'] = array_map('trim', explode(',', $validated['technologies']));

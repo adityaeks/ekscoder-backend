@@ -60,7 +60,7 @@
                         </td>
                         <td>
                             <div style="font-weight:700; color:var(--text-primary); font-size:13.5px; margin-bottom:2px;">{{ $project->title }}</div>
-                            <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted);">{{ $project->id }}</div>
+                            <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted);">{{ $project->slug }}</div>
                         </td>
                         <td>
                             <div style="font-weight:500; color:var(--text-secondary);">{{ $project->category }}</div>

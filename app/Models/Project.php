@@ -11,14 +11,8 @@ class Project extends Model
 {
     use HasFactory, LogsActivity;
 
-    /**
-     * Primary key is a string (slug/id like 'erp-system').
-     */
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $fillable = [
-        'id',
+        'slug',
         'number',
         'title',
         'category',

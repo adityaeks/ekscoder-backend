@@ -29,8 +29,8 @@
                 <div class="card-body">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Project ID / Slug *</label>
-                            <input type="text" name="id" value="{{ old('id') }}" required placeholder="erp-system" class="form-input">
+                            <label class="form-label">Slug *</label>
+                            <input type="text" name="slug" value="{{ old('slug') }}" required placeholder="erp-system" class="form-input">
                             <div class="form-hint">Lowercase with hyphens. e.g. erp-system, vps-control</div>
                         </div>
                         <div class="form-group">

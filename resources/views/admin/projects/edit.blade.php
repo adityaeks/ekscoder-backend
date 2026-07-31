@@ -22,7 +22,7 @@
             </div>
             <div>
                 <div style="font-weight:700; color:var(--text-primary); font-size:14px;">{{ $project->title }}</div>
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);">ID: {{ $project->id }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);">{{ $project->slug }}</div>
             </div>
             <div style="margin-left:auto; display:flex; gap:8px;">
                 <span class="badge {{ $project->is_active ? 'badge-green' : 'badge-rose' }}">
@@ -44,14 +44,15 @@
                 <div class="card-header">
                     <div>
                         <div class="card-title">Basic Information</div>
-                        <div class="card-subtitle">Note: Project ID/Slug cannot be changed after creation</div>
+                        <div class="card-subtitle">Update project details and slug</div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Project ID / Slug (Read-only)</label>
-                            <input type="text" value="{{ $project->id }}" disabled class="form-input">
+                            <label class="form-label">Slug *</label>
+                            <input type="text" name="slug" value="{{ old('slug', $project->slug) }}" required class="form-input">
+                            <div class="form-hint">Lowercase with hyphens. e.g. erp-system, vps-control</div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Project Number *</label>
