@@ -4,12 +4,8 @@
 <!-- Sidebar Navigation -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-        <a href="{{ route('dashboard') }}" class="logo-mark">
-            <div class="logo-icon">EK</div>
-            <div class="logo-text">
-                <span class="logo-name">Ekscoder</span>
-                <span class="logo-sub">Admin Panel</span>
-            </div>
+        <a href="{{ route('dashboard') }}" class="logo-mark" style="display: flex; align-items: center; justify-content: center; width: 100%;">
+            <img src="{{ asset('ekscoder.png') }}" alt="Ekscoder Logo" style="height: 38px; width: auto; max-width: 100%; object-fit: contain;">
         </a>
     </div>
 
@@ -33,7 +29,17 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
             </div>
             <span class="nav-text">Project Orders</span>
-            <span class="nav-badge" id="sidebarOrdersBadge" style="{{ $activeOrderCount > 0 ? '' : 'display:none;' }}">{{ $activeOrderCount }}</span>
+            @php $badgeStyle = $activeOrderCount > 0 ? '' : 'display:none;'; @endphp
+            <span class="nav-badge" id="sidebarOrdersBadge" style="{{ $badgeStyle }}">{{ $activeOrderCount }}</span>
+        </a>
+        @endcan
+
+        @can('finance.view')
+        <a href="{{ route('admin.finance.index') }}" class="nav-item {{ request()->routeIs('admin.finance.*') ? 'active' : '' }}" title="Keuangan & Kas">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span class="nav-text">Keuangan & Kas</span>
         </a>
         @endcan
 

@@ -39,6 +39,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\MonitoredSiteController;
 use App\Http\Controllers\Admin\CloudflareZoneController;
 use App\Http\Controllers\Admin\CloudflareDnsController;
+use App\Http\Controllers\Admin\CloudflarePinController;
+use App\Http\Controllers\Admin\FinancialController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -130,39 +132,75 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'can:sites.delete',
         ]);
 
-        // Cloudflare Integration Routes
-        Route::resource('cloudflare-zones', CloudflareZoneController::class)
-            ->only(['index', 'store', 'show', 'destroy'])
-            ->middleware([
-                'index'   => 'can:cloudflare.view',
-                'show'    => 'can:cloudflare.view',
-                'store'   => 'can:cloudflare.create',
-                'destroy' => 'can:cloudflare.delete',
-            ]);
+        // Cloudflare PIN Security Routes
+        Route::get('cloudflare-pin', [CloudflarePinController::class, 'showPinForm'])
+            ->name('cloudflare-pin.show')
+            ->middleware('can:cloudflare.view');
 
-        Route::post('cloudflare-zones/{zone}/purge-cache', [CloudflareZoneController::class, 'purgeCache'])
-            ->name('cloudflare-zones.purge-cache')
-            ->middleware('can:cloudflare.purge');
+        Route::post('cloudflare-pin', [CloudflarePinController::class, 'verifyPin'])
+            ->name('cloudflare-pin.verify')
+            ->middleware('can:cloudflare.view');
 
-        Route::post('cloudflare-zones/{zone}/security', [CloudflareZoneController::class, 'updateSecurity'])
-            ->name('cloudflare-zones.update-security')
-            ->middleware('can:cloudflare.edit');
+        Route::post('cloudflare-pin/lock', [CloudflarePinController::class, 'lockPin'])
+            ->name('cloudflare-pin.lock')
+            ->middleware('can:cloudflare.view');
 
-        Route::post('cloudflare-zones/{zone}/dns', [CloudflareDnsController::class, 'store'])
-            ->name('cloudflare-dns.store')
-            ->middleware('can:cloudflare.edit');
+        // Cloudflare Integration Routes (Protected by PIN)
+        Route::middleware('cloudflare.pin')->group(function () {
+            Route::resource('cloudflare-zones', CloudflareZoneController::class)
+                ->only(['index', 'store', 'show', 'destroy'])
+                ->middleware([
+                    'index'   => 'can:cloudflare.view',
+                    'show'    => 'can:cloudflare.view',
+                    'store'   => 'can:cloudflare.create',
+                    'destroy' => 'can:cloudflare.delete',
+                ]);
 
-        Route::put('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'update'])
-            ->name('cloudflare-dns.update')
-            ->middleware('can:cloudflare.edit');
+            Route::post('cloudflare-zones/{zone}/purge-cache', [CloudflareZoneController::class, 'purgeCache'])
+                ->name('cloudflare-zones.purge-cache')
+                ->middleware('can:cloudflare.purge');
 
-        Route::patch('cloudflare-zones/{zone}/dns/{record}/proxy', [CloudflareDnsController::class, 'toggleProxy'])
-            ->name('cloudflare-dns.toggle-proxy')
-            ->middleware('can:cloudflare.edit');
+            Route::post('cloudflare-zones/{zone}/security', [CloudflareZoneController::class, 'updateSecurity'])
+                ->name('cloudflare-zones.update-security')
+                ->middleware('can:cloudflare.edit');
 
-        Route::delete('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'destroy'])
-            ->name('cloudflare-dns.destroy')
-            ->middleware('can:cloudflare.edit');
+            Route::post('cloudflare-zones/{zone}/dns', [CloudflareDnsController::class, 'store'])
+                ->name('cloudflare-dns.store')
+                ->middleware('can:cloudflare.edit');
+
+            Route::put('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'update'])
+                ->name('cloudflare-dns.update')
+                ->middleware('can:cloudflare.edit');
+
+            Route::patch('cloudflare-zones/{zone}/dns/{record}/proxy', [CloudflareDnsController::class, 'toggleProxy'])
+                ->name('cloudflare-dns.toggle-proxy')
+                ->middleware('can:cloudflare.edit');
+
+            Route::delete('cloudflare-zones/{zone}/dns/{record}', [CloudflareDnsController::class, 'destroy'])
+                ->name('cloudflare-dns.destroy')
+                ->middleware('can:cloudflare.edit');
+        });
+
+        // Financial Management Routes
+        Route::get('finance', [FinancialController::class, 'index'])
+            ->name('finance.index')
+            ->middleware('can:finance.view');
+
+        Route::post('finance', [FinancialController::class, 'store'])
+            ->name('finance.store')
+            ->middleware('can:finance.manage');
+
+        Route::delete('finance/{transaction}', [FinancialController::class, 'destroy'])
+            ->name('finance.destroy')
+            ->middleware('can:finance.manage');
+
+        Route::post('finance/categories', [FinancialController::class, 'storeCategory'])
+            ->name('finance.categories.store')
+            ->middleware('can:finance.manage');
+
+        Route::delete('finance/categories/{category}', [FinancialController::class, 'destroyCategory'])
+            ->name('finance.categories.destroy')
+            ->middleware('can:finance.manage');
     });
 });
 

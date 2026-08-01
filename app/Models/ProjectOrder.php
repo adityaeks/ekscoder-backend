@@ -51,4 +51,9 @@ class ProjectOrder extends Model
         $progress = round(($this->paid_amount / $this->budget) * 100);
         return min(100, max(0, (int) $progress));
     }
+
+    public function financialTransactions()
+    {
+        return $this->hasMany(FinancialTransaction::class, 'project_order_id');
+    }
 }

@@ -64,7 +64,19 @@ class RoleAndPermissionSeeder extends Seeder
                 'cloudflare.delete',
                 'cloudflare.purge',
             ],
+            'finance' => [
+                'finance.view',
+                'finance.manage',
+            ],
         ];
+
+        // Seed Default Financial Categories
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Project Payment', 'type' => 'income'], ['color' => '#10b981']);
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Lain-lain (Pemasukan)', 'type' => 'income'], ['color' => '#3b82f6']);
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Server & Hosting', 'type' => 'expense'], ['color' => '#ef4444']);
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Operasional Kantor', 'type' => 'expense'], ['color' => '#f59e0b']);
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Tools & Software', 'type' => 'expense'], ['color' => '#8b5cf6']);
+        \App\Models\FinancialCategory::firstOrCreate(['name' => 'Gaji & Bonus', 'type' => 'expense'], ['color' => '#ec4899']);
 
         // Create permissions
         $allPermissionNames = [];

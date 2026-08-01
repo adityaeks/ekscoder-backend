@@ -54,6 +54,29 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Validate user credentials without immediately logging them in (for OTP flow).
+     *
+     * @return \App\Models\User
+     * @throws ValidationException
+     */
+    public function validateCredentials(): \App\Models\User
+    {
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::validate($this->only('email', 'password'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+
+        return \App\Models\User::where('email', $this->email)->firstOrFail();
+    }
+
+    /**
      * Ensure the login request is not rate limited.
      *
      * @throws ValidationException

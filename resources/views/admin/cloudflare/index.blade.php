@@ -14,15 +14,28 @@
             </p>
         </div>
 
-        @if($isConfigured)
-            <button onclick="openAddModal()" class="topbar-btn topbar-btn-primary" style="background:linear-gradient(135deg, #f57c00, #ff9800); border:none; padding:10px 18px; font-size:13px; border-radius:10px; box-shadow: 0 0 20px rgba(245, 124, 0, 0.3);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                Tambah Domain Baru
-            </button>
-        @endif
+        <div style="display:flex; align-items:center; gap:10px;">
+            <form action="{{ route('admin.cloudflare-pin.lock') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn btn-ghost" style="padding:9px 14px; font-size:12.5px; border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); display:inline-flex; align-items:center; gap:6px;" title="Kunci kembali akses Cloudflare">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Lock Cloudflare
+                </button>
+            </form>
+
+            @if($isConfigured)
+                <button onclick="openAddModal()" class="topbar-btn topbar-btn-primary" style="background:linear-gradient(135deg, #f57c00, #ff9800); border:none; padding:10px 18px; font-size:13px; border-radius:10px; box-shadow: 0 0 20px rgba(245, 124, 0, 0.3);">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Tambah Domain Baru
+                </button>
+            @endif
+        </div>
     </div>
 
     {{-- Flash Notifications --}}
@@ -188,7 +201,7 @@
                                                 ⚙️ Kelola DNS &amp; Fitur
                                             </a>
 
-                                            <form method="POST" action="{{ route('admin.cloudflare-zones.destroy', $z['id']) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus zone {{ $z['name'] }} dari Cloudflare?')" style="display:inline;">
+                                            <form method="POST" action="{{ route('admin.cloudflare-zones.destroy', $z['id']) }}" class="delete-form" data-confirm-title="Hapus Zone Cloudflare" data-confirm-text="Apakah Anda yakin ingin menghapus zone {{ $z['name'] }} dari Cloudflare?" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm" style="background:var(--rose-soft); color:var(--rose); border:1px solid rgba(244,63,94,0.25); border-radius:8px; padding:6px 10px; font-size:12px;" title="Hapus Zone">

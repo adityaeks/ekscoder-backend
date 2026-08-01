@@ -181,19 +181,16 @@
             text-decoration: none; color: #94a3b8 !important;
             font-size: 13.5px; font-weight: 500;
             transition: all 0.2s ease; margin-bottom: 2px;
-            border: 1px solid transparent;
         }
 
         .nav-item:hover {
             background: rgba(255, 255, 255, 0.06) !important;
             color: #f8fafc !important;
-            border-color: rgba(255, 255, 255, 0.1) !important;
         }
 
         .nav-item.active {
             background: rgba(184, 255, 0, 0.15) !important;
             color: #b8ff00 !important;
-            border-color: rgba(184, 255, 0, 0.3) !important;
         }
 
         .nav-icon {
@@ -203,7 +200,6 @@
         }
 
         .nav-item.active .nav-icon {
-            background: rgba(184, 255, 0, 0.15);
             color: #b8ff00 !important;
         }
 

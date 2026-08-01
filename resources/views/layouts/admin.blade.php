@@ -149,19 +149,16 @@
             transition: all 0.2s ease;
             margin-bottom: 2px;
             cursor: pointer;
-            border: 1px solid transparent;
         }
 
         .nav-item:hover {
             background: var(--bg-hover);
             color: var(--text-primary);
-            border-color: var(--border);
         }
 
         .nav-item.active {
             background: var(--accent-soft);
             color: #a09af8;
-            border-color: rgba(108,99,255,0.2);
         }
 
         .nav-item .nav-icon {
@@ -178,7 +175,7 @@
         }
 
         .nav-item.active .nav-icon {
-            background: var(--accent-soft);
+            color: #a09af8;
         }
 
         .nav-item .nav-badge {
@@ -902,12 +899,8 @@
     <aside class="sidebar" id="sidebar">
         <!-- Logo -->
         <div class="sidebar-logo">
-            <a href="{{ route('dashboard') }}" class="logo-mark">
-                <div class="logo-icon">EK</div>
-                <div class="logo-text">
-                    <span class="logo-name">Ekscoder</span>
-                    <span class="logo-sub">Admin Panel</span>
-                </div>
+            <a href="{{ route('dashboard') }}" class="logo-mark" style="display: flex; align-items: center; justify-content: center; width: 100%;">
+                <img src="{{ asset('ekscoder.png') }}" alt="Ekscoder Logo" style="height: 38px; width: auto; max-width: 100%; object-fit: contain;">
             </a>
         </div>
 

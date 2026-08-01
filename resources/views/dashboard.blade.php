@@ -93,11 +93,16 @@
                                         <span class="badge badge-rose">⛔ Cancelled</span>
                                     @endif
                                 </td>
+                                @php
+                                    $isOverdue = $order->deadline && $order->deadline->isPast() && $order->status !== 'completed';
+                                    $deadlineColor = $isOverdue ? 'var(--rose)' : 'var(--text-muted)';
+                                    $deadlineWeight = $isOverdue ? '700' : '400';
+                                @endphp
                                 <td>
                                     <div style="font-size:11px; color:var(--text-secondary);">
                                         🚀 {{ $order->start_date ? $order->start_date->format('d M Y') : '-' }}
                                     </div>
-                                    <div style="font-size:11px; color:{{ $order->deadline && $order->deadline->isPast() && $order->status !== 'completed' ? 'var(--rose)' : 'var(--text-muted)' }}; font-weight:{{ $order->deadline && $order->deadline->isPast() && $order->status !== 'completed' ? '700' : '400' }};">
+                                    <div style="font-size:11px; color: {{ $deadlineColor }}; font-weight: {{ $deadlineWeight }};">
                                         🏁 {{ $order->deadline ? $order->deadline->format('d M Y') : '-' }}
                                     </div>
                                 </td>
