@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\VpsServerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Project;
@@ -137,6 +138,13 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'can:sites.delete',
         ]);
 
+        // VPS Server Monitoring
+        Route::resource('vps', VpsServerController::class)->parameters([
+            'vps' => 'vps'
+        ]);
+
+
+
         // Cloudflare PIN Security Routes
         Route::get('cloudflare-pin', [CloudflarePinController::class, 'showPinForm'])
             ->name('cloudflare-pin.show')
@@ -209,4 +217,8 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// Dynamic VPS Agent Installation Script Route
+Route::get('/vps-agent/{token}/install.sh', [VpsServerController::class, 'installScript'])->name('vps.install-script');
+
 require __DIR__.'/auth.php';
+

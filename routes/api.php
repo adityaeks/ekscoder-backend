@@ -11,3 +11,6 @@ Route::get('/projects', function () {
 
     return response()->json($projects);
 });
+
+Route::post('/vps/ping', [\App\Http\Controllers\Api\VpsApiController::class, 'ping']);
+
