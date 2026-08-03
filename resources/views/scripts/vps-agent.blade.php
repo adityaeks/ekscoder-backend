@@ -71,12 +71,20 @@ EOF
 }
 
 setup_cron() {
-    AGENT_PATH="/usr/local/bin/ekscoder-vps-agent-${TOKEN:0:8}.sh"
+    if [ -n "$HOME" ] && [ -w "$HOME" ]; then
+        AGENT_DIR="$HOME/.ekscoder"
+    else
+        AGENT_DIR="/tmp/.ekscoder"
+    fi
+
+    mkdir -p "$AGENT_DIR"
+    AGENT_PATH="$AGENT_DIR/vps-agent-${TOKEN:0:8}.sh"
     
     echo "[Ekscoder Agent] Installing script to $AGENT_PATH..."
     
     # Save script to local file
     cat <<'AGENT_EOF' > "$AGENT_PATH"
+
 #!/usr/bin/env bash
 API_URL="{{ $baseUrl }}/api/vps/ping"
 TOKEN="{{ $server->auth_token }}"
