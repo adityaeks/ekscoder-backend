@@ -68,12 +68,12 @@
         </div>
 
         <!-- Remember Me -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+        <!-- <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
             <label for="remember_me" style="display: inline-flex; align-items: center; gap: 9px; cursor: pointer; user-select: none;">
                 <input id="remember_me" type="checkbox" name="remember" style="width: 17px; height: 17px; accent-color: #b8ff00; border-radius: 4px; cursor: pointer;">
                 <span style="font-size: 13px; font-weight: 500; color: #94a3b8;">Remember me for 30 days</span>
             </label>
-        </div>
+        </div> -->
 
         <!-- Submit Button -->
         <div style="margin-top: 10px;">

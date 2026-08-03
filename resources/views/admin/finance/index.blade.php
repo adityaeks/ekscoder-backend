@@ -88,29 +88,57 @@
         </div>
     </div>
 
-    <!-- Financial Analytics Charts Row -->
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 24px;">
-        <!-- Chart 1: Cashflow Trend -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px;">
-            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
-                📊 Tren Cashflow (Pemasukan vs Pengeluaran)
-            </h3>
-            <div style="position: relative; height: 260px;">
-                <canvas id="cashflowChart" data-labels="{{ json_encode($chartLabels) }}" data-income="{{ json_encode($chartIncome) }}" data-expense="{{ json_encode($chartExpense) }}"></canvas>
+    <!-- Financial Analytics Collapsible Card -->
+    <div id="financialChartsCard" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 24px; overflow: hidden; transition: all 0.25s ease;">
+        <!-- Card Header (Clickable Toggle) -->
+        <div onclick="toggleFinancialCharts()" style="padding: 16px 20px; background: rgba(255, 255, 255, 0.02); cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(184, 255, 0, 0.12); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                    📈
+                </div>
+                <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                        Grafik & Analisis Keuangan
+                    </h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0;">Tren cashflow bulanan dan distribusi pengeluaran berkategori</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="chartsToggleText" style="font-size: 12px; font-weight: 600; color: var(--text-muted); background: rgba(255,255,255,0.06); padding: 4px 12px; border-radius: 20px;">Tutup</span>
+                <div id="chartsToggleIcon" style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; color: var(--text-primary); transition: transform 0.3s ease;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
             </div>
         </div>
 
-        <!-- Chart 2: Category Breakdown -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 20px;">
-            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 16px; display: flex; align-items: center; gap: 8px;">
-                🍕 Distribusi Pengeluaran
-            </h3>
-            <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
-                @if(count($expenseCategories) > 0)
-                    <canvas id="categoryChart" data-names="{{ json_encode($expenseCategories->pluck('name')) }}" data-sums="{{ json_encode($expenseCategories->pluck('transactions_sum_amount')) }}" data-colors="{{ json_encode($expenseCategories->pluck('color')->map(fn($c) => $c ?? '#8b5cf6')) }}"></canvas>
-                @else
-                    <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Belum ada data pengeluaran berkategori</div>
-                @endif
+        <!-- Card Body (Charts Content) -->
+        <div id="financialChartsBody" style="padding: 20px; border-top: 1px solid var(--border); transition: all 0.3s ease;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                <!-- Chart 1: Cashflow Trend -->
+                <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px; display: flex; align-items: center; gap: 8px;">
+                        📊 Tren Cashflow (Pemasukan vs Pengeluaran)
+                    </h4>
+                    <div style="position: relative; height: 260px;">
+                        <canvas id="cashflowChart" data-labels="{{ json_encode($chartLabels) }}" data-income="{{ json_encode($chartIncome) }}" data-expense="{{ json_encode($chartExpense) }}"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Category Breakdown -->
+                <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
+                    <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px; display: flex; align-items: center; gap: 8px;">
+                        🍕 Distribusi Pengeluaran
+                    </h4>
+                    <div style="position: relative; height: 260px; display: flex; align-items: center; justify-content: center;">
+                        @if(count($expenseCategories) > 0)
+                            <canvas id="categoryChart" data-names="{{ json_encode($expenseCategories->pluck('name')) }}" data-sums="{{ json_encode($expenseCategories->pluck('transactions_sum_amount')) }}" data-colors="{{ json_encode($expenseCategories->pluck('color')->map(fn($c) => $c ?? '#8b5cf6')) }}"></canvas>
+                        @else
+                            <div style="text-align: center; color: var(--text-muted); font-size: 13px;">Belum ada data pengeluaran berkategori</div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -384,7 +412,37 @@
             }
         }
 
+        function toggleFinancialCharts() {
+            const body = document.getElementById('financialChartsBody');
+            const icon = document.getElementById('chartsToggleIcon');
+            const text = document.getElementById('chartsToggleText');
+            if (!body) return;
+
+            const isHidden = body.style.display === 'none';
+            if (isHidden) {
+                body.style.display = 'block';
+                if (icon) icon.style.transform = 'rotate(0deg)';
+                if (text) text.textContent = 'Tutup';
+                localStorage.setItem('ekscoder_finance_charts_collapsed', 'false');
+            } else {
+                body.style.display = 'none';
+                if (icon) icon.style.transform = 'rotate(-90deg)';
+                if (text) text.textContent = 'Buka';
+                localStorage.setItem('ekscoder_finance_charts_collapsed', 'true');
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function () {
+            // Restore saved collapsed state for financial charts card
+            if (localStorage.getItem('ekscoder_finance_charts_collapsed') === 'true') {
+                const body = document.getElementById('financialChartsBody');
+                const icon = document.getElementById('chartsToggleIcon');
+                const text = document.getElementById('chartsToggleText');
+                if (body) body.style.display = 'none';
+                if (icon) icon.style.transform = 'rotate(-90deg)';
+                if (text) text.textContent = 'Buka';
+            }
+
             // Chart 1: Cashflow Trend Line Bar
             const ctxCashflow = document.getElementById('cashflowChart');
             if (ctxCashflow) {

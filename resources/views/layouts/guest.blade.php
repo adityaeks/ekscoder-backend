@@ -7,6 +7,10 @@
 
         <title>{{ config('app.name', 'Ekscoder') }} — Admin Login</title>
 
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('ekscoder.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('ekscoder-logo.png') }}">
+
         <!-- Google Fonts: Inter & JetBrains Mono -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
