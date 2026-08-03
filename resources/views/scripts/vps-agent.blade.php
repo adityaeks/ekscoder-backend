@@ -122,13 +122,10 @@ AGENT_EOF
 
     CRON_CMD="*/${INTERVAL} * * * * $AGENT_PATH >/dev/null 2>&1"
 
-    # Check if cron already exists
-    if crontab -l 2>/dev/null | grep -q "$AGENT_PATH"; then
-        echo "[Ekscoder Agent] Crontab entry already exists."
-    else
-        (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
-        echo "[Ekscoder Agent] Added cron job to run every $INTERVAL minute(s)."
-    fi
+    # Remove existing cron entry for this agent if present, then add new schedule
+    (crontab -l 2>/dev/null | grep -v "$AGENT_PATH"; echo "$CRON_CMD") | crontab -
+    echo "[Ekscoder Agent] Cron job updated to run every $INTERVAL minute(s)."
+
 
     # Trigger first metric ping
     echo "[Ekscoder Agent] Running initial health check..."
