@@ -8,11 +8,11 @@
         </div>
         <div style="display: flex; gap: 10px;">
             @can('finance.manage')
-            <button onclick="openModal('modalCategory')" class="btn" style="background: rgba(255,255,255,0.08); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <button onclick="openModal('modalCategory')" class="btn" style="background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; padding: 9px 16px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Kelola Kategori
             </button>
-            <button onclick="openModal('modalTransaction')" class="btn" style="background: var(--accent); color: #000; font-weight: 700; border-radius: 8px; padding: 9px 18px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 15px var(--accent-glow);">
+            <button onclick="openModal('modalTransaction')" class="btn" style="background: var(--accent); color: var(--accent-text); font-weight: 700; border-radius: 8px; padding: 9px 18px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 15px var(--accent-glow);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Catat Transaksi Kas
             </button>
@@ -117,7 +117,7 @@
         <div id="financialChartsBody" style="padding: 20px; border-top: 1px solid var(--border); transition: all 0.3s ease;">
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
                 <!-- Chart 1: Cashflow Trend -->
-                <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
+                <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
                     <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px; display: flex; align-items: center; gap: 8px;">
                         📊 Tren Cashflow (Pemasukan vs Pengeluaran)
                     </h4>
@@ -127,7 +127,7 @@
                 </div>
 
                 <!-- Chart 2: Category Breakdown -->
-                <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
+                <div style="background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 18px;">
                     <h4 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px; display: flex; align-items: center; gap: 8px;">
                         🍕 Distribusi Pengeluaran
                     </h4>
@@ -144,28 +144,28 @@
     </div>
 
     <!-- Filter & Search Toolbar -->
-    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 20px;">
+    <div style="background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 20px;">
         <form method="GET" action="{{ route('admin.finance.index') }}" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
             <!-- Search Keyword -->
             <div style="flex: 1; min-width: 200px;">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi, kode, atau catatan..." style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px;">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari transaksi, kode, atau catatan..." style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none;">
             </div>
 
             <!-- Type Filter -->
             <div style="width: 150px;">
-                <select name="type" style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px;">
-                    <option value="">Semua Tipe</option>
-                    <option value="income" {{ request('type') == 'income' ? 'selected' : '' }}>🟢 Pemasukan</option>
-                    <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }}>🔴 Pengeluaran</option>
+                <select name="type" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="" style="background: var(--bg-surface); color: var(--text-primary);">Semua Tipe</option>
+                    <option value="income" {{ request('type') == 'income' ? 'selected' : '' }} style="background: var(--bg-surface); color: var(--text-primary);">🟢 Pemasukan</option>
+                    <option value="expense" {{ request('type') == 'expense' ? 'selected' : '' }} style="background: var(--bg-surface); color: var(--text-primary);">🔴 Pengeluaran</option>
                 </select>
             </div>
 
             <!-- Category Filter -->
             <div style="width: 180px;">
-                <select name="category_id" style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px;">
-                    <option value="">Semua Kategori</option>
+                <select name="category_id" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px 12px; font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="" style="background: var(--bg-surface); color: var(--text-primary);">Semua Kategori</option>
                     @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
+                        <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }} style="background: var(--bg-surface); color: var(--text-primary);">
                             {{ $cat->type == 'income' ? '[+]' : '[-]' }} {{ $cat->name }}
                         </option>
                     @endforeach
@@ -173,11 +173,11 @@
             </div>
 
             <!-- Submit & Reset Buttons -->
-            <button type="submit" style="background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer;">
+            <button type="submit" style="background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 13px; cursor: pointer;">
                 Filter
             </button>
             @if(request()->hasAny(['search', 'type', 'category_id', 'date_from', 'date_to']))
-                <a href="{{ route('admin.finance.index') }}" style="background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-size: 13px; text-decoration: none;">
+                <a href="{{ route('admin.finance.index') }}" style="background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; font-size: 13px; text-decoration: none;">
                     Reset
                 </a>
             @endif
@@ -280,7 +280,7 @@
 
     <!-- Modal 1: Catat Transaksi Baru -->
     <div id="modalTransaction" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-        <div style="background: var(--bg-card, #161b22); border: 1px solid var(--border); width: 100%; max-width: 520px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <div style="background: var(--bg-surface); border: 1px solid var(--border); width: 100%; max-width: 520px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0;">Catat Transaksi Kas Baru</h3>
                 <button onclick="closeModal('modalTransaction')" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">&times;</button>
@@ -291,18 +291,18 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Tipe Transaksi *</label>
-                        <select name="type" required style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
-                            <option value="expense">🔴 Pengeluaran (Kas Keluar)</option>
-                            <option value="income">🟢 Pemasukan (Kas Masuk)</option>
+                        <select name="type" required style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
+                            <option value="expense" style="background: var(--bg-surface); color: var(--text-primary);">🔴 Pengeluaran (Kas Keluar)</option>
+                            <option value="income" style="background: var(--bg-surface); color: var(--text-primary);">🟢 Pemasukan (Kas Masuk)</option>
                         </select>
                     </div>
 
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Kategori *</label>
-                        <select name="category_id" required style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
-                            <option value="">-- Pilih Kategori --</option>
+                        <select name="category_id" required style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
+                            <option value="" style="background: var(--bg-surface); color: var(--text-primary);">-- Pilih Kategori --</option>
                             @foreach($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }} ({{ ucfirst($cat->type) }})</option>
+                                <option value="{{ $cat->id }}" style="background: var(--bg-surface); color: var(--text-primary);">{{ $cat->name }} ({{ ucfirst($cat->type) }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -310,30 +310,30 @@
 
                 <div style="margin-bottom: 14px;">
                     <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Judul Transaksi *</label>
-                    <input type="text" name="title" required placeholder="Contoh: Perpanjang Server VPS DigitalOcean" style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
+                    <input type="text" name="title" required placeholder="Contoh: Perpanjang Server VPS DigitalOcean" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Nominal (Rp) *</label>
-                        <input type="text" id="amount_display" required placeholder="50.000" oninput="formatRupiahLive(this)" style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13.5px; font-weight: 600;">
+                        <input type="text" id="amount_display" required placeholder="50.000" oninput="formatRupiahLive(this)" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13.5px; font-weight: 600;">
                         <input type="hidden" name="amount" id="amount_real" required>
                     </div>
 
                     <div>
                         <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Tanggal Transaksi *</label>
-                        <input type="date" name="transaction_date" required value="{{ date('Y-m-d') }}" style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
+                        <input type="date" name="transaction_date" required value="{{ date('Y-m-d') }}" style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;">
                     </div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;">Catatan (Opsional)</label>
-                    <textarea name="notes" rows="3" placeholder="Keterangan tambahan..." style="width: 100%; background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;"></textarea>
+                    <textarea name="notes" rows="3" placeholder="Keterangan tambahan..." style="width: 100%; background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 10px; font-size: 13px;"></textarea>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button type="button" onclick="closeModal('modalTransaction')" style="background: rgba(255,255,255,0.08); color: var(--text-muted); border: none; border-radius: 8px; padding: 10px 16px; font-size: 13px; cursor: pointer;">Batal</button>
-                    <button type="submit" style="background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 700; font-size: 13px; cursor: pointer;">Simpan Transaksi</button>
+                    <button type="button" onclick="closeModal('modalTransaction')" style="background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 13px; cursor: pointer;">Batal</button>
+                    <button type="submit" style="background: var(--accent); color: var(--accent-text); border: none; border-radius: 8px; padding: 10px 20px; font-weight: 700; font-size: 13px; cursor: pointer;">Simpan Transaksi</button>
                 </div>
             </form>
         </div>
@@ -341,7 +341,7 @@
 
     <!-- Modal 2: Kelola Kategori -->
     <div id="modalCategory" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-        <div style="background: var(--bg-card, #161b22); border: 1px solid var(--border); width: 100%; max-width: 500px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        <div style="background: var(--bg-surface); border: 1px solid var(--border); width: 100%; max-width: 500px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0;">Kelola Kategori Keuangan</h3>
                 <button onclick="closeModal('modalCategory')" style="background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;">&times;</button>
@@ -351,10 +351,10 @@
             <form action="{{ route('admin.finance.categories.store') }}" method="POST" style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
                 @csrf
                 <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" name="name" required placeholder="Nama Kategori..." style="background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px; font-size: 13px;">
-                    <select name="type" required style="background: var(--bg-dark, #0d1117); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px; font-size: 12px;">
-                        <option value="expense">Pengeluaran</option>
-                        <option value="income">Pemasukan</option>
+                    <input type="text" name="name" required placeholder="Nama Kategori..." style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px; font-size: 13px;">
+                    <select name="type" required style="background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary); border-radius: 8px; padding: 9px; font-size: 12px;">
+                        <option value="expense" style="background: var(--bg-surface); color: var(--text-primary);">Pengeluaran</option>
+                        <option value="income" style="background: var(--bg-surface); color: var(--text-primary);">Pemasukan</option>
                     </select>
                     <input type="color" name="color" value="#8b5cf6" style="height: 38px; width: 100%; background: transparent; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
                 </div>
@@ -443,6 +443,11 @@
                 if (text) text.textContent = 'Buka';
             }
 
+            // Theme-aware Chart.js colors
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            const chartTextColor = isLight ? '#475569' : '#94a3b8';
+            const chartGridColor = isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+
             // Chart 1: Cashflow Trend Line Bar
             const ctxCashflow = document.getElementById('cashflowChart');
             if (ctxCashflow) {
@@ -478,12 +483,12 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: { color: '#94a3b8', font: { size: 12 } }
+                                labels: { color: chartTextColor, font: { size: 12 } }
                             }
                         },
                         scales: {
-                            x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-                            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } }
+                            x: { grid: { display: false }, ticks: { color: chartTextColor } },
+                            y: { grid: { color: chartGridColor }, ticks: { color: chartTextColor } }
                         }
                     }
                 });
@@ -513,7 +518,7 @@
                             plugins: {
                                 legend: {
                                     position: 'bottom',
-                                    labels: { color: '#94a3b8', font: { size: 11 } }
+                                    labels: { color: chartTextColor, font: { size: 11 } }
                                 }
                             }
                         }
