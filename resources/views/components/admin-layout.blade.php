@@ -819,15 +819,9 @@
         </header>
 
         <main class="page-content">
-            @if(session('success'))
-                <div class="flash flash-success">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-
             {{ $slot }}
         </main>
+
     </div>
 </div>
 

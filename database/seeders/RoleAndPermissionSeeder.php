@@ -68,7 +68,14 @@ class RoleAndPermissionSeeder extends Seeder
                 'finance.view',
                 'finance.manage',
             ],
+            'notes' => [
+                'notes.view',
+                'notes.create',
+                'notes.edit',
+                'notes.delete',
+            ],
         ];
+
 
         // Seed Default Financial Categories
         \App\Models\FinancialCategory::firstOrCreate(['name' => 'Project Payment', 'type' => 'income'], ['color' => '#10b981']);
@@ -100,7 +107,12 @@ class RoleAndPermissionSeeder extends Seeder
             'orders.edit',
             'projects.view',
             'logs.view',
+            'notes.view',
+            'notes.create',
+            'notes.edit',
+            'notes.delete',
         ]);
+
 
         // Assign 'Super Admin' role to all current users (or specific admin)
         $adminUser = User::where('email', 'admin@ekscoder.com')->first();

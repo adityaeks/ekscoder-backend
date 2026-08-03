@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'cloudflare.pin' => \App\Http\Middleware\VerifyCloudflarePin::class,
+            'vps.pin'        => \App\Http\Middleware\VerifyVpsPin::class,
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

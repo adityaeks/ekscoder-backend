@@ -1,6 +1,16 @@
 <x-admin-layout title="VPS Monitoring Analytics: {{ $vps->name }}" breadcrumb="Detailed system health, resource consumption, and historical trends">
     <x-slot name="topbarAction">
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:10px; align-items:center;">
+            <form action="{{ route('admin.vps-pin.lock') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn btn-ghost" style="padding:6px 14px; font-size:13px; border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); display:inline-flex; align-items:center; gap:6px;" title="Kunci kembali akses VPS Monitoring">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Lock VPS
+                </button>
+            </form>
             <a href="{{ route('admin.vps.edit', $vps->id) }}" class="btn btn-ghost" style="padding:6px 14px; font-size:13px; text-decoration:none;">
                 ✏️ Edit Settings
             </a>
@@ -9,6 +19,7 @@
             </a>
         </div>
     </x-slot>
+
 
     @php
         $latest = $vps->latestLog;

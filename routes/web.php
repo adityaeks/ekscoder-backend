@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\ProjectController;
+
+use App\Http\Controllers\Admin\VpsPinController;
 use App\Http\Controllers\Admin\VpsServerController;
+
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Project;
@@ -138,10 +142,23 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'can:sites.delete',
         ]);
 
-        // VPS Server Monitoring
-        Route::resource('vps', VpsServerController::class)->parameters([
-            'vps' => 'vps'
-        ]);
+        // VPS PIN Security Routes
+        Route::get('vps-pin', [VpsPinController::class, 'showPinForm'])
+            ->name('vps-pin.show');
+
+        Route::post('vps-pin', [VpsPinController::class, 'verifyPin'])
+            ->name('vps-pin.verify');
+
+        Route::post('vps-pin/lock', [VpsPinController::class, 'lockPin'])
+            ->name('vps-pin.lock');
+
+        // VPS Server Monitoring (Protected by PIN 8181)
+        Route::middleware('vps.pin')->group(function () {
+            Route::resource('vps', VpsServerController::class)->parameters([
+                'vps' => 'vps'
+            ]);
+        });
+
 
 
 
@@ -214,8 +231,24 @@ Route::middleware('auth')->group(function () {
         Route::delete('finance/categories/{category}', [FinancialController::class, 'destroyCategory'])
             ->name('finance.categories.destroy')
             ->middleware('can:finance.manage');
+
+        // Google Keep Style Notes Routes
+        Route::resource('notes', NoteController::class)
+            ->middleware([
+                'index'   => 'can:notes.view',
+                'show'    => 'can:notes.view',
+                'store'   => 'can:notes.create',
+                'update'  => 'can:notes.edit',
+                'destroy' => 'can:notes.delete',
+            ]);
+        Route::post('notes/reorder', [NoteController::class, 'reorder'])->name('notes.reorder')->middleware('can:notes.edit');
+        Route::post('notes/{note}/pin', [NoteController::class, 'togglePin'])->name('notes.pin')->middleware('can:notes.edit');
+        Route::patch('notes/{note}/color', [NoteController::class, 'updateColor'])->name('notes.color')->middleware('can:notes.edit');
+
+
     });
 });
+
 
 // Dynamic VPS Agent Installation Script Route
 Route::get('/vps-agent/{token}/install.sh', [VpsServerController::class, 'installScript'])->name('vps.install-script');

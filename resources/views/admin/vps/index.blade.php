@@ -1,10 +1,38 @@
-<x-admin-layout title="VPS Server Monitoring" breadcrumb="Real-time monitoring of Linux VPS resources (CPU, RAM, Disk & System Load)">
-    <x-slot name="topbarAction">
-        <a href="{{ route('admin.vps.create') }}" class="topbar-btn topbar-btn-primary" style="text-decoration:none;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add VPS Server
-        </a>
-    </x-slot>
+<x-admin-layout title="VPS Server Monitoring" breadcrumb="Infrastructure / VPS Monitoring">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+
+        <div>
+            <h1 style="font-size:22px; font-weight:800; color:var(--text-primary); letter-spacing:-0.5px; display:flex; align-items:center; gap:10px;">
+                <span style="display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; background:rgba(99, 102, 241, 0.15); color:#818cf8;">
+                    🖥️
+                </span>
+                VPS Server Monitoring
+            </h1>
+            <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
+                Real-time monitoring of Linux VPS resources (CPU, RAM, Disk & System Load)
+            </p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            <form action="{{ route('admin.vps-pin.lock') }}" method="POST" style="margin:0;">
+                @csrf
+                <button type="submit" class="btn btn-ghost" style="padding:9px 14px; font-size:12.5px; border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); display:inline-flex; align-items:center; gap:6px;" title="Kunci kembali akses VPS Monitoring">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Lock VPS
+                </button>
+            </form>
+
+            <a href="{{ route('admin.vps.create') }}" class="topbar-btn topbar-btn-primary" style="text-decoration:none; padding:9px 16px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add VPS Server
+            </a>
+        </div>
+    </div>
+
+
 
     <!-- Stats Grid -->
     <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:24px;">
@@ -156,7 +184,7 @@
                         <td style="text-align:right">
                             <div style="display:inline-flex; gap:6px; align-items:center;">
                                 <a href="{{ route('admin.vps.show', $server->id) }}" class="btn btn-ghost" title="View Detail & Analytics" style="padding:4px 8px; font-size:11.5px;">
-                                    📊 Analytics
+                                    📊
                                 </a>
 
                                 <a href="{{ route('admin.vps.edit', $server->id) }}" class="btn btn-ghost" title="Edit VPS" style="padding:4px 8px; font-size:11.5px;">
