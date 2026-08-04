@@ -41,12 +41,10 @@ class CalendarController extends Controller
             ->orWhereBetween('end_date', [$startOfYear, $endOfYear])
             ->get();
 
-        // 2. Project Orders Deadlines & Start Dates (Exclude cancelled orders)
+        // 2. Project Orders Deadlines (Exclude cancelled orders)
         $projectOrders = ProjectOrder::where('status', '!=', 'cancelled')
-            ->where(function ($query) use ($startOfYear, $endOfYear) {
-                $query->whereBetween('start_date', [$startOfYear->toDateString(), $endOfYear->toDateString()])
-                      ->orWhereBetween('deadline', [$startOfYear->toDateString(), $endOfYear->toDateString()]);
-            })
+            ->whereNotNull('deadline')
+            ->whereBetween('deadline', [$startOfYear->toDateString(), $endOfYear->toDateString()])
             ->get();
 
         // 3. Monitored Sites Domain Expiration
@@ -89,31 +87,11 @@ class CalendarController extends Controller
         }
 
         foreach ($projectOrders as $order) {
-            if ($order->start_date && $order->start_date->between($startOfYear, $endOfYear)) {
-                $evtObj = [
-                    'id'           => 'order_start_' . $order->id,
-                    'title'        => '🚀 ' . $order->title,
-                    'description'  => "Klien: {$order->client_name} | Budget: {$order->formatted_budget} | Status: " . ucfirst($order->status),
-                    'start_date'   => $order->start_date->format('Y-m-d'),
-                    'color'        => '#06b6d4',
-                    'category'     => 'project',
-                    'type'         => 'project_start',
-                    'is_completed' => $order->status === 'completed',
-                    'editable'     => false,
-                    'url'          => route('admin.orders.index'),
-                    'badge'        => 'Order Start',
-                ];
-                if ($order->start_date->between($startOfMonth, $endOfMonth)) {
-                    $formattedEvents[] = $evtObj;
-                }
-                $allEventsByDateYear[$order->start_date->format('Y-m-d')][] = $evtObj;
-            }
-
             if ($order->deadline && $order->deadline->between($startOfYear, $endOfYear)) {
                 $evtObj = [
                     'id'           => 'order_deadline_' . $order->id,
                     'title'        => '⏰ ' . $order->title,
-                    'description'  => "Klien: {$order->client_name} | Priority: " . ucfirst($order->priority),
+                    'description'  => "Klien: {$order->client_name} | Priority: " . ucfirst($order->priority) . " | Budget: {$order->formatted_budget}",
                     'start_date'   => $order->deadline->format('Y-m-d'),
                     'color'        => '#f43f5e',
                     'category'     => 'project',
