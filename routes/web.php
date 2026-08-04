@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\ProjectController;
 
@@ -244,6 +245,19 @@ Route::middleware('auth')->group(function () {
         Route::post('notes/reorder', [NoteController::class, 'reorder'])->name('notes.reorder')->middleware('can:notes.edit');
         Route::post('notes/{note}/pin', [NoteController::class, 'togglePin'])->name('notes.pin')->middleware('can:notes.edit');
         Route::patch('notes/{note}/color', [NoteController::class, 'updateColor'])->name('notes.color')->middleware('can:notes.edit');
+
+        // Calendar & Agenda Routes
+        Route::resource('calendar', CalendarController::class)
+            ->middleware([
+                'index'   => 'can:calendar.view',
+                'show'    => 'can:calendar.view',
+                'store'   => 'can:calendar.create',
+                'update'  => 'can:calendar.edit',
+                'destroy' => 'can:calendar.delete',
+            ]);
+        Route::patch('calendar/{calendar}/toggle-complete', [CalendarController::class, 'toggleComplete'])
+            ->name('calendar.toggle-complete')
+            ->middleware('can:calendar.edit');
 
 
     });

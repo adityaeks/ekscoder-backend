@@ -74,6 +74,12 @@ class RoleAndPermissionSeeder extends Seeder
                 'notes.edit',
                 'notes.delete',
             ],
+            'calendar' => [
+                'calendar.view',
+                'calendar.create',
+                'calendar.edit',
+                'calendar.delete',
+            ],
         ];
 
 
@@ -111,6 +117,10 @@ class RoleAndPermissionSeeder extends Seeder
             'notes.create',
             'notes.edit',
             'notes.delete',
+            'calendar.view',
+            'calendar.create',
+            'calendar.edit',
+            'calendar.delete',
         ]);
 
 
