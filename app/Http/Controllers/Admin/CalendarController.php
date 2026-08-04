@@ -41,9 +41,12 @@ class CalendarController extends Controller
             ->orWhereBetween('end_date', [$startOfYear, $endOfYear])
             ->get();
 
-        // 2. Project Orders Deadlines & Start Dates
-        $projectOrders = ProjectOrder::whereBetween('start_date', [$startOfYear->toDateString(), $endOfYear->toDateString()])
-            ->orWhereBetween('deadline', [$startOfYear->toDateString(), $endOfYear->toDateString()])
+        // 2. Project Orders Deadlines & Start Dates (Exclude cancelled orders)
+        $projectOrders = ProjectOrder::where('status', '!=', 'cancelled')
+            ->where(function ($query) use ($startOfYear, $endOfYear) {
+                $query->whereBetween('start_date', [$startOfYear->toDateString(), $endOfYear->toDateString()])
+                      ->orWhereBetween('deadline', [$startOfYear->toDateString(), $endOfYear->toDateString()]);
+            })
             ->get();
 
         // 3. Monitored Sites Domain Expiration
