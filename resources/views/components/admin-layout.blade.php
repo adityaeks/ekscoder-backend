@@ -749,7 +749,14 @@
     </style>
 </head>
 <body>
-<div class="admin-layout">
+<div class="admin-layout" id="adminLayout">
+    <script>
+        (function() {
+            if (localStorage.getItem('ekscoder_sidebar_collapsed') === 'true') {
+                document.getElementById('adminLayout').classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
 
     @include('layouts.sidebar')
 

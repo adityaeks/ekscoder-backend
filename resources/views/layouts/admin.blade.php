@@ -894,7 +894,14 @@
     </style>
 </head>
 <body>
-<div class="admin-layout">
+<div class="admin-layout" id="adminLayoutBase">
+    <script>
+        (function() {
+            if (localStorage.getItem('ekscoder_sidebar_collapsed') === 'true') {
+                document.getElementById('adminLayoutBase').classList.add('sidebar-collapsed');
+            }
+        })();
+    </script>
 
     <!-- Sidebar Overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
