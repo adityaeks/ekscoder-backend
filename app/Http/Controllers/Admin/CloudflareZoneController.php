@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\CloudflareService;
+use App\Services\DomainExpirationService;
 use Illuminate\Http\Request;
 use Exception;
 
 class CloudflareZoneController extends Controller
 {
     protected CloudflareService $cloudflare;
+    protected DomainExpirationService $domainExpirationService;
 
-    public function __construct(CloudflareService $cloudflare)
+    public function __construct(CloudflareService $cloudflare, DomainExpirationService $domainExpirationService)
     {
         $this->cloudflare = $cloudflare;
+        $this->domainExpirationService = $domainExpirationService;
     }
 
     /**
@@ -24,6 +27,7 @@ class CloudflareZoneController extends Controller
         $zones = [];
         $error = null;
         $isConfigured = $this->cloudflare->isConfigured();
+        $forceRefresh = $request->boolean('refresh_exp');
 
         if ($isConfigured) {
             try {
@@ -34,6 +38,12 @@ class CloudflareZoneController extends Controller
                 }
                 $response = $this->cloudflare->getZones($params);
                 $zones = $response['result'] ?? [];
+
+                foreach ($zones as &$z) {
+                    $domainName = $z['name'] ?? '';
+                    $z['expiration'] = $this->domainExpirationService->getExpirationInfo($domainName, $forceRefresh);
+                }
+                unset($z);
             } catch (Exception $e) {
                 $error = $e->getMessage();
             }
@@ -73,7 +83,7 @@ class CloudflareZoneController extends Controller
     /**
      * Display Zone detail page (DNS Records, Cache, Security, SSL).
      */
-    public function show(string $zoneId)
+    public function show(string $zoneId, Request $request)
     {
         try {
             $zoneResponse = $this->cloudflare->getZone($zoneId);
@@ -82,6 +92,9 @@ class CloudflareZoneController extends Controller
             if (!$zone) {
                 return redirect()->route('admin.cloudflare-zones.index')->with('error', 'Zone tidak ditemukan.');
             }
+
+            $forceRefresh = $request->boolean('refresh_exp');
+            $zone['expiration'] = $this->domainExpirationService->getExpirationInfo($zone['name'] ?? '', $forceRefresh);
 
             // Fetch DNS Records
             $dnsRecords = [];

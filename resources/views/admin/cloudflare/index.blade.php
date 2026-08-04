@@ -89,6 +89,7 @@
         @php
             $activeCount = count(array_filter($zones, fn($z) => ($z['status'] ?? '') === 'active'));
             $pendingCount = count(array_filter($zones, fn($z) => ($z['status'] ?? '') === 'pending'));
+            $warningCount = count(array_filter($zones, fn($z) => in_array($z['expiration']['status'] ?? '', ['warning', 'expired'])));
         @endphp
         <div class="stats-grid">
             <div class="stat-card accent">
@@ -117,6 +118,15 @@
                 <div class="stat-value">{{ $pendingCount }}</div>
                 <div class="stat-meta">Menunggu perubahan Nameserver</div>
             </div>
+
+            <div class="stat-card {{ $warningCount > 0 ? 'rose' : 'purple' }}">
+                <div class="stat-top">
+                    <span class="stat-label">Domain Expired Alert</span>
+                    <div class="stat-icon {{ $warningCount > 0 ? 'rose' : 'purple' }}" style="color:{{ $warningCount > 0 ? 'var(--rose)' : '#a09af8' }};">📅</div>
+                </div>
+                <div class="stat-value">{{ $warningCount }}</div>
+                <div class="stat-meta">Domain &lt; 60 hari / expired</div>
+            </div>
         </div>
 
         {{-- Main Data Table --}}
@@ -128,8 +138,11 @@
                 </div>
 
                 <form method="GET" action="{{ route('admin.cloudflare-zones.index') }}" style="display:flex; gap:8px;">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari domain..." class="form-input" style="width:220px; padding:7px 12px; font-size:12.5px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; color:var(--text-primary);">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari domain..." class="form-input" style="width:200px; padding:7px 12px; font-size:12.5px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; color:var(--text-primary);">
                     <button type="submit" class="btn btn-secondary" style="background:var(--bg-hover); color:var(--text-primary); border:1px solid var(--border); border-radius:8px; padding:7px 14px;">Cari</button>
+                    <a href="{{ route('admin.cloudflare-zones.index', array_merge(request()->query(), ['refresh_exp' => 1])) }}" class="btn btn-secondary" style="background:var(--bg-elevated); color:var(--text-muted); border:1px solid var(--border); border-radius:8px; padding:7px 12px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="Refresh WHOIS/RDAP Expiration Data">
+                        🔄 Refresh
+                    </a>
                 </form>
             </div>
 
@@ -145,10 +158,11 @@
                         <thead>
                             <tr>
                                 <th>Nama Domain</th>
+                                <th>Expired Domain</th>
                                 <th>Status</th>
                                 <th>Plan</th>
                                 <th>Name Servers (NS)</th>
-                                <th>Development Mode</th>
+                                <!-- <th>Development Mode</th> -->
                                 <th style="text-align:right;">Aksi</th>
                             </tr>
                         </thead>
@@ -162,6 +176,29 @@
                                             </a>
                                         </div>
                                         <div style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono', monospace; margin-top:2px;">ID: {{ $z['id'] }}</div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $exp = $z['expiration'] ?? [];
+                                        @endphp
+                                        @if(!empty($exp['formatted']) && $exp['formatted'] !== 'Tidak Terdeteksi')
+                                            <div style="font-weight:600; color:var(--text-primary); font-size:13px; display:flex; align-items:center; gap:6px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);">
+                                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                                </svg>
+                                                {{ $exp['formatted'] }}
+                                            </div>
+                                            <div style="margin-top:4px;">
+                                                <span class="badge {{ $exp['badge_class'] ?? 'badge-gray' }}" style="font-size:11px;">
+                                                    <span class="badge-dot"></span> {{ $exp['human'] }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span style="color:var(--text-muted); font-size:12px;">Tidak Terdeteksi</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if(($z['status'] ?? '') === 'active')
@@ -188,13 +225,13 @@
                                             <span style="color:var(--text-muted); font-size:12px;">Default / Managed</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <!-- <td>
                                         @if(!empty($z['development_mode']) && $z['development_mode'] > 0)
                                             <span class="badge badge-amber">⚡ ON</span>
                                         @else
                                             <span style="color:var(--text-muted); font-size:12px;">OFF</span>
                                         @endif
-                                    </td>
+                                    </td> -->
                                     <td style="text-align:right;">
                                         <div style="display:inline-flex; gap:6px;">
                                             <a href="{{ route('admin.cloudflare-zones.show', $z['id']) }}" class="btn btn-sm" style="background:rgba(245, 124, 0, 0.12); color:#f57c00; border:1px solid rgba(245, 124, 0, 0.25); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; text-decoration:none;">

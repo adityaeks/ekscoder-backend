@@ -52,21 +52,28 @@ class NoteController extends Controller
 
         if ($request->has('pinned')) {
             foreach ((array)$request->input('pinned') as $index => $id) {
-                Note::where('id', $id)->where('user_id', Auth::id())->update([
-                    'is_pinned' => true,
-                    'sort_order' => $index,
-                ]);
+                $note = Note::where('id', $id)->where('user_id', Auth::id())->first();
+                if ($note) {
+                    $note->update([
+                        'is_pinned' => true,
+                        'sort_order' => $index,
+                    ]);
+                }
             }
         }
 
         if ($request->has('others')) {
             foreach ((array)$request->input('others') as $index => $id) {
-                Note::where('id', $id)->where('user_id', Auth::id())->update([
-                    'is_pinned' => false,
-                    'sort_order' => $index,
-                ]);
+                $note = Note::where('id', $id)->where('user_id', Auth::id())->first();
+                if ($note) {
+                    $note->update([
+                        'is_pinned' => false,
+                        'sort_order' => $index,
+                    ]);
+                }
             }
         }
+
 
         return response()->json(['status' => 'success', 'message' => 'Urutan catatan berhasil diperbarui']);
     }

@@ -8,7 +8,7 @@
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
             <div>
-                <h1 style="font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.5px; display:flex; align-items:center; gap:12px;">
+                <h1 style="font-size:24px; font-weight:800; color:var(--text-primary); letter-spacing:-0.5px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                     🌐 {{ $zone['name'] }}
                     @if(($zone['status'] ?? '') === 'active')
                         <span class="badge badge-green" style="font-size:12px; padding:4px 10px;"><span class="badge-dot"></span> Active</span>
@@ -16,6 +16,12 @@
                         <span class="badge badge-amber" style="font-size:12px; padding:4px 10px;"><span class="badge-dot"></span> Pending NS</span>
                     @else
                         <span class="badge badge-rose" style="font-size:12px; padding:4px 10px;"><span class="badge-dot"></span> {{ ucfirst($zone['status'] ?? 'Unknown') }}</span>
+                    @endif
+
+                    @if(!empty($zone['expiration']['formatted']) && $zone['expiration']['formatted'] !== 'Tidak Terdeteksi')
+                        <span class="badge {{ $zone['expiration']['badge_class'] ?? 'badge-gray' }}" style="font-size:12px; padding:4px 10px;" title="Tanggal Expired Domain">
+                            📅 Expired: {{ $zone['expiration']['formatted'] }} ({{ $zone['expiration']['human'] }})
+                        </span>
                     @endif
                 </h1>
                 <p style="font-size:12.5px; color:var(--text-muted); margin-top:4px; font-family:'JetBrains Mono', monospace;">
