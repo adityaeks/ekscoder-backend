@@ -14,3 +14,13 @@ Route::get('/projects', function () {
 
 Route::post('/vps/ping', [\App\Http\Controllers\Api\VpsApiController::class, 'ping']);
 
+// Public Blog API Endpoints
+Route::prefix('posts')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\BlogPostApiController::class, 'index'])->name('api.posts.index');
+    Route::get('/featured', [\App\Http\Controllers\Api\BlogPostApiController::class, 'featured'])->name('api.posts.featured');
+    Route::get('/{slug}', [\App\Http\Controllers\Api\BlogPostApiController::class, 'show'])->name('api.posts.show');
+});
+
+Route::get('/blog-categories', [\App\Http\Controllers\Api\BlogPostApiController::class, 'categories'])->name('api.blog-categories.index');
+
+

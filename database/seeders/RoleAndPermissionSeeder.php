@@ -80,6 +80,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'calendar.edit',
                 'calendar.delete',
             ],
+            'posts' => [
+                'posts.view',
+                'posts.create',
+                'posts.edit',
+                'posts.delete',
+                'posts.publish',
+            ],
         ];
 
 

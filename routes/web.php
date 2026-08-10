@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\CalendarController;
 use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\BlogPostController;
+use App\Http\Controllers\Admin\BlogCategoryController;
 
 use App\Http\Controllers\Admin\VpsPinController;
 use App\Http\Controllers\Admin\VpsServerController;
@@ -258,6 +260,32 @@ Route::middleware('auth')->group(function () {
         Route::patch('calendar/{calendar}/toggle-complete', [CalendarController::class, 'toggleComplete'])
             ->name('calendar.toggle-complete')
             ->middleware('can:calendar.edit');
+
+        // Blog Posts & Categories Routes
+        Route::patch('posts/{post}/toggle-publish', [BlogPostController::class, 'togglePublish'])
+            ->name('posts.toggle-publish')
+            ->middleware('can:posts.publish');
+
+        Route::patch('posts/{post}/toggle-featured', [BlogPostController::class, 'toggleFeatured'])
+            ->name('posts.toggle-featured')
+            ->middleware('can:posts.edit');
+
+        Route::resource('posts', BlogPostController::class)->middleware([
+            'index'   => 'can:posts.view',
+            'show'    => 'can:posts.view',
+            'create'  => 'can:posts.create',
+            'store'   => 'can:posts.create',
+            'edit'    => 'can:posts.edit',
+            'update'  => 'can:posts.edit',
+            'destroy' => 'can:posts.delete',
+        ]);
+
+        Route::resource('blog-categories', BlogCategoryController::class)->except(['create', 'show', 'edit'])->middleware([
+            'index'   => 'can:posts.view',
+            'store'   => 'can:posts.create',
+            'update'  => 'can:posts.edit',
+            'destroy' => 'can:posts.delete',
+        ]);
 
 
     });

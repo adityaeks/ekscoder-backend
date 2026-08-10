@@ -64,7 +64,7 @@
 
 
         @can('projects.view')
-        <div class="nav-section-label" style="margin-top:16px;">Manage Web Porto & Monitoring</div>
+        <div class="nav-section-label" style="margin-top:16px;">Manage Web Porto & Content</div>
 
         <a href="{{ route('admin.projects.index') }}" class="nav-item {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}" title="Projects">
             <div class="nav-icon">
@@ -74,6 +74,17 @@
         </a>
         @endcan
 
+        @can('posts.view')
+        <a href="{{ route('admin.posts.index') }}" class="nav-item {{ request()->routeIs('admin.posts.*') || request()->routeIs('admin.blog-categories.*') ? 'active' : '' }}" title="Blog & Artikel">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <span class="nav-text">Blog & Artikel</span>
+        </a>
+        @endcan
+
+        
+        <div class="nav-section-label" style="margin-top:16px;">Infrastructure</div>
         @can('sites.view')
         <a href="{{ route('admin.sites.index') }}" class="nav-item {{ request()->routeIs('admin.sites.*') ? 'active' : '' }}" title="Website Monitoring">
             <div class="nav-icon">
@@ -82,8 +93,6 @@
             <span class="nav-text">Website Monitoring</span>
         </a>
         @endcan
-
-        <div class="nav-section-label" style="margin-top:16px;">Infrastructure</div>
         <a href="{{ route('admin.vps.index') }}" class="nav-item {{ request()->routeIs('admin.vps.*') ? 'active' : '' }}" title="VPS Monitoring">
             <div class="nav-icon" style="color:#6366f1;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
