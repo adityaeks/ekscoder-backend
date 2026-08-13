@@ -87,6 +87,11 @@ class RoleAndPermissionSeeder extends Seeder
                 'posts.delete',
                 'posts.publish',
             ],
+            'ai_chat' => [
+                'ai_chat.view',
+                'ai_chat.create',
+                'ai_chat.delete',
+            ],
         ];
 
 

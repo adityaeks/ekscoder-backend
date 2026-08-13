@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\NoteController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\BlogCategoryController;
+use App\Http\Controllers\Admin\AiChatController;
 
 use App\Http\Controllers\Admin\VpsPinController;
 use App\Http\Controllers\Admin\VpsServerController;
@@ -262,6 +263,10 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:calendar.edit');
 
         // Blog Posts & Categories Routes
+        Route::post('posts/generate-ai', [BlogPostController::class, 'generateAiArticle'])
+            ->name('posts.generate-ai')
+            ->middleware('can:posts.create');
+
         Route::patch('posts/{post}/toggle-publish', [BlogPostController::class, 'togglePublish'])
             ->name('posts.toggle-publish')
             ->middleware('can:posts.publish');
@@ -287,6 +292,20 @@ Route::middleware('auth')->group(function () {
             'destroy' => 'can:posts.delete',
         ]);
 
+        // AI Chat (9Router) Routes
+        Route::prefix('ai-chat')->name('ai-chat.')->group(function () {
+            Route::get('/', [AiChatController::class, 'index'])->name('index');
+            Route::get('/models', [AiChatController::class, 'getModels'])->name('models');
+            Route::get('/conversations', [AiChatController::class, 'getConversations'])->name('conversations.index');
+            Route::post('/conversations', [AiChatController::class, 'storeConversation'])->name('conversations.store');
+            Route::put('/conversations/{id}', [AiChatController::class, 'updateConversation'])->name('conversations.update');
+            Route::delete('/conversations/{id}', [AiChatController::class, 'destroyConversation'])->name('conversations.destroy');
+            Route::get('/conversations/{id}/messages', [AiChatController::class, 'getMessages'])->name('messages.index');
+            Route::delete('/conversations/{id}/messages', [AiChatController::class, 'clearMessages'])->name('messages.clear');
+            Route::post('/send', [AiChatController::class, 'sendMessage'])->name('send');
+            Route::post('/settings', [AiChatController::class, 'saveSettings'])->name('settings.save');
+            Route::post('/test-connection', [AiChatController::class, 'testConnection'])->name('test-connection');
+        });
 
     });
 });

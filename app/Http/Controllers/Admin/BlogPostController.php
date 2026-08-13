@@ -173,4 +173,77 @@ class BlogPostController extends Controller
 
         return redirect()->back()->with('success', "Post featured status updated");
     }
+
+    /**
+     * Generate blog post content & Meta SEO using AI (9Router Gateway).
+     */
+    public function generateAiArticle(Request $request, \App\Services\NineRouterService $nineRouterService)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'nullable|string|max:1000',
+        ]);
+
+        $title = trim($request->input('title'));
+        $excerpt = trim($request->input('excerpt', ''));
+
+        $systemPrompt = "Anda adalah seorang pakar penulisan artikel blog dan spesialis SEO profesional. Tugas Anda adalah menulis artikel blog mendalam berstruktur Markdown rapi (gunakan ## untuk subjudul, **bold** untuk penekanan, dan ```bash untuk perintah terminal) dan membuat Meta Title dan Meta Keywords yang dioptimalkan untuk Google Search.
+
+Kembalikan jawaban WAJIB hanya dalam format JSON valid berikut (tanpa blok ```json):
+{
+  \"content\": \"Isi artikel lengkap dalam format Markdown murni (## Subjudul, **teks bold**, ```bash kode)...\",
+  \"meta_title\": \"Meta Title yang menarik dan ter-SEO (max 60 karakter)\",
+  \"meta_keywords\": \"kata kunci 1, kata kunci 2, kata kunci 3, kata kunci 4\"
+}";
+
+        $userPrompt = "Judul Artikel: {$title}";
+        if (!empty($excerpt)) {
+            $userPrompt .= "\nRingkasan / Konteks Tambahan: {$excerpt}";
+        }
+        $userPrompt .= "\n\nTuliskan artikel lengkap dan buatkan Meta SEO sekarang dalam format JSON Bahasa Indonesia.";
+
+        try {
+            $messages = [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $userPrompt]
+            ];
+
+            $responseRaw = $nineRouterService->getChatCompletions($messages, 'Spark');
+            
+            if (!empty($responseRaw)) {
+                // Clean markdown codeblocks if AI wraps JSON in ```json
+                $cleanJson = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', trim($responseRaw));
+                $parsed = json_decode($cleanJson, true);
+
+                $rawContent = '';
+                $metaTitle = Str::limit($title, 60);
+                $metaKeywords = strtolower(implode(', ', array_filter(explode(' ', preg_replace('/[^a-zA-Z0-9 ]/', '', $title)))));
+
+                if (json_last_error() === JSON_ERROR_NONE && is_array($parsed) && isset($parsed['content'])) {
+                    $rawContent = $parsed['content'];
+                    $metaTitle = $parsed['meta_title'] ?? $metaTitle;
+                    $metaKeywords = $parsed['meta_keywords'] ?? $metaKeywords;
+                } else {
+                    $rawContent = $responseRaw;
+                }
+
+                return response()->json([
+                    'success'       => true,
+                    'content'       => trim($rawContent),
+                    'meta_title'    => $metaTitle,
+                    'meta_keywords' => $metaKeywords,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mendapatkan respon dari AI Gateway (Respon Kosong).'
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memproses AI: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
