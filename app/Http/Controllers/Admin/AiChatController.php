@@ -9,6 +9,7 @@ use App\Models\AiSetting;
 use App\Services\AiDatabaseQueryService;
 use App\Services\DatabaseSchemaService;
 use App\Services\NineRouterService;
+use App\Services\WebScraperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,15 +19,18 @@ class AiChatController extends Controller
     protected NineRouterService $nineRouterService;
     protected DatabaseSchemaService $schemaService;
     protected AiDatabaseQueryService $queryService;
+    protected WebScraperService $scraperService;
 
     public function __construct(
         NineRouterService $nineRouterService,
         DatabaseSchemaService $schemaService,
-        AiDatabaseQueryService $queryService
+        AiDatabaseQueryService $queryService,
+        WebScraperService $scraperService
     ) {
         $this->nineRouterService = $nineRouterService;
         $this->schemaService     = $schemaService;
         $this->queryService      = $queryService;
+        $this->scraperService    = $scraperService;
     }
 
     /**
@@ -177,14 +181,20 @@ class AiChatController extends Controller
     {
         $request->validate([
             'conversation_id' => 'required|exists:ai_conversations,id',
-            'message'         => 'required|string',
+            'message'         => 'nullable|string',
             'model'           => 'nullable|string',
+            'images'          => 'nullable|array',
+            'images.*'        => 'string',
         ]);
 
         $conversation = AiConversation::where('user_id', Auth::id())
             ->findOrFail($request->input('conversation_id'));
 
-        $userContent = trim($request->input('message'));
+        $userContent = trim((string) $request->input('message', ''));
+        $images = $request->input('images', []);
+        if (empty($userContent) && !empty($images)) {
+            $userContent = 'Tolong jelaskan dan analisa gambar ini.';
+        }
         $model = $request->input('model') ?: ($conversation->model ?: $this->nineRouterService->getDefaultModel());
 
         // Update conversation model if changed
@@ -193,11 +203,12 @@ class AiChatController extends Controller
             $conversation->save();
         }
 
-        // Save User Message
+        // Save User Message with optional images
         AiMessage::create([
             'ai_conversation_id' => $conversation->id,
             'role'               => 'user',
             'content'            => $userContent,
+            'images'             => !empty($images) ? $images : null,
         ]);
 
         // Auto-generate title if it's the first user message & default title
@@ -237,16 +248,63 @@ class AiChatController extends Controller
             ];
         }
 
-        // History messages
+        // History messages (with Multimodal Vision support)
         $history = $conversation->messages()->get();
         foreach ($history as $msg) {
+            if ($msg->role === 'user' && !empty($msg->images) && is_array($msg->images)) {
+                $contentParts = [
+                    [
+                        'type' => 'text',
+                        'text' => $msg->content ?: 'Lihat gambar terlampir.',
+                    ],
+                ];
+                foreach ($msg->images as $imgUrl) {
+                    $contentParts[] = [
+                        'type'      => 'image_url',
+                        'image_url' => [
+                            'url' => $imgUrl,
+                        ],
+                    ];
+                }
+                $formattedMessages[] = [
+                    'role'    => 'user',
+                    'content' => $contentParts,
+                ];
+            } else {
+                $formattedMessages[] = [
+                    'role'    => $msg->role,
+                    'content' => $msg->content,
+                ];
+            }
+        }
+
+        // 1. Detect if user message contains URL(s) to browse/scrape
+        $extractedUrls = $this->scraperService->extractUrls($userContent);
+        if (!empty($extractedUrls)) {
+            $browseContext = "HASIL BROWSING / PENGAMBILAN KONTEN WEBSITE SECARA REAL-TIME OLEH SISTEM:\n\n";
+            // Limit up to 2 URLs per message to avoid overloading
+            $targetUrls = array_slice($extractedUrls, 0, 2);
+            foreach ($targetUrls as $url) {
+                $browseResult = $this->scraperService->browseUrl($url);
+                if ($browseResult['success']) {
+                    $browseContext .= "=== URL: {$browseResult['url']} (Judul: {$browseResult['title']}) ===\n" .
+                        $browseResult['content'] . "\n\n";
+                } else {
+                    $browseContext .= "=== URL: {$browseResult['url']} ===\n" .
+                        "[Gagal mengambil konten: {$browseResult['error']}]\n\n";
+                }
+            }
+
+            $browseContext .= "PETUNJUK KEPADA AI:\n" .
+                "Gunakan informasi dan data dari halaman website di atas untuk menjawab dan menganalisis pertanyaan pengguna secara komprehensif, akurat, dan ramah dalam bahasa Indonesia.";
+
             $formattedMessages[] = [
-                'role'    => $msg->role,
-                'content' => $msg->content,
+                'role'    => 'system',
+                'content' => $browseContext,
             ];
         }
 
-        // Detect if user message relates to database queries (e.g. kas, transaksi, order, user, server, blog, total, saldo)
+        // 2. Detect if user message relates to database queries (e.g. kas, transaksi, order, user, server, blog, total, saldo)
         $dbKeywords = ['kas', 'transaksi', 'uang', 'pemasukan', 'pengeluaran', 'saldo', 'total', 'proyek', 'project', 'order', 'client', 'server', 'vps', 'blog', 'artikel', 'user', 'pengguna', 'database', 'db', 'keuangan', 'laporan', 'berapa'];
         $isDbQuery = false;
         foreach ($dbKeywords as $kw) {

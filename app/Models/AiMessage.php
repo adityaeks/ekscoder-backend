@@ -13,7 +13,12 @@ class AiMessage extends Model
         'ai_conversation_id',
         'role',
         'content',
+        'images',
         'tokens',
+    ];
+
+    protected $casts = [
+        'images' => 'array',
     ];
 
     public function conversation()

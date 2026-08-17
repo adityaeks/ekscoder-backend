@@ -650,10 +650,101 @@
             box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
         }
 
-        .btn-send-message:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            box-shadow: none;
+        .btn-attach-image {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary, #9999a8);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .btn-attach-image:hover {
+            color: var(--green, #22c55e);
+            background: var(--bg-hover, #1c1c28);
+        }
+
+        .image-attachment-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-surface, #111118);
+            border: 1px solid var(--border-light, rgba(255, 255, 255, 0.12));
+            border-bottom: none;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .image-attachment-item {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--green, #22c55e);
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-attachment-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-remove-attachment {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #ffffff;
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-remove-attachment:hover {
+            background: var(--rose, #f43f5e);
+        }
+
+        /* Message Bubble Images */
+        .chat-msg-images-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .chat-msg-image-thumb {
+            max-width: 260px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light, rgba(255, 255, 255, 0.15));
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            object-fit: contain;
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .chat-msg-image-thumb:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            border-color: var(--green, #22c55e);
         }
 
         /* Typing Dots Animation */
@@ -833,14 +924,27 @@
 
                 <!-- Input Footer -->
                 <div class="chat-footer-input-area">
-                    <div class="chat-input-box">
-                        <textarea class="prompt-textarea" id="chatInput" rows="1" placeholder="Ketik pesan Anda... (Enter untuk kirim, Shift+Enter baris baru)" onkeydown="handleInputKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+                    <div id="imageAttachmentBar" class="image-attachment-bar" style="display:none;"></div>
+                    <div class="chat-input-box" id="chatInputBox">
+                        <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none;" onchange="handleImageFileSelect(event)">
+                        <button type="button" class="btn-attach-image" onclick="document.getElementById('imageFileInput').click()" title="Unggah / Lampirkan Gambar (Bisa juga langsung Paste Ctrl+V)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </button>
+                        <textarea class="prompt-textarea" id="chatInput" rows="1" placeholder="Ketik pesan atau Paste (Ctrl+V) gambar... (Enter untuk kirim)" onkeydown="handleInputKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
                         <button class="btn-send-message" id="sendBtn" onclick="sendMessage()" title="Kirim Pesan">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox Modal -->
+    <div class="modal-glass-backdrop" id="imageLightboxModal" onclick="closeImageLightbox()">
+        <div style="position:relative; max-width:90vw; max-height:90vh; display:flex; justify-content:center; align-items:center;" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" style="max-width:90vw; max-height:85vh; border-radius:12px; object-fit:contain; box-shadow:0 20px 50px rgba(0,0,0,0.8); border:1px solid var(--border-light);">
+            <button onclick="closeImageLightbox()" style="position:absolute; top:-14px; right:-14px; background:var(--rose, #f43f5e); color:#fff; border:none; width:32px; height:32px; border-radius:50%; font-size:15px; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center;">✕</button>
         </div>
     </div>
 
@@ -912,6 +1016,7 @@
         let activeConversations = [];
         let isSending = false;
         let confirmResolver = null;
+        let attachedImages = [];
 
         const SVG_ICONS = {
             chat: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
@@ -950,6 +1055,26 @@
             loadConversations();
             load9RouterModels();
             test9RouterConnection();
+
+            // Global paste listener for images (Ctrl+V)
+            window.addEventListener('paste', function(e) {
+                if (e.clipboardData && e.clipboardData.items) {
+                    const items = e.clipboardData.items;
+                    let hasImage = false;
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type.indexOf('image') !== -1) {
+                            const file = items[i].getAsFile();
+                            if (file) {
+                                readAndAddImageFile(file);
+                                hasImage = true;
+                            }
+                        }
+                    }
+                    if (hasImage) {
+                        e.preventDefault();
+                    }
+                }
+            });
         });
 
         /* Custom Confirmation Modal Function */
@@ -1121,7 +1246,7 @@
                     } else {
                         container.innerHTML = '';
                         messages.forEach(msg => {
-                            appendMessageBubble(msg.role, msg.content);
+                            appendMessageBubble(msg.role, msg.content, msg.images);
                         });
                     }
                     scrollToBottom();
@@ -1129,6 +1254,75 @@
             } catch (e) {
                 console.error('Error loading messages:', e);
                 container.innerHTML = `<div style="color:var(--rose, #f43f5e); padding:20px; text-align:center;">Gagal memuat riwayat pesan.</div>`;
+            }
+        }
+
+        /* Image Attachment & Lightbox Functions */
+        function handleImageFileSelect(e) {
+            const files = e.target.files;
+            if (!files || !files.length) return;
+            for (let i = 0; i < files.length; i++) {
+                readAndAddImageFile(files[i]);
+            }
+            e.target.value = '';
+        }
+
+        function readAndAddImageFile(file) {
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('Ukuran gambar maksimal 10MB.', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                attachedImages.push(evt.target.result);
+                renderAttachedImagesPreview();
+                showToast('Gambar siap dikirim!', 'success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderAttachedImagesPreview() {
+            const bar = document.getElementById('imageAttachmentBar');
+            const box = document.getElementById('chatInputBox');
+            if (!attachedImages.length) {
+                bar.style.display = 'none';
+                if (box) {
+                    box.style.borderTopLeftRadius = '12px';
+                    box.style.borderTopRightRadius = '12px';
+                }
+                return;
+            }
+            bar.style.display = 'flex';
+            if (box) {
+                box.style.borderTopLeftRadius = '0';
+                box.style.borderTopRightRadius = '0';
+            }
+            bar.innerHTML = attachedImages.map((img, idx) => `
+                <div class="image-attachment-item">
+                    <img src="${img}" alt="Attachment">
+                    <button type="button" class="btn-remove-attachment" onclick="removeAttachedImage(${idx})" title="Hapus Gambar">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeAttachedImage(idx) {
+            attachedImages.splice(idx, 1);
+            renderAttachedImagesPreview();
+        }
+
+        function openImageLightbox(src) {
+            const modal = document.getElementById('imageLightboxModal');
+            const img = document.getElementById('lightboxImg');
+            if (modal && img) {
+                img.src = src;
+                modal.classList.add('active');
+            }
+        }
+
+        function closeImageLightbox() {
+            const modal = document.getElementById('imageLightboxModal');
+            if (modal) {
+                modal.classList.remove('active');
             }
         }
 
@@ -1218,7 +1412,7 @@
             el.style.height = Math.min(el.scrollHeight, 140) + 'px';
         }
 
-        function appendMessageBubble(role, content = '') {
+        function appendMessageBubble(role, content = '', images = []) {
             const container = document.getElementById('chatMessagesContainer');
             const emptyEl = container.querySelector('.chat-empty-wrapper');
             if (emptyEl) {
@@ -1229,11 +1423,19 @@
             row.className = `chat-msg-row ${role}`;
 
             const avatarIcon = role === 'user' ? SVG_ICONS.user : SVG_ICONS.bot;
-            const parsedHTML = role === 'assistant' ? formatAssistantMarkdown(content) : escapeHtml(content).replace(/\n/g, '<br>');
+            const parsedHTML = role === 'assistant' ? formatAssistantMarkdown(content) : (content ? escapeHtml(content).replace(/\n/g, '<br>') : '');
+
+            let imagesHtml = '';
+            if (images && images.length) {
+                imagesHtml = `<div class="chat-msg-images-grid">` +
+                    images.map(img => `<img src="${img}" class="chat-msg-image-thumb" onclick="openImageLightbox('${img}')" title="Klik untuk memperbesar gambar" alt="Attachment">`).join('') +
+                    `</div>`;
+            }
 
             row.innerHTML = `
                 <div class="chat-msg-avatar">${avatarIcon}</div>
                 <div class="chat-msg-bubble">
+                    ${imagesHtml}
                     <div class="bubble-content-text">${parsedHTML}</div>
                     ${role === 'assistant' && content ? `
                         <div class="bubble-footer-actions">
@@ -1316,7 +1518,11 @@
 
             const inputEl = document.getElementById('chatInput');
             const userText = inputEl.value.trim();
-            if (!userText) return;
+            if (!userText && attachedImages.length === 0) return;
+
+            const currentImages = [...attachedImages];
+            attachedImages = [];
+            renderAttachedImagesPreview();
 
             inputEl.value = '';
             inputEl.style.height = 'auto';
@@ -1327,7 +1533,7 @@
             // Create new conversation in DB on first message if draft mode
             if (!currentConversationId) {
                 try {
-                    const firstLine = userText.split('\n')[0].trim();
+                    const firstLine = userText ? userText.split('\n')[0].trim() : 'Analisa Gambar';
                     const titleText = firstLine.length > 80 ? firstLine.substring(0, 80) + '...' : (firstLine || 'Percakapan Baru');
                     const res = await fetch("{{ route('admin.ai-chat.conversations.store') }}", {
                         method: 'POST',
@@ -1355,7 +1561,7 @@
                 }
             }
 
-            appendMessageBubble('user', userText);
+            appendMessageBubble('user', userText, currentImages);
 
             const assistantBubble = appendMessageBubble('assistant', '');
             assistantBubble.innerHTML = `
@@ -1379,6 +1585,7 @@
                     body: JSON.stringify({
                         conversation_id: currentConversationId,
                         message: userText,
+                        images: currentImages,
                         model: selectedModel
                     })
                 });
