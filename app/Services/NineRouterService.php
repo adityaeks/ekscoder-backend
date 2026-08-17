@@ -241,10 +241,11 @@ class NineRouterService
      *
      * @param array $messages
      * @param string|null $model
+     * @param int $timeout
      * @return string
      * @throws \Exception
      */
-    public function getChatCompletions(array $messages, ?string $model = null): string
+    public function getChatCompletions(array $messages, ?string $model = null, int $timeout = 90): string
     {
         $baseUrl = $this->getBaseUrl();
         $apiKey = $this->getApiKey();
@@ -256,7 +257,7 @@ class NineRouterService
             'Authorization' => "Bearer {$apiKey}",
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->timeout(30)->post($endpoint, [
+        ])->timeout($timeout)->post($endpoint, [
             'model' => $model,
             'messages' => $messages,
             'stream' => false,
@@ -267,6 +268,16 @@ class NineRouterService
             return $data['choices'][0]['message']['content'] ?? '';
         }
 
-        throw new \Exception("9Router HTTP Error (" . $response->status() . "): " . $response->body());
+        $errorMsg = $response->body();
+        $json = $response->json();
+        if (is_array($json)) {
+            if (isset($json['error']['message'])) {
+                $errorMsg = $json['error']['message'];
+            } elseif (isset($json['message'])) {
+                $errorMsg = $json['message'];
+            }
+        }
+
+        throw new \Exception("9Router HTTP Error (" . $response->status() . "): " . $errorMsg);
     }
 }

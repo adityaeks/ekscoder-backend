@@ -289,7 +289,7 @@
                         </div>
 
                         <!-- 2. Form Textarea for POST submission -->
-                        <textarea name="content" id="postContent" rows="14" required style="display:none; width:100%; padding:12px 14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; color:var(--text-primary); font-size:13.5px; font-family:'JetBrains Mono', monospace; line-height:1.6;">{{ old('content') }}</textarea>
+                        <textarea name="content" id="postContent" rows="14" style="display:none; width:100%; padding:12px 14px; background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; color:var(--text-primary); font-size:13.5px; font-family:'JetBrains Mono', monospace; line-height:1.6;">{{ old('content') }}</textarea>
 
                         @error('content') <span style="color:#ef4444; font-size:12px; margin-top:4px; display:block;">{{ $message }}</span> @enderror
                     </div>

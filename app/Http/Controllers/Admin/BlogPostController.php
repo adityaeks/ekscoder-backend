@@ -208,7 +208,8 @@ Kembalikan jawaban WAJIB hanya dalam format JSON valid berikut (tanpa blok ```js
                 ['role' => 'user', 'content' => $userPrompt]
             ];
 
-            $responseRaw = $nineRouterService->getChatCompletions($messages, 'Spark');
+            $model = $nineRouterService->getDefaultModel();
+            $responseRaw = $nineRouterService->getChatCompletions($messages, $model, 90);
             
             if (!empty($responseRaw)) {
                 // Clean markdown codeblocks if AI wraps JSON in ```json
