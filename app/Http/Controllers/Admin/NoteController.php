@@ -14,13 +14,16 @@ class NoteController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Note::where('user_id', Auth::id())
+        $query = Note::with('user')
             ->where('is_archived', false);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -52,7 +55,7 @@ class NoteController extends Controller
 
         if ($request->has('pinned')) {
             foreach ((array)$request->input('pinned') as $index => $id) {
-                $note = Note::where('id', $id)->where('user_id', Auth::id())->first();
+                $note = Note::find($id);
                 if ($note) {
                     $note->update([
                         'is_pinned' => true,
@@ -64,7 +67,7 @@ class NoteController extends Controller
 
         if ($request->has('others')) {
             foreach ((array)$request->input('others') as $index => $id) {
-                $note = Note::where('id', $id)->where('user_id', Auth::id())->first();
+                $note = Note::find($id);
                 if ($note) {
                     $note->update([
                         'is_pinned' => false,
@@ -185,12 +188,12 @@ class NoteController extends Controller
     }
 
     /**
-     * Ensure current user owns the note.
+     * Ensure current user owns the note or has admin privileges.
      */
     protected function authorizeOwner(Note $note)
     {
-        if ($note->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized access to this note.');
+        if ($note->user_id !== Auth::id() && !Auth::user()->hasAnyRole(['Super Admin', 'Admin'])) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah atau menghapus catatan ini.');
         }
     }
 }

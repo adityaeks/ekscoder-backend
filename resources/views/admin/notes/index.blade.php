@@ -129,11 +129,12 @@
             <form id="editNoteForm" method="POST" action="">
                 @csrf
                 @method('PUT')
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <input type="text" name="title" id="editModalTitle" placeholder="Judul" style="width: 100%; background: transparent; border: none; outline: none; font-size: 17px; font-weight: 700; color: var(--text-primary);">
                     <button type="button" id="editModalPinBtn" onclick="toggleEditPin()" style="background: none; border: none; cursor: pointer; font-size: 18px;" title="Pin / Unpin">📌</button>
                     <input type="hidden" name="is_pinned" id="editModalIsPinned" value="0">
                 </div>
+                <div id="editModalAuthorBadge" style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;"></div>
 
                 <!-- Formatting Toolbar -->
                 <div style="display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; background: rgba(255,255,255,0.04); padding: 4px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
@@ -398,7 +399,7 @@
             }
         }
 
-        function openEditModal(id, title, content, color, isPinned) {
+        function openEditModal(id, title, content, color, isPinned, authorName) {
             const form = document.getElementById('editNoteForm');
             form.action = '/admin/notes/' + id;
             document.getElementById('editModalTitle').value = title || '';
@@ -407,6 +408,11 @@
             document.getElementById('editModalColor').value = color || 'default';
             document.getElementById('editModalIsPinned').value = isPinned ? '1' : '0';
             document.getElementById('editModalPinBtn').style.opacity = isPinned ? '1' : '0.6';
+
+            const authorBadge = document.getElementById('editModalAuthorBadge');
+            if (authorBadge) {
+                authorBadge.innerHTML = authorName ? `<span>✍️ Ditulis oleh: <strong style="color:var(--text-primary);">${authorName}</strong></span>` : '';
+            }
 
             selectEditColor(color || 'default', null);
 
