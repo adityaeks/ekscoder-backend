@@ -177,3 +177,47 @@
         </div>
     </div>
 </aside>
+
+<script>
+(function() {
+    function initSidebarScroll() {
+        const sidebarNav = document.querySelector('.sidebar-nav');
+        if (!sidebarNav) return;
+
+        const savedScroll = sessionStorage.getItem('ekscoder_sidebar_scroll');
+        if (savedScroll !== null) {
+            sidebarNav.scrollTop = parseInt(savedScroll, 10);
+        }
+
+        const activeItem = sidebarNav.querySelector('.nav-item.active');
+        if (activeItem) {
+            const navRect = sidebarNav.getBoundingClientRect();
+            const itemRect = activeItem.getBoundingClientRect();
+            if (itemRect.top < navRect.top || itemRect.bottom > navRect.bottom) {
+                activeItem.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+            }
+        }
+
+        let scrollTimeout;
+        sidebarNav.addEventListener('scroll', function() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                sessionStorage.setItem('ekscoder_sidebar_scroll', sidebarNav.scrollTop);
+            }, 40);
+        }, { passive: true });
+
+        sidebarNav.addEventListener('click', function(e) {
+            const link = e.target.closest('.nav-item');
+            if (link) {
+                sessionStorage.setItem('ekscoder_sidebar_scroll', sidebarNav.scrollTop);
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebarScroll);
+    } else {
+        initSidebarScroll();
+    }
+})();
+</script>
