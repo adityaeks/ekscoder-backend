@@ -807,6 +807,7 @@
 
         .modal-dialog-box input[type="text"],
         .modal-dialog-box input[type="password"],
+        .modal-dialog-box select,
         .modal-dialog-box textarea {
             width: 100%;
             background: var(--bg-elevated) !important;
@@ -819,7 +820,13 @@
             transition: border-color 0.2s ease;
         }
 
+        .modal-dialog-box select option {
+            background: var(--bg-surface, #111118);
+            color: var(--text-primary, #f0f0f5);
+        }
+
         .modal-dialog-box input:focus,
+        .modal-dialog-box select:focus,
         .modal-dialog-box textarea:focus {
             border-color: var(--green) !important;
             box-shadow: 0 0 0 2px var(--green-soft);
@@ -973,8 +980,17 @@
                 </div>
 
                 <div style="margin-bottom:14px;">
-                    <label style="display:block; font-size:12px; color:var(--text-secondary); margin-bottom:6px; font-weight:600;">Default Model</label>
-                    <input type="text" id="settingDefaultModel" value="{{ $settings['default_model'] }}" required>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="font-size:12px; color:var(--text-secondary); font-weight:600; margin:0;">Default Model</label>
+                        <button type="button" onclick="load9RouterModels()" style="background:none; border:none; color:var(--green, #22c55e); font-size:11px; cursor:pointer; display:flex; align-items:center; gap:4px; padding:0;" title="Refresh daftar model dari 9Router">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                            Refresh Model
+                        </button>
+                    </div>
+                    <select id="settingDefaultModel" required>
+                        <option value="{{ $settings['default_model'] }}" selected>{{ $settings['default_model'] }}</option>
+                    </select>
+                    <span style="font-size:11px; color:var(--text-muted); display:block; margin-top:4px;">Pilih model default dari daftar provider yang aktif di 9Router (digunakan untuk auto-generate artikel blog, SEO, dan chat default).</span>
                 </div>
 
                 <div style="margin-bottom:18px;">
@@ -1659,6 +1675,9 @@
         function toggleSettingsModal() {
             const modal = document.getElementById('settingsModal');
             modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                load9RouterModels();
+            }
         }
 
         async function load9RouterModels() {
@@ -1666,13 +1685,33 @@
                 const res = await fetch("{{ route('admin.ai-chat.models') }}");
                 const json = await res.json();
                 if (json.success && json.models && json.models.length > 0) {
+                    // 1. Update Header Chat Model Dropdown
                     const selectEl = document.getElementById('modelSelect');
-                    const currentVal = selectEl.value;
-                    selectEl.innerHTML = json.models.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
-                    if (json.models.includes(currentVal)) {
-                        selectEl.value = currentVal;
-                    } else if (json.models.length > 0) {
-                        selectEl.value = json.models[0];
+                    if (selectEl) {
+                        const currentVal = selectEl.value;
+                        selectEl.innerHTML = json.models.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+                        if (json.models.includes(currentVal)) {
+                            selectEl.value = currentVal;
+                        } else if (json.models.length > 0) {
+                            selectEl.value = json.models[0];
+                        }
+                    }
+
+                    // 2. Update Settings Modal Default Model Dropdown
+                    const modalSelectEl = document.getElementById('settingDefaultModel');
+                    if (modalSelectEl) {
+                        const currentModalVal = modalSelectEl.value;
+                        let optionsHtml = '';
+                        if (currentModalVal && !json.models.includes(currentModalVal)) {
+                            optionsHtml += `<option value="${escapeHtml(currentModalVal)}">${escapeHtml(currentModalVal)} (Custom/Saat Ini)</option>`;
+                        }
+                        optionsHtml += json.models.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+                        modalSelectEl.innerHTML = optionsHtml;
+                        if (currentModalVal && (json.models.includes(currentModalVal) || optionsHtml.includes(currentModalVal))) {
+                            modalSelectEl.value = currentModalVal;
+                        } else if (json.models.length > 0) {
+                            modalSelectEl.value = json.models[0];
+                        }
                     }
                 }
             } catch (e) {
@@ -1762,6 +1801,7 @@
                     resultDiv.style.color = 'var(--green, #22c55e)';
                     resultDiv.textContent = '✅ ' + json.message;
                     showToast('Terhubung dengan 9Router Gateway!', 'success');
+                    load9RouterModels();
                 } else {
                     resultDiv.style.background = 'var(--rose-soft, rgba(244, 63, 94, 0.15))';
                     resultDiv.style.color = 'var(--rose, #f43f5e)';
