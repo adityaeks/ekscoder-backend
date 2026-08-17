@@ -273,7 +273,8 @@
             align-items: center;
             gap: 8px;
             flex: 1;
-            max-width: 60%;
+            min-width: 0;
+            margin-right: 12px;
         }
 
         .active-thread-title {
@@ -287,6 +288,8 @@
             border-radius: 6px;
             transition: all 0.2s ease;
             width: 100%;
+            min-width: 0;
+            text-overflow: ellipsis;
         }
 
         .active-thread-title:hover {
@@ -1324,7 +1327,8 @@
             // Create new conversation in DB on first message if draft mode
             if (!currentConversationId) {
                 try {
-                    const titleText = userText.length > 30 ? userText.substring(0, 30) + '...' : userText;
+                    const firstLine = userText.split('\n')[0].trim();
+                    const titleText = firstLine.length > 80 ? firstLine.substring(0, 80) + '...' : (firstLine || 'Percakapan Baru');
                     const res = await fetch("{{ route('admin.ai-chat.conversations.store') }}", {
                         method: 'POST',
                         headers: {

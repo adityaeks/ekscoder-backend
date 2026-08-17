@@ -202,11 +202,12 @@ class AiChatController extends Controller
 
         // Auto-generate title if it's the first user message & default title
         if ($conversation->title === 'Percakapan Baru' && $conversation->messages()->count() <= 1) {
-            $newTitle = mb_substr($userContent, 0, 40);
-            if (mb_strlen($userContent) > 40) {
+            $firstLine = trim(explode("\n", $userContent)[0]);
+            $newTitle = mb_substr($firstLine, 0, 80);
+            if (mb_strlen($firstLine) > 80) {
                 $newTitle .= '...';
             }
-            $conversation->title = $newTitle;
+            $conversation->title = $newTitle ?: 'Percakapan Baru';
             $conversation->save();
         }
 
