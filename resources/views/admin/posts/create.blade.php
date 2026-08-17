@@ -557,7 +557,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
+                        'Accept': 'text/event-stream'
                     },
                     body: JSON.stringify({
                         title: title,
@@ -565,27 +565,87 @@
                     })
                 });
 
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    contentTextarea.value = data.content;
-
-                    renderVisualPreview();
-                    switchEditorTab('visual');
-
-                    const metaTitleInput = document.getElementById('metaTitle') || document.querySelector('input[name="meta_title"]');
-                    const metaKeywordsInput = document.getElementById('metaKeywords') || document.querySelector('input[name="meta_keywords"]');
-
-                    if (metaTitleInput && data.meta_title) metaTitleInput.value = data.meta_title;
-                    if (metaKeywordsInput && data.meta_keywords) metaKeywordsInput.value = data.meta_keywords;
-
-                    showToast('✨ Artikel dan Meta SEO berhasil digenerate oleh AI!', 'success');
-                } else {
-                    showToast('Gagal me-generate artikel: ' + (data.message || 'Terjadi kesalahan pada AI Gateway.'), 'error');
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`Server status ${response.status}: ${errText}`);
                 }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8');
+                let fullText = '';
+                let buffer = '';
+                let streamError = null;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith('data:')) {
+                            const dataStr = trimmed.substring(5).trim();
+                            if (dataStr === '[DONE]') {
+                                break;
+                            }
+                            try {
+                                const parsed = JSON.parse(dataStr);
+                                if (parsed.error) {
+                                    streamError = parsed.error;
+                                } else if (parsed.chunk) {
+                                    fullText += parsed.chunk;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                if (streamError) {
+                    throw new Error(streamError);
+                }
+
+                if (!fullText.trim()) {
+                    throw new Error('Respon dari AI Gateway kosong.');
+                }
+
+                // Clean markdown codeblocks if AI wraps JSON in ```json
+                let cleanJson = fullText.trim().replace(/^```(?:json)?\s*|\s*```$/i, '').trim();
+                let rawContent = '';
+                let metaTitle = '';
+                let metaKeywords = '';
+
+                try {
+                    const parsedData = JSON.parse(cleanJson);
+                    if (parsedData && typeof parsedData === 'object' && parsedData.content) {
+                        rawContent = parsedData.content;
+                        metaTitle = parsedData.meta_title || '';
+                        metaKeywords = parsedData.meta_keywords || '';
+                    } else {
+                        rawContent = fullText;
+                    }
+                } catch (e) {
+                    rawContent = fullText;
+                }
+
+                contentTextarea.value = rawContent.trim();
+
+                renderVisualPreview();
+                switchEditorTab('visual');
+
+                const metaTitleInput = document.getElementById('metaTitle') || document.querySelector('input[name="meta_title"]');
+                const metaKeywordsInput = document.getElementById('metaKeywords') || document.querySelector('input[name="meta_keywords"]');
+
+                if (metaTitleInput && metaTitle) metaTitleInput.value = metaTitle;
+                if (metaKeywordsInput && metaKeywords) metaKeywordsInput.value = metaKeywords;
+
+                showToast('✨ Artikel dan Meta SEO berhasil digenerate oleh AI!', 'success');
+
             } catch (err) {
-                console.error(err);
-                showToast('Terjadi kesalahan jaringan/server saat menghubungi AI.', 'error');
+                console.error('generateAiArticle error:', err);
+                showToast('Gagal me-generate artikel: ' + (err.message || 'Terjadi kesalahan pada AI Gateway.'), 'error');
             } finally {
                 hideAiLoadingModal();
                 btn.disabled = false;
