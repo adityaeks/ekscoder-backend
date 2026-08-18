@@ -1,17 +1,5 @@
 <x-admin-layout title="Blog & Artikel" breadcrumb="Kelola konten artikel blog dan kategori">
-    <x-slot name="topbarAction">
-        <div style="display:flex; gap:10px;">
-            <a href="{{ route('admin.blog-categories.index') }}" class="topbar-btn" style="background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); text-decoration:none;">
-                📁 Kategori
-            </a>
-            @can('posts.create')
-            <a href="{{ route('admin.posts.create') }}" class="topbar-btn topbar-btn-primary" style="text-decoration:none;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Buat Artikel
-            </a>
-            @endcan
-        </div>
-    </x-slot>
+
 
     <!-- Stats Row -->
     <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:24px;">

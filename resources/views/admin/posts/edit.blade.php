@@ -1,9 +1,5 @@
 <x-admin-layout title="Edit Artikel" breadcrumb="Perbarui konten artikel blog">
-    <x-slot name="topbarAction">
-        <a href="{{ route('admin.posts.index') }}" class="topbar-btn" style="background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); text-decoration:none;">
-            ← Kembali
-        </a>
-    </x-slot>
+
 
     <!-- Marked.js for Live Formatted Visual Preview -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -171,6 +167,13 @@
             
             <span style="display:block; margin-top:16px; font-size:11px; font-weight:700; color:#10b981; text-transform:uppercase; letter-spacing:0.08em;">Mohon Tunggu Sebentar</span>
         </div>
+    </div>
+
+    <div style="margin-bottom:18px;">
+        <a href="{{ route('admin.posts.index') }}" class="topbar-btn topbar-btn-ghost" style="display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:10px; text-decoration:none; font-weight:600; font-size:13px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali ke Daftar Artikel
+        </a>
     </div>
 
     <div class="card" style="max-width:100%; margin:0; padding:24px;">
