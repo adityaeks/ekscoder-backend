@@ -206,11 +206,40 @@
             color: var(--text-primary, #f0f0f5);
         }
 
+        .thread-item.pinned {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.15);
+        }
+
+        .thread-item.pinned:hover {
+            background: var(--bg-hover, #1c1c28);
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+
         .thread-item.active {
             background: var(--green-soft, rgba(34, 197, 94, 0.12));
             color: var(--green, #22c55e);
             border-color: rgba(34, 197, 94, 0.3);
             font-weight: 600;
+        }
+
+        .thread-item.pinned.active {
+            background: var(--green-soft, rgba(34, 197, 94, 0.12));
+            border-color: rgba(34, 197, 94, 0.35);
+        }
+
+        .thread-pin-badge {
+            color: var(--amber, #f59e0b);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            opacity: 0.85;
+            transition: opacity 0.15s ease;
+        }
+
+        .thread-item:hover .thread-pin-badge {
+            display: none;
         }
 
         .thread-title {
@@ -224,6 +253,7 @@
             display: none;
             align-items: center;
             gap: 4px;
+            flex-shrink: 0;
         }
 
         .thread-item:hover .thread-actions {
@@ -234,15 +264,41 @@
             background: none;
             border: none;
             color: var(--text-muted, #55555f);
-            padding: 3px;
+            padding: 3px 5px;
             border-radius: 4px;
             cursor: pointer;
-            transition: color 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
         }
 
-        .btn-thread-action:hover {
+        .btn-thread-action.btn-pin {
+            color: var(--text-muted, #55555f);
+        }
+
+        .btn-thread-action.btn-pin.is-pinned {
+            color: var(--amber, #f59e0b);
+        }
+
+        .btn-thread-action.btn-pin:hover {
+            color: var(--amber, #f59e0b);
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .btn-thread-action.btn-delete:hover {
             color: var(--rose, #f43f5e);
             background: var(--rose-soft, rgba(244, 63, 94, 0.15));
+        }
+
+        #btnPinCurrentChat {
+            transition: all 0.2s ease;
+        }
+
+        #btnPinCurrentChat.is-pinned {
+            color: var(--amber, #f59e0b);
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.12);
         }
 
         /* Main Chat Window */
@@ -894,6 +950,9 @@
                         </button>
                         <!-- <span style="display:inline-flex; align-items:center; color:var(--green, #22c55e);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> -->
                         <input type="text" class="active-thread-title" id="activeChatTitle" value="Percakapan Baru" onblur="saveCurrentThreadTitle(this.value)" onkeydown="if(event.key==='Enter') this.blur()">
+                        <button id="btnPinCurrentChat" onclick="togglePinCurrentConversation()" class="btn-top-action" style="padding:6px 10px; display:none;" title="Sematkan / Lepas Sematan Percakapan ini">
+                            <!-- Injected by JS -->
+                        </button>
                     </div>
 
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -1036,6 +1095,8 @@
 
         const SVG_ICONS = {
             chat: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+            pin: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.89A2 2 0 0 1 15 10.77V6a3 3 0 0 0-6 0v4.77a2 2 0 0 1-1.11 1.79l-1.78.89A2 2 0 0 0 5 15.24Z"/></svg>`,
+            pinFilled: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22" stroke-width="2"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.89A2 2 0 0 1 15 10.77V6a3 3 0 0 0-6 0v4.77a2 2 0 0 1-1.11 1.79l-1.78.89A2 2 0 0 0 5 15.24Z"/></svg>`,
             trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
             user: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
             bot: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8.01" y2="16"/><line x1="16" y1="16" x2="16.01" y2="16"/></svg>`,
@@ -1166,15 +1227,29 @@
             `;
         }
 
+        function sortConversations() {
+            activeConversations.sort((a, b) => {
+                const pinA = a.is_pinned ? 1 : 0;
+                const pinB = b.is_pinned ? 1 : 0;
+                if (pinA !== pinB) {
+                    return pinB - pinA;
+                }
+                return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+            });
+        }
+
         async function loadConversations() {
             try {
                 const res = await fetch("{{ route('admin.ai-chat.conversations.index') }}");
                 const json = await res.json();
                 if (json.success) {
                     activeConversations = json.data;
+                    sortConversations();
                     renderThreadList();
                     if (activeConversations.length > 0 && !currentConversationId) {
                         selectConversation(activeConversations[0].id);
+                    } else {
+                        updateHeaderPinButton();
                     }
                 }
             } catch (e) {
@@ -1190,11 +1265,17 @@
             }
 
             listEl.innerHTML = activeConversations.map(conv => `
-                <div class="thread-item ${conv.id === currentConversationId ? 'active' : ''}" onclick="selectConversation(${conv.id})">
+                <div class="thread-item ${conv.id === currentConversationId ? 'active' : ''} ${conv.is_pinned ? 'pinned' : ''}" onclick="selectConversation(${conv.id})">
                     <span style="display:inline-flex; align-items:center; opacity:0.8;">${SVG_ICONS.chat}</span>
-                    <span class="thread-title">${escapeHtml(conv.title)}</span>
+                    <span class="thread-title" title="${escapeHtml(conv.title)}">${escapeHtml(conv.title)}</span>
+                    ${conv.is_pinned ? `<span class="thread-pin-badge" title="Percakapan Disematkan">${SVG_ICONS.pinFilled}</span>` : ''}
                     <div class="thread-actions" onclick="event.stopPropagation()">
-                        <button class="btn-thread-action" title="Hapus Percakapan" onclick="deleteConversation(${conv.id})">${SVG_ICONS.trash}</button>
+                        <button class="btn-thread-action btn-pin ${conv.is_pinned ? 'is-pinned' : ''}" title="${conv.is_pinned ? 'Lepas Sematan' : 'Sematkan Percakapan'}" onclick="togglePinConversation(${conv.id}, event)">
+                            ${conv.is_pinned ? SVG_ICONS.pinFilled : SVG_ICONS.pin}
+                        </button>
+                        <button class="btn-thread-action btn-delete" title="Hapus Percakapan" onclick="deleteConversation(${conv.id})">
+                            ${SVG_ICONS.trash}
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -1214,6 +1295,7 @@
             document.getElementById('activeChatTitle').value = 'Percakapan Baru';
             document.getElementById('chatMessagesContainer').innerHTML = getEmptyStateHTML();
             renderThreadList();
+            updateHeaderPinButton();
             const inputEl = document.getElementById('chatInput');
             if (inputEl) inputEl.focus();
         }
@@ -1228,7 +1310,72 @@
                 }
             }
             renderThreadList();
+            updateHeaderPinButton();
             await loadMessages(id);
+        }
+
+        async function togglePinConversation(id, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            const conv = activeConversations.find(c => c.id === id);
+            if (!conv) return;
+
+            const newPinState = !conv.is_pinned;
+            conv.is_pinned = newPinState;
+            sortConversations();
+            renderThreadList();
+            updateHeaderPinButton();
+
+            try {
+                const res = await fetch(`/admin/ai-chat/conversations/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ is_pinned: newPinState })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    showToast(newPinState ? 'Percakapan disematkan ke atas' : 'Sematan percakapan dilepas', 'success');
+                } else {
+                    throw new Error(json.message || 'Gagal mengubah status sematan');
+                }
+            } catch (e) {
+                console.error('Error toggling pin:', e);
+                showToast('Gagal mengubah status sematan', 'error');
+                conv.is_pinned = !newPinState;
+                sortConversations();
+                renderThreadList();
+                updateHeaderPinButton();
+            }
+        }
+
+        function togglePinCurrentConversation() {
+            if (currentConversationId) {
+                togglePinConversation(currentConversationId);
+            }
+        }
+
+        function updateHeaderPinButton() {
+            const btn = document.getElementById('btnPinCurrentChat');
+            if (!btn) return;
+            if (!currentConversationId) {
+                btn.style.display = 'none';
+                return;
+            }
+            // btn.style.display = 'inline-flex';
+            const conv = activeConversations.find(c => c.id === currentConversationId);
+            // if (conv && conv.is_pinned) {
+            //     btn.className = 'btn-top-action is-pinned';
+            //     btn.innerHTML = `${SVG_ICONS.pinFilled} <span style="font-size:11.5px; margin-left:2px;">Disematkan</span>`;
+            //     btn.title = 'Lepas Sematan Percakapan ini';
+            // } else {
+            //     btn.className = 'btn-top-action';
+            //     btn.innerHTML = `${SVG_ICONS.pin} <span style="font-size:11.5px; margin-left:2px;">Sematkan</span>`;
+            //     btn.title = 'Sematkan Percakapan ini ke atas';
+            // }
         }
 
         async function saveCurrentThreadTitle(newTitle) {
@@ -1374,6 +1521,7 @@
                         }
                     } else {
                         renderThreadList();
+                        updateHeaderPinButton();
                     }
                 }
             } catch (e) {

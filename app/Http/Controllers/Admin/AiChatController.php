@@ -67,6 +67,7 @@ class AiChatController extends Controller
     public function getConversations()
     {
         $conversations = AiConversation::where('user_id', Auth::id())
+            ->orderBy('is_pinned', 'desc')
             ->orderBy('updated_at', 'desc')
             ->get();
 
