@@ -237,22 +237,21 @@
         }
 
         .chat-bubble {
-            max-width: 82%;
-            padding: 12px 16px;
+            max-width: 80%;
+            padding: 10px 14px;
             border-radius: 14px;
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.5;
             position: relative;
             word-break: break-word;
         }
 
         .chat-bubble.user {
             align-self: flex-end;
-            background: #232332;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1e1e2d;
+            border: 1px solid rgba(108, 99, 255, 0.3);
             color: #f0f0f5;
             border-bottom-right-radius: 4px;
-            white-space: pre-wrap;
         }
 
         .chat-bubble.assistant {
@@ -261,6 +260,34 @@
             border: 1px solid rgba(34, 197, 94, 0.25);
             color: #e5e5f0;
             border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble-header {
+            font-weight: 700;
+            font-size: 11px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.9;
+        }
+
+        .chat-bubble.user .chat-bubble-header {
+            color: #a5b4fc;
+        }
+
+        .chat-bubble.assistant .chat-bubble-header {
+            color: #4ade80;
+        }
+
+        .chat-bubble-content {
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .chat-bubble.assistant .chat-bubble-content {
+            white-space: normal;
         }
 
         .chat-bubble p {
@@ -307,6 +334,10 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .chat-bubble.user .chat-bubble-meta {
+            justify-content: flex-end;
         }
 
         /* Settings Form Styling */
@@ -789,22 +820,15 @@
                 const json = await res.json();
                 if (json.success && json.data.length > 0) {
                     body.innerHTML = json.data.map(msg => {
-                        const contentHtml = msg.role === 'assistant' 
+                        const isAssistant = msg.role === 'assistant';
+                        const contentHtml = isAssistant 
                             ? (typeof marked !== 'undefined' ? marked.parse(msg.message) : escapeHtml(msg.message))
                             : escapeHtml(msg.message);
 
-                        return `
-                            <div class="chat-bubble ${msg.role === 'assistant' ? 'assistant' : 'user'}">
-                                <div style="font-weight:700; font-size:11px; margin-bottom:4px; opacity:0.8;">
-                                    ${msg.role === 'assistant' ? '🤖 Asisten AI Ekscoder' : '👤 Pengunjung'}
-                                </div>
-                                <div style="line-height:1.6;">${contentHtml}</div>
-                                <div class="chat-bubble-meta">
-                                    <span>${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                    ${msg.model_used && msg.role === 'assistant' ? `<span>• Model: ${msg.model_used}</span>` : ''}
-                                </div>
-                            </div>
-                        `;
+                        const timeStr = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        const modelTag = (msg.model_used && isAssistant) ? `<span>• Model: ${escapeHtml(msg.model_used)}</span>` : '';
+
+                        return `<div class="chat-bubble ${isAssistant ? 'assistant' : 'user'}"><div class="chat-bubble-header">${isAssistant ? '🤖 Asisten AI Ekscoder' : '👤 Pengunjung'}</div><div class="chat-bubble-content">${contentHtml}</div><div class="chat-bubble-meta"><span>${timeStr}</span>${modelTag}</div></div>`;
                     }).join('');
                     body.scrollTop = body.scrollHeight;
                 } else {
@@ -993,7 +1017,7 @@ GAYA BAHASA, FORMAT & EFISIENSI TOKEN:
             const feed = document.getElementById('simFeed');
             const userBubble = document.createElement('div');
             userBubble.className = 'chat-bubble user';
-            userBubble.textContent = text;
+            userBubble.innerHTML = `<div class="chat-bubble-content">${escapeHtml(text)}</div>`;
             feed.appendChild(userBubble);
             input.value = '';
             feed.scrollTop = feed.scrollHeight;
