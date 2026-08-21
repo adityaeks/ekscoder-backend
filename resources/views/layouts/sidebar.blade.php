@@ -27,6 +27,12 @@
             </div>
             <span class="nav-text">AI Assistant</span>
         </a>
+        <a href="{{ route('admin.ai-cs.index') }}" class="nav-item {{ request()->routeIs('admin.ai-cs.*') ? 'active' : '' }}" title="AI Customer Service (Landing Page Bot)">
+            <div class="nav-icon" style="color:var(--amber, #f59e0b);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
+            </div>
+            <span class="nav-text">AI Customer Service</span>
+        </a>
         @endcan
         <div class="nav-section-label" style="margin-top:16px;">Internal Management</div>
         @can('calendar.view')

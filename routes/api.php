@@ -23,4 +23,13 @@ Route::prefix('posts')->group(function () {
 
 Route::get('/blog-categories', [\App\Http\Controllers\Api\BlogPostApiController::class, 'categories'])->name('api.blog-categories.index');
 
+// Public AI Customer Service API Endpoints
+Route::prefix('ai-cs')->group(function () {
+    Route::get('/config', [\App\Http\Controllers\Api\AiCsApiController::class, 'config'])->name('api.ai-cs.config');
+    Route::post('/chat', [\App\Http\Controllers\Api\AiCsApiController::class, 'chat'])
+        ->middleware('throttle:20,1')
+        ->name('api.ai-cs.chat');
+});
+
+
 

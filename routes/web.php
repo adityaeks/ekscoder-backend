@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\AiChatController;
+use App\Http\Controllers\Admin\AiCsAdminController;
 
 use App\Http\Controllers\Admin\VpsPinController;
 use App\Http\Controllers\Admin\VpsServerController;
@@ -305,6 +306,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/send', [AiChatController::class, 'sendMessage'])->name('send');
             Route::post('/settings', [AiChatController::class, 'saveSettings'])->name('settings.save');
             Route::post('/test-connection', [AiChatController::class, 'testConnection'])->name('test-connection');
+        });
+
+        // AI Customer Service (Landing Page Bot Logs & Prompt Settings)
+        Route::prefix('ai-cs')->name('ai-cs.')->group(function () {
+            Route::get('/', [AiCsAdminController::class, 'index'])->name('index');
+            Route::get('/sessions/{sessionId}/messages', [AiCsAdminController::class, 'getSessionMessages'])->name('sessions.messages');
+            Route::delete('/sessions/{sessionId}', [AiCsAdminController::class, 'destroySession'])->name('sessions.destroy');
+            Route::post('/clear-logs', [AiCsAdminController::class, 'clearLogs'])->name('clear-logs');
+            Route::post('/settings', [AiCsAdminController::class, 'saveSettings'])->name('settings.save');
+            Route::post('/test-chat', [AiCsAdminController::class, 'testChat'])->name('test-chat');
         });
 
     });

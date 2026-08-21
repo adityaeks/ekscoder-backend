@@ -245,7 +245,7 @@ class NineRouterService
      * @return string
      * @throws \Exception
      */
-    public function getChatCompletions(array $messages, ?string $model = null, int $timeout = 90): string
+    public function getChatCompletions(array $messages, ?string $model = null, int $timeout = 90, array $extraParams = []): string
     {
         $baseUrl = $this->getBaseUrl();
         $apiKey = $this->getApiKey();
@@ -253,15 +253,17 @@ class NineRouterService
 
         $endpoint = "{$baseUrl}/chat/completions";
 
+        $payload = array_merge([
+            'model' => $model,
+            'messages' => $messages,
+            'stream' => false,
+        ], $extraParams);
+
         $response = Http::withHeaders([
             'Authorization' => "Bearer {$apiKey}",
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-        ])->timeout($timeout)->post($endpoint, [
-            'model' => $model,
-            'messages' => $messages,
-            'stream' => false,
-        ]);
+        ])->timeout($timeout)->post($endpoint, $payload);
 
         if ($response->successful()) {
             $data = $response->json();
