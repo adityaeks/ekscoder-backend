@@ -34,6 +34,15 @@
             <span class="nav-text">AI Customer Service</span>
         </a>
         @endcan
+        
+        <div class="nav-section-label" style="margin-top:16px;">E-Modul</div>
+        <a href="{{ route('admin.e-modul.index') }}" class="nav-item {{ request()->routeIs('admin.e-modul.*') ? 'active' : '' }}" title="E-Modul">
+            <div class="nav-icon" style="color:var(--accent, #6366f1);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <span class="nav-text">E-Modul</span>
+        </a>
+
         <div class="nav-section-label" style="margin-top:16px;">Internal Management</div>
         @can('calendar.view')
         <a href="{{ route('admin.calendar.index') }}" class="nav-item {{ request()->routeIs('admin.calendar.*') ? 'active' : '' }}" title="Kalender & Agenda">

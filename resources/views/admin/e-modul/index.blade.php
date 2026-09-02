@@ -1,0 +1,755 @@
+<x-admin-layout title="E-Modul & Flipbook" breadcrumb="Kelola modul pembelajaran interaktif dengan format 3D Flipbook">
+    <x-slot name="topbarAction">
+        <button type="button" class="topbar-btn topbar-btn-primary" onclick="openUploadModal()" style="border:none; cursor:pointer;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Upload PDF E-Modul
+        </button>
+    </x-slot>
+
+    <!-- PDF.js & StPageFlip Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+
+    <!-- Upload Hero Dropzone Section -->
+    <div class="card" style="padding:28px; margin-bottom:28px; background:linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%); border:1px solid rgba(99, 102, 241, 0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+            <div>
+                <h2 style="font-size:18px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:22px;">📚</span> Upload File PDF E-Modul
+                </h2>
+                <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">
+                    Unggah file PDF modul atau materi Anda. Dokumen akan langsung diubah menjadi <strong>Interactive 3D Flipbook</strong> seperti FlipHTML5.
+                </p>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" onclick="openUploadModal()" class="topbar-btn topbar-btn-primary" style="padding:8px 18px; font-size:13px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Pilih File PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Drag & Drop Area -->
+        <div id="quickDropzone" onclick="openUploadModal()" style="border:2px dashed var(--border-light, #3b4252); border-radius:14px; padding:32px 20px; text-align:center; background:var(--bg-elevated); cursor:pointer; transition:all 0.25s ease;" ondragover="event.preventDefault(); this.style.borderColor='var(--accent)';" ondragleave="this.style.borderColor='var(--border-light)';" ondrop="handleDropFile(event)">
+            <div style="width:52px; height:52px; border-radius:12px; background:var(--accent-soft); display:inline-flex; align-items:center; justify-content:center; color:var(--accent); font-size:24px; margin-bottom:12px;">
+                📄
+            </div>
+            <div style="font-size:14.5px; font-weight:600; color:var(--text-primary);">
+                Tarik dan lepaskan file PDF di sini, atau <span style="color:var(--accent); text-decoration:underline;">klik untuk memilih</span>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
+                Mendukung format PDF (Maksimal 100 MB). Otomatis render preview flipbook interaktif.
+            </div>
+        </div>
+    </div>
+
+    <!-- E-Modul Library Grid -->
+    <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:16px; font-weight:700; color:var(--text-primary);">Koleksi E-Modul</h3>
+        <span style="font-size:12.5px; color:var(--text-secondary);">{{ $moduls->count() }} modul tersedia</span>
+    </div>
+
+    @if($moduls->count() > 0)
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px; margin-bottom:30px;">
+        @foreach($moduls as $modul)
+        <div class="card modul-card" style="display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--border); transition:transform 0.2s, box-shadow 0.2s;">
+            <!-- Card Thumbnail Top (Clickable) -->
+            <div onclick="openModulFlipbookById('{{ $modul->id }}')" style="height:170px; background:linear-gradient(135deg, #1e1e24 0%, #2b2d42 100%); position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; border-bottom:1px solid var(--border); cursor:pointer;" title="Klik untuk membuka Flipbook">
+                <!-- Book 3D Mockup Icon -->
+                <div style="width:100px; height:130px; background:#ffffff; border-radius:4px 8px 8px 4px; box-shadow:-5px 5px 15px rgba(0,0,0,0.5), inset 4px 0 8px rgba(0,0,0,0.15); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; border-left:4px solid var(--accent); position:relative; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="font-size:26px; margin-bottom:4px;">📖</div>
+                    <div style="font-size:9px; font-weight:700; color:#1e293b; text-align:center; line-height:1.2; max-width:80px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                        {{ $modul->title }}
+                    </div>
+                    <span style="position:absolute; bottom:6px; font-size:8px; color:#64748b; font-family:'JetBrains Mono',monospace;">FLIPBOOK</span>
+                </div>
+
+                <!-- Status Badge -->
+                <div style="position:absolute; top:12px; right:12px;" onclick="event.stopPropagation()">
+                    @if($modul->is_active)
+                        <span class="badge badge-success" style="font-size:10px; padding:3px 8px;">Published</span>
+                    @else
+                        <span class="badge badge-warning" style="font-size:10px; padding:3px 8px;">Draft</span>
+                    @endif
+                </div>
+
+                <!-- Category Pill -->
+                <div style="position:absolute; top:12px; left:12px;" onclick="event.stopPropagation()">
+                    <span style="background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); color:#e2e8f0; font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+                        {{ $modul->category ?? 'Umum' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding:16px; flex:1; display:flex; flex-direction:column;">
+                <h4 style="font-size:14.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ $modul->title }}">
+                    {{ $modul->title }}
+                </h4>
+                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:14px; flex:1; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; line-height:1.4;">
+                    {{ $modul->description ?: 'Tidak ada deskripsi modul.' }}
+                </p>
+
+                <!-- Meta Details -->
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-muted); margin-bottom:14px; padding-top:10px; border-top:1px solid var(--border);">
+                    <span style="display:inline-flex; align-items:center; gap:4px;">
+                        📄 {{ $modul->total_pages > 0 ? $modul->total_pages . ' Hal' : 'PDF' }}
+                    </span>
+                    <span>💾 {{ $modul->formatted_size }}</span>
+                    <span>🕒 {{ $modul->created_at->format('d M Y') }}</span>
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex; gap:8px;">
+                    <!-- Preview Flipbook Button -->
+                    <button type="button" 
+                        id="btn-flip-{{ $modul->id }}"
+                        data-title="{{ $modul->title }}" 
+                        data-pdf-url="{{ $modul->pdf_url }}" 
+                        data-show-url="{{ route('admin.e-modul.show', $modul->id) }}"
+                        onclick="handleFlipbookButtonClick(this)" 
+                        class="topbar-btn topbar-btn-primary" 
+                        style="flex:1; padding:7px 10px; font-size:12px; border:none; cursor:pointer; justify-content:center; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Flipbook
+                    </button>
+
+                    <!-- Open in New Tab Fullscreen -->
+                    <a href="{{ route('admin.e-modul.show', $modul->id) }}" target="_blank" class="topbar-btn" title="Buka Fullscreen FlipHTML5" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+
+                    <!-- Edit -->
+                    <a href="{{ route('admin.e-modul.edit', $modul->id) }}" class="topbar-btn" title="Edit Modul" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </a>
+
+                    <!-- Delete -->
+                    <form action="{{ route('admin.e-modul.destroy', $modul->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus e-modul ini?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="topbar-btn" title="Hapus Modul" style="padding:7px 9px; font-size:12px; color:var(--rose); border:1px solid var(--border); background:var(--bg-elevated); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; border-radius:8px;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="card" style="padding:40px 20px; text-align:center; margin-bottom:30px;">
+        <div style="font-size:36px; margin-bottom:12px;">📚</div>
+        <h4 style="font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">Belum Ada File E-Modul yang Diunggah</h4>
+        <p style="font-size:13px; color:var(--text-muted); max-width:420px; margin:0 auto 18px auto;">
+            Unggah modul berformat PDF pertama Anda untuk menikmati sensasi membaca buku interaktif layaknya FlipHTML5.
+        </p>
+        <button type="button" onclick="openUploadModal()" class="topbar-btn topbar-btn-primary" style="margin:0 auto; padding:8px 20px; font-size:13px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Upload Dokumen PDF Sekarang
+        </button>
+    </div>
+    @endif
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+        <div class="card" style="width:100%; max-width:600px; padding:26px; border:1px solid var(--border); box-shadow:0 25px 50px -12px rgba(0,0,0,0.7); max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:14px;">
+                <div>
+                    <h3 style="font-size:17px; font-weight:700; color:var(--text-primary);">Upload File PDF E-Modul</h3>
+                    <p style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">Dokumen akan diproses otomatis untuk Flipbook reader</p>
+                </div>
+                <button type="button" onclick="closeUploadModal()" style="background:none; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; padding:4px 8px; line-height:1;">✕</button>
+            </div>
+
+            <form id="uploadForm" action="{{ route('admin.e-modul.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="total_pages" id="detectedTotalPages" value="0">
+
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <!-- File Picker Input -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Pilih File PDF <span style="color:var(--rose);">*</span></label>
+                        <div style="border:2px dashed var(--border); border-radius:10px; padding:20px; text-align:center; background:var(--bg-elevated); cursor:pointer; position:relative;" onclick="document.getElementById('pdfFileInput').click()">
+                            <input type="file" id="pdfFileInput" name="pdf_file" accept=".pdf" required style="position:absolute; inset:0; opacity:0; cursor:pointer;" onchange="handleFileSelect(this)">
+                            <div id="filePickerPlaceholder">
+                                <div style="font-size:28px; margin-bottom:4px;">📄</div>
+                                <div style="font-size:13.5px; font-weight:600; color:var(--text-primary);">Klik atau geser file PDF ke sini</div>
+                                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Format .PDF hingga 100MB</div>
+                            </div>
+                            <div id="filePickerSelected" style="display:none; text-align:left;">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div style="font-size:28px;">📑</div>
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div id="selectedFileName" style="font-size:13.5px; font-weight:600; color:var(--text-primary); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">filename.pdf</div>
+                                        <div id="selectedFileSize" style="font-size:12px; color:var(--accent);">0 KB | Mendeteksi halaman...</div>
+                                    </div>
+                                    <button type="button" onclick="event.stopPropagation(); resetFilePicker();" style="background:none; border:none; color:var(--rose); font-size:16px; cursor:pointer;">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Judul E-Modul <span style="color:var(--rose);">*</span></label>
+                        <input type="text" id="modulTitleInput" name="title" required placeholder="Contoh: Modul Pembelajaran IPA Kelas 7" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13.5px; color:var(--text-primary); outline:none;">
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Kategori / Mata Pelajaran</label>
+                        <input type="text" name="category" placeholder="Contoh: IPA, Pemrograman, Sejarah" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13.5px; color:var(--text-primary); outline:none;">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label style="display:block; font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:6px;">Deskripsi Singkat (Opsional)</label>
+                        <textarea name="description" rows="2" placeholder="Tuliskan ringkasan modul..." style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13.5px; color:var(--text-primary); outline:none;"></textarea>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid var(--border);">
+                        <button type="button" onclick="closeUploadModal()" class="topbar-btn" style="padding:8px 16px; font-size:13px;">Batal</button>
+                        <button type="button" id="btnPreviewBeforeUpload" onclick="previewLocalPdf()" class="topbar-btn" style="padding:8px 16px; font-size:13px; display:none;">
+                            👁️ Tes Flipbook
+                        </button>
+                        <button type="submit" id="btnSubmitUpload" class="topbar-btn topbar-btn-primary" style="padding:8px 22px; font-size:13px; border:none; cursor:pointer;">
+                            Upload & Simpan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FlipHTML5-style Interactive Modal Reader -->
+    <div id="flipModal" style="display:none; position:fixed; inset:0; background:#3b3c3d; background-image:radial-gradient(circle at center, #4b4c4e 0%, #292a2b 100%); z-index:100000; flex-direction:column; overflow:hidden; user-select:none;">
+        <!-- Modal Top Bar -->
+        <div style="height:48px; background:rgba(25, 26, 27, 0.9); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255, 255, 255, 0.08); display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:50;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button type="button" onclick="closeFlipModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#e2e8f0; padding:5px 12px; border-radius:6px; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Tutup Preview
+                </button>
+                <span style="color:#94a3b8; font-size:12px; font-weight:600;">📖 FLIPHTML5 Interactive Reader</span>
+            </div>
+
+            <div id="modalBookTitle" style="font-size:14px; font-weight:600; color:#ffffff; max-width:40%; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; text-align:center;">
+                E-Modul Flipbook Preview
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+                <a id="modalStandaloneLink" href="#" target="_blank" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#cbd5e1; text-decoration:none; padding:5px 10px; border-radius:6px; font-size:12px; display:inline-flex; align-items:center; gap:5px;" title="Buka di tab baru">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Tab Baru
+                </a>
+                <button type="button" onclick="toggleModalFullscreen()" style="background:none; border:none; color:#cbd5e1; padding:6px; cursor:pointer; border-radius:6px;" title="Layar Penuh">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Flipbook Area -->
+        <div style="flex:1; position:relative; display:flex; align-items:center; justify-content:center; padding:20px 40px 60px 40px; overflow:hidden;">
+            <!-- Navigation Arrows -->
+            <button id="modalPrevArrow" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); width:46px; height:46px; background:rgba(30,30,30,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:40; backdrop-filter:blur(8px); transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+
+            <button id="modalNextArrow" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); width:46px; height:46px; background:rgba(30,30,30,0.8); border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:40; backdrop-filter:blur(8px); transition:all 0.2s;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+
+            <!-- Loading Spinner inside Modal -->
+            <div id="modalLoadingOverlay" style="position:absolute; inset:0; background:rgba(30, 31, 32, 0.94); backdrop-filter:blur(10px); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; gap:16px;">
+                <div style="width:44px; height:44px; border:3px solid rgba(255,255,255,0.1); border-top-color:#6366f1; border-radius:50%; animation:modalSpin 0.8s linear infinite;"></div>
+                <div id="modalLoadingText" style="font-size:14px; font-weight:500; color:#e2e8f0;">Memuat Flipbook E-Modul...</div>
+            </div>
+
+            <!-- Flipbook Container -->
+            <div id="modalFlipWrapper" style="position:relative; display:flex; align-items:center; justify-content:center; transition:transform 0.2s ease; box-shadow:0 25px 60px -15px rgba(0,0,0,0.7); border-radius:4px;">
+                <div id="modalFlipbook" style="display:none; background:transparent;"></div>
+            </div>
+
+            <!-- Thumbnails Drawer -->
+            <div id="modalThumbsDrawer" style="position:absolute; bottom:65px; left:50%; transform:translateX(-50%) translateY(20px); width:85vw; max-width:900px; height:140px; background:rgba(20,21,23,0.95); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:12px; display:none; gap:10px; overflow-x:auto; z-index:60; box-shadow:0 15px 40px rgba(0,0,0,0.6);"></div>
+
+            <!-- Bottom Controls Bar (FlipHTML5 style) -->
+            <div style="position:absolute; bottom:12px; left:50%; transform:translateX(-50%); height:44px; background:rgba(22, 23, 24, 0.92); backdrop-filter:blur(12px); border:1px solid rgba(255, 255, 255, 0.12); border-radius:22px; display:flex; align-items:center; padding:0 16px; gap:10px; z-index:50; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                <!-- First Page -->
+                <button type="button" id="modalBtnFirst" style="background:none; border:none; color:#cbd5e1; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Awal">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+                </button>
+
+                <!-- Zoom Out / In -->
+                <button type="button" id="modalBtnZoomOut" style="background:none; border:none; color:#cbd5e1; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Perkecil (-)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <button type="button" id="modalBtnZoomIn" style="background:none; border:none; color:#cbd5e1; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Perbesar (+)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+
+                <!-- Thumbnails Grid -->
+                <button type="button" id="modalBtnToggleThumbs" style="background:none; border:none; color:#cbd5e1; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Thumbnail">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </button>
+
+                <!-- Sound Toggle -->
+                <button type="button" id="modalBtnToggleSound" style="background:rgba(99,102,241,0.2); border:none; color:#818cf8; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Suara Kertas Aktif">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                </button>
+
+                <div style="width:1px; height:18px; background:rgba(255,255,255,0.12);"></div>
+
+                <!-- Page Indicator & Scrubber -->
+                <span id="modalPageIndicator" style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; color:#e2e8f0; min-width:65px; text-align:center;">0 / 0</span>
+                <input type="range" id="modalPageSlider" min="1" max="1" value="1" style="-webkit-appearance:none; width:130px; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; cursor:pointer;">
+
+                <div style="width:1px; height:18px; background:rgba(255,255,255,0.12);"></div>
+
+                <!-- Last Page -->
+                <button type="button" id="modalBtnLast" style="background:none; border:none; color:#cbd5e1; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Akhir">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modalSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-page {
+            background-color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+        }
+
+        .modal-page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .modal-page-content canvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
+
+        /* 3D Spine Crease Shadows */
+        .modal-page.--left .modal-page-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 25px;
+            background: linear-gradient(to left, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+        }
+
+        .modal-page.--right .modal-page-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 25px;
+            background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
+        }
+
+        .modal-thumb-item {
+            flex-shrink: 0;
+            width: 75px;
+            height: 100%;
+            background: #2a2b2e;
+            border: 2px solid transparent;
+            border-radius: 6px;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .modal-thumb-item:hover {
+            border-color: rgba(99, 102, 241, 0.7);
+        }
+
+        .modal-thumb-item.active {
+            border-color: #6366f1;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+
+        .modal-thumb-item canvas {
+            max-width: 100%;
+            max-height: 85px;
+        }
+
+        .modal-thumb-label {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,0,0,0.6);
+            width: 100%;
+            text-align: center;
+            padding: 2px 0;
+            color: #cbd5e1;
+        }
+    </style>
+
+    <script>
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        let selectedPdfData = null;
+        let modalPageFlip = null;
+        let modalSoundEnabled = true;
+        let modalZoom = 1;
+        let modalTotalPages = 0;
+
+        // Realistic Page Flip Audio Synthesizer
+        function playFlipSound() {
+            if (!modalSoundEnabled) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+                const bufferSize = ctx.sampleRate * 0.15;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(800, ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.15);
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                noise.start();
+            } catch (e) {}
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+        }
+
+        function resetFilePicker() {
+            document.getElementById('pdfFileInput').value = '';
+            document.getElementById('filePickerPlaceholder').style.display = 'block';
+            document.getElementById('filePickerSelected').style.display = 'none';
+            document.getElementById('btnPreviewBeforeUpload').style.display = 'none';
+            selectedPdfData = null;
+        }
+
+        function handleDropFile(e) {
+            e.preventDefault();
+            e.currentTarget.style.borderColor = 'var(--border-light)';
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const file = e.dataTransfer.files[0];
+                if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    openUploadModal();
+                    const input = document.getElementById('pdfFileInput');
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    input.files = dt.files;
+                    handleFileSelect(input);
+                } else {
+                    alert('Harap pilih file dengan format PDF.');
+                }
+            }
+        }
+
+        async function handleFileSelect(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+
+            document.getElementById('filePickerPlaceholder').style.display = 'none';
+            document.getElementById('filePickerSelected').style.display = 'block';
+            document.getElementById('selectedFileName').textContent = file.name;
+            
+            const sizeStr = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+            document.getElementById('selectedFileSize').textContent = `${sizeStr} | Membaca dokumen...`;
+
+            const titleInput = document.getElementById('modulTitleInput');
+            if (!titleInput.value) {
+                const cleanName = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+                titleInput.value = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                selectedPdfData = arrayBuffer;
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                document.getElementById('detectedTotalPages').value = pdf.numPages;
+                document.getElementById('selectedFileSize').textContent = `${sizeStr} • ${pdf.numPages} Halaman`;
+                document.getElementById('btnPreviewBeforeUpload').style.display = 'inline-flex';
+            } catch (err) {
+                console.error("PDF read error:", err);
+                document.getElementById('selectedFileSize').textContent = `${sizeStr} (Gagal membaca jumlah halaman)`;
+            }
+        }
+
+        function previewLocalPdf() {
+            if (!selectedPdfData) return;
+            const title = document.getElementById('modulTitleInput').value || 'Preview Modul';
+            closeUploadModal();
+            renderFlipbookModal(title, { data: selectedPdfData });
+        }
+
+        function handleFlipbookButtonClick(btn) {
+            const title = btn.getAttribute('data-title') || 'E-Modul';
+            const pdfUrl = btn.getAttribute('data-pdf-url') || '';
+            const showUrl = btn.getAttribute('data-show-url') || '#';
+
+            document.getElementById('modalStandaloneLink').href = showUrl;
+            renderFlipbookModal(title, pdfUrl);
+        }
+
+        function openModulFlipbookById(id) {
+            const btn = document.getElementById('btn-flip-' + id);
+            if (btn) {
+                handleFlipbookButtonClick(btn);
+            }
+        }
+
+        async function renderFlipbookModal(title, source) {
+            const modal = document.getElementById('flipModal');
+            const flipbookEl = document.getElementById('modalFlipbook');
+            const thumbsDrawer = document.getElementById('modalThumbsDrawer');
+            const loadingOverlay = document.getElementById('modalLoadingOverlay');
+            const loadingText = document.getElementById('modalLoadingText');
+            
+            modal.style.display = 'flex';
+            document.getElementById('modalBookTitle').textContent = title;
+            loadingOverlay.style.display = 'flex';
+            loadingText.textContent = "Mengunduh dan menyiapkan Flipbook...";
+            thumbsDrawer.style.display = 'none';
+            thumbsDrawer.innerHTML = '';
+            flipbookEl.innerHTML = '';
+            flipbookEl.style.display = 'none';
+
+            if (modalPageFlip) {
+                try { modalPageFlip.destroy(); } catch(e) {}
+                modalPageFlip = null;
+            }
+
+            try {
+                let pdfDoc = null;
+                
+                // If source is a string URL, fetch as ArrayBuffer to avoid any CORS/worker restrictions
+                if (typeof source === 'string') {
+                    loadingText.textContent = "Mengunduh file PDF (" + title + ")...";
+                    const response = await fetch(source);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const pdfData = await response.arrayBuffer();
+                    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                    pdfDoc = await loadingTask.promise;
+                } else {
+                    const loadingTask = pdfjsLib.getDocument(source);
+                    pdfDoc = await loadingTask.promise;
+                }
+
+                modalTotalPages = pdfDoc.numPages;
+
+                const firstPage = await pdfDoc.getPage(1);
+                const viewport = firstPage.getViewport({ scale: 1.0 });
+                const pageWidth = Math.min(520, window.innerWidth * 0.44);
+                const pageHeight = pageWidth * (viewport.height / viewport.width);
+
+                for (let i = 1; i <= modalTotalPages; i++) {
+                    loadingText.textContent = `Merender halaman ${i} dari ${modalTotalPages}...`;
+                    const page = await pdfDoc.getPage(i);
+                    const scale = 2.0;
+                    const pageViewport = page.getViewport({ scale: scale });
+
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = `modal-page ${i % 2 === 0 ? '--left' : '--right'}`;
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'modal-page-content';
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = pageViewport.width;
+                    canvas.height = pageViewport.height;
+                    const ctx = canvas.getContext('2d');
+
+                    await page.render({ canvasContext: ctx, viewport: pageViewport }).promise;
+
+                    contentDiv.appendChild(canvas);
+                    pageDiv.appendChild(contentDiv);
+                    flipbookEl.appendChild(pageDiv);
+
+                    // Thumbnail item
+                    const thumbItem = document.createElement('div');
+                    thumbItem.className = `modal-thumb-item ${i === 1 ? 'active' : ''}`;
+                    thumbItem.setAttribute('data-page', i);
+                    
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = canvas.width;
+                    thumbCanvas.height = canvas.height;
+                    thumbCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+                    const thumbLabel = document.createElement('div');
+                    thumbLabel.className = 'modal-thumb-label';
+                    thumbLabel.textContent = i;
+
+                    thumbItem.appendChild(thumbCanvas);
+                    thumbItem.appendChild(thumbLabel);
+
+                    thumbItem.addEventListener('click', () => {
+                        if (modalPageFlip) modalPageFlip.flip(i - 1);
+                    });
+
+                    thumbsDrawer.appendChild(thumbItem);
+                }
+
+                loadingOverlay.style.display = 'none';
+                flipbookEl.style.display = 'block';
+
+                if (typeof St !== 'undefined' && St.PageFlip) {
+                    modalPageFlip = new St.PageFlip(flipbookEl, {
+                        width: pageWidth,
+                        height: pageHeight,
+                        size: 'stretch',
+                        minWidth: 300,
+                        maxWidth: 750,
+                        minHeight: 400,
+                        maxHeight: 1050,
+                        maxShadowOpacity: 0.5,
+                        showCover: true,
+                        mobileScrollSupport: false,
+                        usePortrait: window.innerWidth < 768
+                    });
+
+                    modalPageFlip.loadFromHTML(flipbookEl.querySelectorAll('.modal-page'));
+
+                    const slider = document.getElementById('modalPageSlider');
+                    slider.max = modalTotalPages;
+                    slider.value = 1;
+
+                    updateModalControls(0);
+
+                    modalPageFlip.on('flip', (e) => {
+                        playFlipSound();
+                        updateModalControls(e.data);
+                    });
+                } else {
+                    console.warn("St.PageFlip library not ready.");
+                }
+
+            } catch (err) {
+                console.error("Flipbook error:", err);
+                loadingText.innerHTML = `Gagal memuat dokumen PDF.<br><span style="font-size:12px; color:#f87171;">${err.message || ''}</span><br><br><a href="${document.getElementById('modalStandaloneLink').href}" target="_blank" style="color:#818cf8; text-decoration:underline;">Buka di Tab Baru</a>`;
+            }
+        }
+
+        function updateModalControls(pageIndex) {
+            const pageNum = pageIndex + 1;
+            const slider = document.getElementById('modalPageSlider');
+            const indicator = document.getElementById('modalPageIndicator');
+            
+            slider.value = pageNum;
+
+            if (modalPageFlip && modalPageFlip.getOrientation() === 'landscape' && pageNum > 1 && pageNum < modalTotalPages) {
+                indicator.textContent = `${pageNum}-${pageNum + 1} / ${modalTotalPages}`;
+            } else {
+                indicator.textContent = `${pageNum} / ${modalTotalPages}`;
+            }
+
+            document.querySelectorAll('.modal-thumb-item').forEach(th => {
+                const p = parseInt(th.getAttribute('data-page'), 10);
+                th.classList.toggle('active', p === pageNum || (pageNum > 1 && p === pageNum + 1));
+            });
+
+            document.getElementById('modalPrevArrow').style.opacity = (pageIndex === 0) ? '0.3' : '1';
+            document.getElementById('modalNextArrow').style.opacity = (pageIndex >= modalTotalPages - 1) ? '0.3' : '1';
+        }
+
+        function closeFlipModal() {
+            document.getElementById('flipModal').style.display = 'none';
+            if (modalPageFlip) {
+                try { modalPageFlip.destroy(); } catch(e) {}
+                modalPageFlip = null;
+            }
+        }
+
+        function toggleModalFullscreen() {
+            const modal = document.getElementById('flipModal');
+            if (!document.fullscreenElement) {
+                modal.requestFullscreen().catch(err => alert(err.message));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Modal Controls Event Listeners
+        document.getElementById('modalPrevArrow').addEventListener('click', () => modalPageFlip && modalPageFlip.flipPrev());
+        document.getElementById('modalNextArrow').addEventListener('click', () => modalPageFlip && modalPageFlip.flipNext());
+        document.getElementById('modalBtnFirst').addEventListener('click', () => modalPageFlip && modalPageFlip.flip(0));
+        document.getElementById('modalBtnLast').addEventListener('click', () => modalPageFlip && modalPageFlip.flip(modalTotalPages - 1));
+
+        document.getElementById('modalPageSlider').addEventListener('input', (e) => {
+            const targetPage = parseInt(e.target.value, 10);
+            if (modalPageFlip) modalPageFlip.flip(targetPage - 1);
+        });
+
+        document.getElementById('modalBtnZoomIn').addEventListener('click', () => {
+            modalZoom = Math.min(modalZoom + 0.15, 1.5);
+            document.getElementById('modalFlipWrapper').style.transform = `scale(${modalZoom})`;
+        });
+
+        document.getElementById('modalBtnZoomOut').addEventListener('click', () => {
+            modalZoom = Math.max(modalZoom - 0.15, 0.7);
+            document.getElementById('modalFlipWrapper').style.transform = `scale(${modalZoom})`;
+        });
+
+        document.getElementById('modalBtnToggleThumbs').addEventListener('click', function() {
+            const drawer = document.getElementById('modalThumbsDrawer');
+            drawer.style.display = (drawer.style.display === 'flex') ? 'none' : 'flex';
+        });
+
+        document.getElementById('modalBtnToggleSound').addEventListener('click', function() {
+            modalSoundEnabled = !modalSoundEnabled;
+            this.style.color = modalSoundEnabled ? '#818cf8' : '#94a3b8';
+            this.style.background = modalSoundEnabled ? 'rgba(99,102,241,0.2)' : 'none';
+        });
+
+        // Key bindings for modal
+        window.addEventListener('keydown', (e) => {
+            if (document.getElementById('flipModal').style.display === 'flex') {
+                if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+                    modalPageFlip && modalPageFlip.flipNext();
+                } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                    modalPageFlip && modalPageFlip.flipPrev();
+                } else if (e.key === 'Escape') {
+                    closeFlipModal();
+                }
+            }
+        });
+    </script>
+</x-admin-layout>
