@@ -762,7 +762,7 @@
                     📍 <span id="scopeActiveLabel">Halaman Aktif</span>
                 </button>
                 <button type="button" id="scopeGlobalBtn" onclick="setAiScope('global')" class="ai-scope-btn">
-                    🌐 Seluruh Modul (Global)
+                    🌐 Seluruh Modul
                 </button>
             </div>
         </div>
