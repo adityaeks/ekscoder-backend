@@ -270,6 +270,25 @@ class NineRouterService
             return $data['choices'][0]['message']['content'] ?? '';
         }
 
+        // If the model failed because of provider credentials (e.g. 404 No active credentials for provider), try fallback to Muse
+        if ($model !== 'Muse' && in_array($response->status(), [400, 404, 500])) {
+            try {
+                $payload['model'] = 'Muse';
+                $fallbackRes = Http::withHeaders([
+                    'Authorization' => "Bearer {$apiKey}",
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])->timeout($timeout)->post($endpoint, $payload);
+
+                if ($fallbackRes->successful()) {
+                    $data = $fallbackRes->json();
+                    return $data['choices'][0]['message']['content'] ?? '';
+                }
+            } catch (\Throwable $fbEx) {
+                // Ignore fallback exception and throw original
+            }
+        }
+
         $errorMsg = $response->body();
         $json = $response->json();
         if (is_array($json)) {

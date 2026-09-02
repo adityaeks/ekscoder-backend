@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\EModul;
+use App\Services\NineRouterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EModulController extends Controller
 {
+    protected NineRouterService $aiService;
+
+    public function __construct(NineRouterService $aiService)
+    {
+        $this->aiService = $aiService;
+    }
     /**
      * Display a listing of the e-moduls.
      */
@@ -170,5 +178,79 @@ class EModulController extends Controller
         $e_modul->delete();
 
         return redirect()->route('admin.e-modul.index')->with('success', 'E-Modul berhasil dihapus!');
+    }
+
+    /**
+     * Ask AI question about the e-modul content / current page.
+     */
+    public function askAi(Request $request, ?EModul $e_modul = null)
+    {
+        $validated = $request->validate([
+            'question' => 'required|string|max:2000',
+            'modul_title' => 'nullable|string|max:255',
+            'page_number' => 'nullable|string|max:50',
+            'page_text' => 'nullable|string|max:20000',
+            'history' => 'nullable|array',
+        ]);
+
+        $modulTitle = $e_modul ? $e_modul->title : ($validated['modul_title'] ?? 'E-Modul Pembelajaran');
+        $pageNumber = $validated['page_number'] ?? 'Semua Halaman';
+        $pageText = $validated['page_text'] ?? '';
+        $question = $validated['question'];
+
+        $systemPrompt = "Anda adalah AI Teaching & Study Assistant interaktif untuk E-Modul \"{$modulTitle}\".\n"
+            . "Tugas Anda adalah membantu pembaca memahami materi buku/modul ini secara komprehensif, mendalam, dan solutif dalam bahasa Indonesia.\n\n"
+            . "PANDUAN MENJAWAB:\n"
+            . "1. Jika pembaca bertanya tentang halaman tertentu atau modul secara umum, gunakan teks/materi modul yang dilampirkan sebagai rujukan utama.\n"
+            . "2. Jika ditanyakan tentang materi di halaman lain atau modul secara keseluruhan, jawablah secara lengkap berdasarkan konteks modul yang relevan.\n"
+            . "3. Jika materi yang ditanyakan tidak tertulis secara eksplisit namun berkaitan dengan topik modul, berikan penjelasan ilmiah/edukatif yang akurat dan sebutkan penjelasannya.\n"
+            . "4. Gunakan format Markdown yang rapi (bullet point, bold, list, atau tabel jika sesuai) agar nyaman dibaca.\n"
+            . "5. Jika diminta membuat kuis/soal, sertakan pertanyaan pilihan ganda atau esai beserta kunci jawaban dan penjelasannya.";
+
+        $messages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+        ];
+
+        // Append historical conversation if provided
+        if (!empty($validated['history']) && is_array($validated['history'])) {
+            foreach ($validated['history'] as $hist) {
+                if (isset($hist['role'], $hist['content']) && in_array($hist['role'], ['user', 'assistant'])) {
+                    $messages[] = [
+                        'role' => $hist['role'],
+                        'content' => (string)$hist['content']
+                    ];
+                }
+            }
+        }
+
+        // Prepare User message with context
+        $userContent = "";
+        if (!empty($pageText)) {
+            $userContent .= "[KONTEKS MATERI E-MODUL ({$pageNumber})]:\n\"\"\"\n" . Str::limit($pageText, 10000) . "\n\"\"\"\n\n";
+        }
+        $userContent .= "[PERTANYAAN PEMBACA]:\n" . $question;
+
+        $messages[] = [
+            'role' => 'user',
+            'content' => $userContent,
+        ];
+
+        try {
+            $aiReply = $this->aiService->getChatCompletions($messages);
+
+            return response()->json([
+                'success' => true,
+                'reply' => $aiReply,
+                'page' => $pageNumber,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("E-Modul AI Error: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'fallback_reply' => "⚠️ Gagal mendapatkan jawaban dari AI: " . $e->getMessage(),
+            ], 500);
+        }
     }
 }
