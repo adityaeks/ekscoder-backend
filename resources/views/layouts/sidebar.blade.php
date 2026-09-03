@@ -18,8 +18,14 @@
             </div>
             <span class="nav-text">Dashboard</span>
         </a>
+
+        <!-- <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}" title="Profile">
+            <div class="nav-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <span class="nav-text">Profile</span>
+        </a> -->
         
-        <!-- <div class="nav-section-label" style="margin-top:16px;">AI Chat</div> -->
         @can('ai_chat.view')
         <a href="{{ route('admin.ai-chat.index') }}" class="nav-item {{ request()->routeIs('admin.ai-chat.*') ? 'active' : '' }}" title="AI Chat (9Router)">
             <div class="nav-icon">
@@ -27,6 +33,9 @@
             </div>
             <span class="nav-text">AI Assistant</span>
         </a>
+        @endcan
+
+        @can('ai_cs.view')
         <a href="{{ route('admin.ai-cs.index') }}" class="nav-item {{ request()->routeIs('admin.ai-cs.*') ? 'active' : '' }}" title="AI Customer Service (Landing Page Bot)">
             <div class="nav-icon" style="color:var(--amber, #f59e0b);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
@@ -45,6 +54,7 @@
         </a>
         @endcan
 
+        @canany(['calendar.view', 'orders.view', 'finance.view', 'notes.view'])
         <div class="nav-section-label" style="margin-top:16px;">Internal Management</div>
         @can('calendar.view')
         <a href="{{ route('admin.calendar.index') }}" class="nav-item {{ request()->routeIs('admin.calendar.*') ? 'active' : '' }}" title="Kalender & Agenda">
@@ -56,9 +66,7 @@
         @endcan
             
         @can('orders.view')
-
         @php $activeOrderCount = \App\Models\ProjectOrder::whereNotIn('status', ['completed', 'cancelled'])->count(); @endphp
-
         <a href="{{ route('admin.orders.index') }}" class="nav-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" title="Project Orders">
             <div class="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
@@ -77,6 +85,7 @@
             <span class="nav-text">Keuangan & Kas</span>
         </a>
         @endcan
+
         @can('notes.view')
         <a href="{{ route('admin.notes.index') }}" class="nav-item {{ request()->routeIs('admin.notes.*') ? 'active' : '' }}" title="Notes">
             <div class="nav-icon">
@@ -85,10 +94,12 @@
             <span class="nav-text">Notes</span>
         </a>
         @endcan
+        @endcanany
 
-        @can('projects.view')
+        @canany(['projects.view', 'posts.view'])
         <div class="nav-section-label" style="margin-top:16px;">Manage Web Porto & Content</div>
 
+        @can('projects.view')
         <a href="{{ route('admin.projects.index') }}" class="nav-item {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}" title="Projects">
             <div class="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
@@ -105,8 +116,9 @@
             <span class="nav-text">Blog & Artikel</span>
         </a>
         @endcan
+        @endcanany
 
-        
+        @canany(['sites.view', 'vps.view', 'cloudflare.view'])
         <div class="nav-section-label" style="margin-top:16px;">Infrastructure</div>
         @can('sites.view')
         <a href="{{ route('admin.sites.index') }}" class="nav-item {{ request()->routeIs('admin.sites.*') ? 'active' : '' }}" title="Website Monitoring">
@@ -116,12 +128,15 @@
             <span class="nav-text">Website Monitoring</span>
         </a>
         @endcan
+
+        @can('vps.view')
         <a href="{{ route('admin.vps.index') }}" class="nav-item {{ request()->routeIs('admin.vps.*') ? 'active' : '' }}" title="VPS Monitoring">
             <div class="nav-icon" style="color:#6366f1;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
             </div>
             <span class="nav-text">VPS Monitoring</span>
         </a>
+        @endcan
 
         @can('cloudflare.view')
         <a href="{{ route('admin.cloudflare-zones.index') }}" class="nav-item {{ request()->routeIs('admin.cloudflare-zones.*') ? 'active' : '' }}" title="Cloudflare API">
@@ -131,15 +146,10 @@
             <span class="nav-text">Cloudflare API</span>
         </a>
         @endcan
+        @endcanany
 
-
+        @canany(['users.view', 'roles.view', 'logs.view'])
         <div class="nav-section-label" style="margin-top:16px;">System & Security</div>
-        <a href="{{ route('profile.edit') }}" class="nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}" title="Profile">
-            <div class="nav-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <span class="nav-text">Profile</span>
-        </a>
 
         @can('users.view')
         <a href="{{ route('admin.users.index') }}" class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" title="User Management">
@@ -167,7 +177,9 @@
             <span class="nav-text">Activity Logs</span>
         </a>
         @endcan
+        @endcanany
 
+        @can('api.preview')
         <div class="nav-section-label" style="margin-top:16px;">Developer</div>
 
         <a href="/api/projects" target="_blank" class="nav-item" title="API Preview">
@@ -176,6 +188,7 @@
             </div>
             <span class="nav-text">API Preview</span>
         </a>
+        @endcan
     </nav>
 
     <div class="sidebar-footer">

@@ -1,4 +1,4 @@
-<x-admin-layout title="AI Chat (9Router)" breadcrumb="AI Tools / AI Chat">
+<x-admin-layout title="AI Assistant" breadcrumb="AI Tools / AI Assistant">
 
     <!-- Dependencies: Marked.js & Highlight.js for Markdown & Code Highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -956,7 +956,7 @@
                     </div>
 
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <div class="status-pill" id="headerStatusPill" onclick="toggleSettingsModal()" title="Klik untuk membuka Pengaturan API 9Router">
+                        <div class="status-pill" id="headerStatusPill" @can('ai_chat.settings') onclick="toggleSettingsModal()" title="Klik untuk membuka Pengaturan API 9Router" @else style="cursor:default;" title="Status Koneksi 9Router" @endcan>
                             <span class="status-dot" id="connStatusDot"></span>
                             <span id="connStatusText">Memeriksa...</span>
                         </div>
@@ -972,9 +972,11 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         </button>
 
+                        @can('ai_chat.settings')
                         <button onclick="toggleSettingsModal()" class="btn-top-action" style="padding:6px 10px;" title="Buka Pengaturan API 9Router">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                         </button>
+                        @endcan
                     </div>
                 </div>
 
@@ -1014,6 +1016,7 @@
         </div>
     </div>
 
+    @can('ai_chat.settings')
     <!-- Modal Pengaturan 9Router -->
     <div class="modal-glass-backdrop" id="settingsModal">
         <div class="modal-dialog-box">
@@ -1066,6 +1069,7 @@
             </form>
         </div>
     </div>
+    @endcan
 
     <!-- Custom Confirmation Modal -->
     <div class="modal-glass-backdrop" id="aiConfirmModal">
@@ -1800,7 +1804,11 @@
                     assistantBubble.innerHTML = `<div style="background:var(--rose-soft, rgba(244, 63, 94, 0.12)); border:1px solid rgba(244, 63, 94, 0.3); padding:10px 14px; border-radius:10px; color:var(--rose, #f43f5e); font-size:12.5px;">
                         <strong>⚠️ 9Router Error / Invalid API Key:</strong><br>
                         9Router tidak mengembalikan respon untuk model <strong>${escapeHtml(selectedModel)}</strong>.<br>
-                        Silakan masukkan <strong>API Key</strong> 9Router Anda melalui tombol <button onclick="toggleSettingsModal()" style="background:var(--rose, #f43f5e); color:#fff; border:none; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer; margin-left:4px;">Pengaturan API</button>.
+                        @can('ai_chat.settings')
+                        Silakan periksa <strong>API Key</strong> 9Router Anda melalui tombol <button onclick="toggleSettingsModal()" style="background:var(--rose, #f43f5e); color:#fff; border:none; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer; margin-left:4px;">Pengaturan API</button>.
+                        @else
+                        Silakan hubungi <strong>Super Admin</strong> untuk memeriksa konfigurasi API Key 9Router.
+                        @endcan
                     </div>`;
                 }
 
@@ -1822,6 +1830,7 @@
 
         function toggleSettingsModal() {
             const modal = document.getElementById('settingsModal');
+            if (!modal) return;
             modal.classList.toggle('active');
             if (modal.classList.contains('active')) {
                 load9RouterModels();

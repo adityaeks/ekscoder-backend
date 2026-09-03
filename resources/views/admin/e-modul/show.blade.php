@@ -640,7 +640,7 @@
                 Kembali
             </a>
             <span style="opacity:0.3; margin:0 4px;">|</span>
-            <span style="font-size:12px; color:#94a3b8;">📖 FLIPHTML5 Reader</span>
+            <span style="font-size:12px; color:#94a3b8;">📖 FLIPBOOK AI EKSCODER</span>
         </div>
 
         <div class="flip-title" title="{{ $e_modul->title }}">
@@ -649,9 +649,9 @@
 
         <div class="flip-header-actions">
             <!-- AI Toggle Header Button -->
-            <button class="ctrl-btn" id="btnToggleAiHeader" title="Tanya AI Asisten Modul" style="color:#38bdf8; background:rgba(56, 189, 248, 0.12); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;">
+            <!-- <button class="ctrl-btn" id="btnToggleAiHeader" title="Tanya AI Asisten Modul" style="color:#38bdf8; background:rgba(56, 189, 248, 0.12); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;">
                 <span>✨</span> Tanya AI
-            </button>
+            </button> -->
 
             @if($e_modul->pdf_url)
             <a href="{{ $e_modul->pdf_url }}" download class="ctrl-btn" title="Download PDF" style="text-decoration:none;">
@@ -742,7 +742,7 @@
     <!-- Floating AI Trigger Button (FlipHTML5 blue bubble style) -->
     <button class="ai-floating-btn" id="btnFloatingAi" title="Buka AI Asisten Modul">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span>Tanya AI Modul</span>
+        <span>Tanya AI</span>
     </button>
 
     <!-- AI Assistant Sidebar Drawer -->

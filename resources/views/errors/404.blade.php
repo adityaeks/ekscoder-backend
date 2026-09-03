@@ -192,10 +192,26 @@
             </div>
 
             <h1 class="error-title">Halaman Tidak Ditemukan</h1>
-            <p class="error-subtitle">
-                Maaf, halaman yang Anda tuju tidak ditemukan, telah dipindahkan, atau akses fitur tersebut telah nonaktif.
+            <p class="error-subtitle" style="margin-bottom:24px;">
+                Maaf, halaman yang Anda tuju tidak ditemukan, telah dipindahkan, atau alamat URL yang dimasukkan salah.
             </p>
 
+            <!-- Navigation Actions -->
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;">
+                <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='{{ url('/') }}'" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; background:var(--bg-elevated); color:var(--text-primary); border:1px solid var(--border); transition:all 0.2s;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                    <span>Kembali</span>
+                </button>
+
+                <a href="{{ url('/') }}" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; background:var(--accent); color:#000000; border:1px solid rgba(184,255,0,0.4); box-shadow:0 4px 14px var(--accent-glow); transition:all 0.2s;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                    <span>Halaman Utama</span>
+                </a>
+            </div>
         </div>
     </div>
 </body>

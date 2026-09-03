@@ -29,6 +29,27 @@ use App\Models\ProjectOrder;
 use App\Models\UserLog;
 
 Route::get('/dashboard', function () {
+    $user = auth()->user();
+    $isAdmin = $user && $user->can('dashboard.admin');
+
+    if (!$isAdmin) {
+        return view('dashboard', [
+            'isAdmin' => false,
+            'stats' => [
+                'total_projects'   => 0,
+                'active_projects'  => 0,
+                'featured_projects'=> 0,
+                'total_pipeline'   => 0,
+                'total_paid'       => 0,
+                'active_orders'    => 0,
+                'completed_orders' => 0,
+            ],
+            'projects' => collect(),
+            'recentOrders' => collect(),
+            'recentLogs' => collect(),
+        ]);
+    }
+
     $projects = Project::orderBy('order', 'asc')->get();
     $allOrders = ProjectOrder::latest()->get();
 
@@ -45,7 +66,7 @@ Route::get('/dashboard', function () {
     $recentOrders = $allOrders->take(5);
     $recentLogs   = UserLog::latest()->take(6)->get();
 
-    return view('dashboard', compact('stats', 'projects', 'recentOrders', 'recentLogs'));
+    return view('dashboard', compact('stats', 'projects', 'recentOrders', 'recentLogs') + ['isAdmin' => true]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 use App\Http\Controllers\Admin\ProjectOrderController;
@@ -150,18 +171,29 @@ Route::middleware('auth')->group(function () {
 
         // VPS PIN Security Routes
         Route::get('vps-pin', [VpsPinController::class, 'showPinForm'])
-            ->name('vps-pin.show');
+            ->name('vps-pin.show')
+            ->middleware('can:vps.view');
 
         Route::post('vps-pin', [VpsPinController::class, 'verifyPin'])
-            ->name('vps-pin.verify');
+            ->name('vps-pin.verify')
+            ->middleware('can:vps.view');
 
         Route::post('vps-pin/lock', [VpsPinController::class, 'lockPin'])
-            ->name('vps-pin.lock');
+            ->name('vps-pin.lock')
+            ->middleware('can:vps.view');
 
         // VPS Server Monitoring (Protected by PIN 8181)
-        Route::middleware('vps.pin')->group(function () {
+        Route::middleware(['vps.pin', 'can:vps.view'])->group(function () {
             Route::resource('vps', VpsServerController::class)->parameters([
                 'vps' => 'vps'
+            ])->middleware([
+                'index'   => 'can:vps.view',
+                'show'    => 'can:vps.view',
+                'create'  => 'can:vps.create',
+                'store'   => 'can:vps.create',
+                'edit'    => 'can:vps.edit',
+                'update'  => 'can:vps.edit',
+                'destroy' => 'can:vps.delete',
             ]);
         });
 
@@ -295,7 +327,7 @@ Route::middleware('auth')->group(function () {
         ]);
 
         // AI Chat (9Router) Routes
-        Route::prefix('ai-chat')->name('ai-chat.')->group(function () {
+        Route::prefix('ai-chat')->name('ai-chat.')->middleware('can:ai_chat.view')->group(function () {
             Route::get('/', [AiChatController::class, 'index'])->name('index');
             Route::get('/models', [AiChatController::class, 'getModels'])->name('models');
             Route::get('/conversations', [AiChatController::class, 'getConversations'])->name('conversations.index');
@@ -305,17 +337,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/conversations/{id}/messages', [AiChatController::class, 'getMessages'])->name('messages.index');
             Route::delete('/conversations/{id}/messages', [AiChatController::class, 'clearMessages'])->name('messages.clear');
             Route::post('/send', [AiChatController::class, 'sendMessage'])->name('send');
-            Route::post('/settings', [AiChatController::class, 'saveSettings'])->name('settings.save');
+            Route::post('/settings', [AiChatController::class, 'saveSettings'])->middleware('can:ai_chat.settings')->name('settings.save');
             Route::post('/test-connection', [AiChatController::class, 'testConnection'])->name('test-connection');
         });
 
         // AI Customer Service (Landing Page Bot Logs & Prompt Settings)
-        Route::prefix('ai-cs')->name('ai-cs.')->group(function () {
+        Route::prefix('ai-cs')->name('ai-cs.')->middleware('can:ai_cs.view')->group(function () {
             Route::get('/', [AiCsAdminController::class, 'index'])->name('index');
             Route::get('/sessions/{sessionId}/messages', [AiCsAdminController::class, 'getSessionMessages'])->name('sessions.messages');
-            Route::delete('/sessions/{sessionId}', [AiCsAdminController::class, 'destroySession'])->name('sessions.destroy');
-            Route::post('/clear-logs', [AiCsAdminController::class, 'clearLogs'])->name('clear-logs');
-            Route::post('/settings', [AiCsAdminController::class, 'saveSettings'])->name('settings.save');
+            Route::delete('/sessions/{sessionId}', [AiCsAdminController::class, 'destroySession'])->middleware('can:ai_cs.manage')->name('sessions.destroy');
+            Route::post('/clear-logs', [AiCsAdminController::class, 'clearLogs'])->middleware('can:ai_cs.manage')->name('clear-logs');
+            Route::post('/settings', [AiCsAdminController::class, 'saveSettings'])->middleware('can:ai_cs.manage')->name('settings.save');
             Route::post('/test-chat', [AiCsAdminController::class, 'testChat'])->name('test-chat');
         });
 

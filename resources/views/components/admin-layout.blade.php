@@ -797,7 +797,7 @@
                         </div>
                         <div class="topbar-user-meta">
                             <span class="topbar-user-name">{{ Auth::user()->name ?? 'Admin' }}</span>
-                            <span class="topbar-user-role">Administrator</span>
+                            <span class="topbar-user-role">{{ Auth::user()->roles->first()->name ?? 'Member' }}</span>
                         </div>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 2px; color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>

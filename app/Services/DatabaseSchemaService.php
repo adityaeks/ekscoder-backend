@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -38,13 +39,46 @@ class DatabaseSchemaService
     ];
 
     /**
-     * Filter table names to only include tables from current database.
+     * Mapping of database tables to their required Spatie permissions.
      */
-    public function getCleanTables(): array
+    public const TABLE_PERMISSION_MAP = [
+        'financial_transactions' => 'finance.view',
+        'financial_categories'   => 'finance.view',
+        'project_orders'         => 'orders.view',
+        'projects'               => 'projects.view',
+        'blog_posts'             => 'posts.view',
+        'blog_categories'        => 'posts.view',
+        'users'                  => 'users.view',
+        'roles'                  => 'roles.view',
+        'permissions'            => 'roles.view',
+        'model_has_roles'        => 'roles.view',
+        'model_has_permissions'  => 'roles.view',
+        'role_has_permissions'   => 'roles.view',
+        'user_logs'              => 'logs.view',
+        'vps_instances'          => 'vps.view',
+        'monitored_sites'        => 'sites.view',
+        'cloudflare_zones'       => 'cloudflare.view',
+        'cloudflare_dns'         => 'cloudflare.view',
+        'notes'                  => 'notes.view',
+        'calendar_events'        => 'calendar.view',
+        'e_moduls'               => 'emodul.view',
+        'e_modul_categories'     => 'emodul.view',
+        'e_modul_pages'          => 'emodul.view',
+        'ai_cs_sessions'         => 'ai_cs.view',
+        'ai_cs_messages'         => 'ai_cs.view',
+        'ai_cs_settings'         => 'ai_cs.manage',
+    ];
+
+    /**
+     * Filter table names to only include tables from current database that the user has permission to view.
+     */
+    public function getCleanTables(?User $user = null): array
     {
         $rawTables = Schema::getTableListing();
         $currentDb = DB::connection()->getDatabaseName();
         $cleanTables = [];
+
+        $isSuperAdmin = $user && $user->hasRole('Super Admin');
 
         foreach ($rawTables as $t) {
             $tableName = $t;
@@ -63,6 +97,14 @@ class DatabaseSchemaService
                 continue;
             }
 
+            // Filter table if user does not have permission
+            if ($user && !$isSuperAdmin && isset(self::TABLE_PERMISSION_MAP[$tableName])) {
+                $requiredPerm = self::TABLE_PERMISSION_MAP[$tableName];
+                if (!$user->can($requiredPerm)) {
+                    continue;
+                }
+            }
+
             $cleanTables[] = $tableName;
         }
 
@@ -72,10 +114,15 @@ class DatabaseSchemaService
     /**
      * Generate a clean Markdown description of all application database tables.
      */
-    public function getSchemaSummary(): string
+    public function getSchemaSummary(?User $user = null): string
     {
-        $tables = $this->getCleanTables();
-        $schemaText = "# DATABASE SCHEMA & STRUCTURE\n\n";
+        $tables = $this->getCleanTables($user);
+        $schemaText = "# DATABASE SCHEMA & STRUCTURE (AKSES RESMI PENGGUNA)\n\n";
+
+        if (empty($tables)) {
+            $schemaText .= "Tidak ada tabel database yang diizinkan untuk diakses oleh akun pengguna ini.\n\n";
+            return $schemaText;
+        }
 
         foreach ($tables as $table) {
             $schemaText .= "### Table: `{$table}`\n";

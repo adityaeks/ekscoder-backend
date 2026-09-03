@@ -20,6 +20,9 @@ class RoleAndPermissionSeeder extends Seeder
 
         // List of permissions grouped by module
         $modulesPermissions = [
+            'dashboard' => [
+                'dashboard.admin',
+            ],
             'orders' => [
                 'orders.view',
                 'orders.create',
@@ -91,6 +94,11 @@ class RoleAndPermissionSeeder extends Seeder
                 'ai_chat.view',
                 'ai_chat.create',
                 'ai_chat.delete',
+                'ai_chat.settings',
+            ],
+            'ai_cs' => [
+                'ai_cs.view',
+                'ai_cs.manage',
             ],
             'emodul' => [
                 'emodul.view',
@@ -100,8 +108,16 @@ class RoleAndPermissionSeeder extends Seeder
                 'emodul.toggle-active',
                 'emodul.ask-ai',
             ],
+            'vps' => [
+                'vps.view',
+                'vps.create',
+                'vps.edit',
+                'vps.delete',
+            ],
+            'api' => [
+                'api.preview',
+            ],
         ];
-
 
         // Seed Default Financial Categories
         \App\Models\FinancialCategory::firstOrCreate(['name' => 'Project Payment', 'type' => 'income'], ['color' => '#10b981']);
@@ -125,8 +141,11 @@ class RoleAndPermissionSeeder extends Seeder
         $adminRole      = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
         $staffRole      = Role::firstOrCreate(['name' => 'Staff', 'guard_name' => 'web']);
 
-        // Give permissions to Admin & Staff roles
-        $adminRole->syncPermissions($allPermissionNames);
+        $superAdminRole->syncPermissions(Permission::all());
+
+        // Give permissions to Admin & Staff roles (ai_chat.settings dikhususkan untuk Super Admin secara default)
+        $adminPermissions = array_diff($allPermissionNames, ['ai_chat.settings']);
+        $adminRole->syncPermissions($adminPermissions);
         $staffRole->syncPermissions([
             'orders.view',
             'orders.create',

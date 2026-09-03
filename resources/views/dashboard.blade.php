@@ -1,5 +1,8 @@
-<x-admin-layout title="Dashboard Overview" breadcrumb="Executive Command Center & Business Pipeline">
+<x-admin-layout 
+    :title="($isAdmin ?? false) ? 'Dashboard Overview' : 'Dashboard'" 
+    :breadcrumb="($isAdmin ?? false) ? 'Executive Command Center & Business Pipeline' : 'Workspace / Selamat Datang'">
 
+@if($isAdmin ?? false)
     <!-- Top Stats Grid -->
     <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 24px;">
         <div class="stat-card accent">
@@ -7,7 +10,7 @@
                 <div class="stat-label">Pipeline Value</div>
                 <div class="stat-icon accent">💰</div>
             </div>
-            <div class="stat-value" style="font-size:22px;">Rp {{ number_format($stats['total_pipeline'], 0, ',', '.') }}</div>
+            <div class="stat-value" style="font-size:22px;">Rp {{ number_format($stats['total_pipeline'] ?? 0, 0, ',', '.') }}</div>
             <div class="stat-meta">Gross contract value (excl. cancelled)</div>
         </div>
 
@@ -16,7 +19,7 @@
                 <div class="stat-label">Collected Payments</div>
                 <div class="stat-icon green">💵</div>
             </div>
-            <div class="stat-value" style="font-size:22px; color:var(--green);">Rp {{ number_format($stats['total_paid'], 0, ',', '.') }}</div>
+            <div class="stat-value" style="font-size:22px; color:var(--green);">Rp {{ number_format($stats['total_paid'] ?? 0, 0, ',', '.') }}</div>
             <div class="stat-meta">Received DP & full payments</div>
         </div>
 
@@ -25,7 +28,7 @@
                 <div class="stat-label">Active Orders</div>
                 <div class="stat-icon cyan">⚡</div>
             </div>
-            <div class="stat-value">{{ $stats['active_orders'] }}</div>
+            <div class="stat-value">{{ $stats['active_orders'] ?? 0 }}</div>
             <div class="stat-meta">Ongoing projects in pipeline</div>
         </div>
 
@@ -34,7 +37,7 @@
                 <div class="stat-label">Completed Orders</div>
                 <div class="stat-icon amber">🎉</div>
             </div>
-            <div class="stat-value">{{ $stats['completed_orders'] }}</div>
+            <div class="stat-value">{{ $stats['completed_orders'] ?? 0 }}</div>
             <div class="stat-meta">Finished and delivered</div>
         </div>
 
@@ -43,8 +46,8 @@
                 <div class="stat-label">Porto Projects</div>
                 <div class="stat-icon accent">📂</div>
             </div>
-            <div class="stat-value">{{ $stats['total_projects'] }}</div>
-            <div class="stat-meta">{{ $stats['active_projects'] }} live on public API</div>
+            <div class="stat-value">{{ $stats['total_projects'] ?? 0 }}</div>
+            <div class="stat-meta">{{ $stats['active_projects'] ?? 0 }} live on public API</div>
         </div>
     </div>
 
@@ -269,4 +272,207 @@
             </table>
         </div>
     </div>
+
+@else
+    <!-- Styles for Guest Dashboard (Adaptive Dark & Light Mode) -->
+    <style>
+        .welcome-hero-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px 26px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        html[data-theme="dark"] .welcome-hero-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, var(--bg-surface) 100%);
+            border-color: rgba(99, 102, 241, 0.25);
+            box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.45);
+        }
+
+        html[data-theme="light"] .welcome-hero-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, #ffffff 100%);
+            border-color: rgba(99, 102, 241, 0.18);
+            box-shadow: 0 8px 25px -4px rgba(99, 102, 241, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .welcome-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.28);
+            flex-shrink: 0;
+        }
+
+        .guest-feature-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guest-feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+        }
+
+        html[data-theme="dark"] .guest-feature-card:hover {
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.4);
+        }
+
+        .guest-feature-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+        }
+
+        .guest-info-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+
+    <!-- Guest / Limited User Welcome Dashboard -->
+    <div style="display:flex; flex-direction:column; gap:24px;">
+        
+        <!-- Welcome Hero Banner -->
+        <div class="welcome-hero-card">
+            <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; position:relative; z-index:1;">
+                <div class="welcome-avatar">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                </div>
+                <div style="flex:1; min-width:260px;">
+                    <h1 style="font-size:22px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0; letter-spacing:-0.4px;">
+                        Selamat Datang, {{ Auth::user()->name }}! 👋
+                    </h1>
+                    <p style="font-size:13.5px; color:var(--text-secondary); margin:0; line-height:1.6;">
+                        Senang melihat Anda kembali di <strong>Ekscoder Platform</strong>. Silakan pilih menu layanan di bawah ini atau navigasi sidebar untuk mulai mengakses fitur Anda.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Fitur & Modul Tersedia -->
+        <div>
+            <h2 style="font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                <span>🚀</span> Fitur & Layanan Anda
+            </h2>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+                @can('emodul.view')
+                <div class="guest-feature-card">
+                    <div>
+                        <div class="guest-feature-icon" style="color:#6366f1;">
+                            📖
+                        </div>
+                        <div style="font-size:15.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                            Pustaka E-Modul
+                        </div>
+                        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0 0 16px 0;">
+                            Akses dan pelajari modul digital dengan tampilan 3D flipbook reader interaktif serta bantuan AI cerdas.
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.e-modul.index') }}" class="btn btn-primary" style="align-self:flex-start; font-size:12.5px; padding:7px 16px;">
+                        Buka E-Modul &rarr;
+                    </a>
+                </div>
+                @endcan
+
+                @can('ai_chat.view')
+                <div class="guest-feature-card">
+                    <div>
+                        <div class="guest-feature-icon" style="color:#06b6d4;">
+                            🤖
+                        </div>
+                        <div style="font-size:15.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                            AI Assistant
+                        </div>
+                        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0 0 16px 0;">
+                            Gunakan asisten kecerdasan buatan untuk berdiskusi, menganalisis materi, atau konsultasi ide tugas Anda.
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.ai-chat.index') }}" class="btn btn-primary" style="align-self:flex-start; font-size:12.5px; padding:7px 16px;">
+                        Mulai Diskusi &rarr;
+                    </a>
+                </div>
+                @endcan
+
+                @can('ai_cs.view')
+                <div class="guest-feature-card">
+                    <div>
+                        <div class="guest-feature-icon" style="color:#f59e0b;">
+                            💬
+                        </div>
+                        <div style="font-size:15.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                            AI Customer Service
+                        </div>
+                        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0 0 16px 0;">
+                            Lihat log pesan dan konfigurasi respons percakapan otomatis bot customer service.
+                        </p>
+                    </div>
+                    <a href="{{ route('admin.ai-cs.index') }}" class="btn btn-ghost" style="align-self:flex-start; font-size:12.5px; padding:7px 16px; border:1px solid var(--border);">
+                        Lihat Sesi CS &rarr;
+                    </a>
+                </div>
+                @endcan
+
+                <!-- Profil Akun Card (Selalu Ada) -->
+                <div class="guest-feature-card">
+                    <div>
+                        <div class="guest-feature-icon" style="color:var(--text-secondary);">
+                            ⚙️
+                        </div>
+                        <div style="font-size:15.5px; font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                            Pengaturan Profil
+                        </div>
+                        <p style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin:0 0 16px 0;">
+                            Perbarui data akun, email login, serta kelola kata sandi pribadi Anda secara mandiri.
+                        </p>
+                    </div>
+                    <a href="{{ route('profile.edit') }}" class="btn btn-ghost" style="align-self:flex-start; font-size:12.5px; padding:7px 16px; border:1px solid var(--border);">
+                        Kelola Profil &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simple Footer Notice -->
+        <div class="guest-info-box">
+            <div style="font-size:18px;">💡</div>
+            <div style="font-size:12.5px; color:var(--text-muted); line-height:1.4;">
+                Memerlukan akses ke modul atau fitur manajemen lainnya? Silakan hubungi <strong>Super Admin</strong> untuk penyesuaian hak akses (role & permission).
+            </div>
+        </div>
+
+    </div>
+@endif
+
 </x-admin-layout>
