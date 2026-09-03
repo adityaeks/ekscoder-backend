@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EModul;
 use App\Services\NineRouterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -23,6 +24,8 @@ class EModulController extends Controller
      */
     public function index()
     {
+        Gate::authorize('emodul.view');
+
         $moduls = EModul::latest()->get();
 
         $stats = [
@@ -40,6 +43,8 @@ class EModulController extends Controller
      */
     public function create()
     {
+        Gate::authorize('emodul.create');
+
         return redirect()->route('admin.e-modul.index', ['action' => 'upload']);
     }
 
@@ -48,6 +53,7 @@ class EModulController extends Controller
      */
     public function store(Request $request)
     {
+        Gate::authorize('emodul.create');
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
@@ -111,6 +117,8 @@ class EModulController extends Controller
      */
     public function edit(EModul $e_modul)
     {
+        Gate::authorize('emodul.edit');
+
         return view('admin.e-modul.edit', compact('e_modul'));
     }
 
@@ -119,6 +127,8 @@ class EModulController extends Controller
      */
     public function update(Request $request, EModul $e_modul)
     {
+        Gate::authorize('emodul.edit');
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
@@ -157,6 +167,8 @@ class EModulController extends Controller
      */
     public function toggleActive(EModul $e_modul)
     {
+        Gate::authorize('emodul.toggle-active');
+
         $e_modul->is_active = !$e_modul->is_active;
         $e_modul->save();
 
@@ -168,6 +180,8 @@ class EModulController extends Controller
      */
     public function destroy(EModul $e_modul)
     {
+        Gate::authorize('emodul.delete');
+
         if ($e_modul->file_path && Storage::disk('public')->exists($e_modul->file_path)) {
             Storage::disk('public')->delete($e_modul->file_path);
         }
@@ -198,14 +212,17 @@ class EModulController extends Controller
         $pageText = $validated['page_text'] ?? '';
         $question = $validated['question'];
 
-        $systemPrompt = "Anda adalah AI Teaching & Study Assistant interaktif untuk E-Modul \"{$modulTitle}\".\n"
-            . "Tugas Anda adalah membantu pembaca memahami materi buku/modul ini secara komprehensif, mendalam, dan solutif dalam bahasa Indonesia.\n\n"
-            . "PANDUAN MENJAWAB:\n"
-            . "1. Jika pembaca bertanya tentang halaman tertentu atau modul secara umum, gunakan teks/materi modul yang dilampirkan sebagai rujukan utama.\n"
-            . "2. Jika ditanyakan tentang materi di halaman lain atau modul secara keseluruhan, jawablah secara lengkap berdasarkan konteks modul yang relevan.\n"
-            . "3. Jika materi yang ditanyakan tidak tertulis secara eksplisit namun berkaitan dengan topik modul, berikan penjelasan ilmiah/edukatif yang akurat dan sebutkan penjelasannya.\n"
-            . "4. Gunakan format Markdown yang rapi (bullet point, bold, list, atau tabel jika sesuai) agar nyaman dibaca.\n"
-            . "5. Jika diminta membuat kuis/soal, sertakan pertanyaan pilihan ganda atau esai beserta kunci jawaban dan penjelasannya.";
+        $systemPrompt = "Anda adalah AI Teaching & Study Assistant interaktif khusus untuk E-Modul \"{$modulTitle}\".\n"
+            . "Tugas utama Anda HANYA menjawab pertanyaan seputar materi dan isi buku/modul ini dalam bahasa Indonesia.\n\n"
+            . "BATASAN KETAT (WAJIB DIPATUHI):\n"
+            . "1. RUANG LINGKUP HANYA SEPUTAR MODUL: Anda HANYA diperbolehkan menjawab pertanyaan yang berkaitan langsung dengan materi, topik, konsep, dan isi pembelajaran yang ada di dalam modul \"{$modulTitle}\".\n"
+            . "2. JIKA BUKAN SEPUTAR MODUL MAKA TIDAK PERLU / DILARANG MENJAWAB: Jika pembaca bertanya hal umum yang tidak relevan atau di luar materi modul (seperti biaya pembuatan website, jasa programmer/aplikasi, politik, hiburan, curhat, resep umum, atau pertanyaan apa pun yang tidak dibahas di modul), JANGAN MENJAWAB PERTANYAAN TERSEBUT.\n"
+            . "3. FORMAT PENOLAKAN: Tolak dengan sopan, singkat, dan jelas tanpa bertele-tele. Contoh:\n"
+            . "   \"Maaf, saya adalah asisten khusus untuk modul '{$modulTitle}'. Saya hanya dapat menjawab pertanyaan seputar materi dan isi modul ini. Silakan ajukan pertanyaan yang berkaitan dengan topik modul!\"\n"
+            . "4. DILARANG MENGHUBUNGKAN SECARA DIPAKSA: Jangan berusaha mengait-ngaitkan pertanyaan luar (seperti biaya website, jasa buat e-modul, toko online, dll.) dengan isi modul.\n"
+            . "5. RUJUKAN UTAMA: Jika pertanyaan relevan dengan materi modul, gunakan teks materi modul yang dilampirkan sebagai rujukan utama penjelasan Anda secara ilmiah, edukatif, dan jelas.\n"
+            . "6. FORMAT JAWABAN: Gunakan format Markdown yang rapi (bullet points, bold) agar nyaman dibaca.\n"
+            . "7. LATIHAN / KUIS: Jika diminta membuat kuis atau latihan soal, bahan pertanyaan wajib 100% diambil dari materi modul ini.";
 
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],

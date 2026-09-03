@@ -92,6 +92,14 @@ class RoleAndPermissionSeeder extends Seeder
                 'ai_chat.create',
                 'ai_chat.delete',
             ],
+            'emodul' => [
+                'emodul.view',
+                'emodul.create',
+                'emodul.edit',
+                'emodul.delete',
+                'emodul.toggle-active',
+                'emodul.ask-ai',
+            ],
         ];
 
 
@@ -133,6 +141,8 @@ class RoleAndPermissionSeeder extends Seeder
             'calendar.create',
             'calendar.edit',
             'calendar.delete',
+            'emodul.view',
+            'emodul.ask-ai',
         ]);
 
 

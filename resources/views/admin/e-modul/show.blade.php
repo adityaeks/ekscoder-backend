@@ -795,7 +795,7 @@
         <div class="ai-input-area">
             <form id="aiChatForm" onsubmit="handleSendAiMessage(event)">
                 <div class="ai-input-box">
-                    <input type="text" id="aiInputText" placeholder="Tanya halaman ini, halaman 55, atau topik apa saja..." autocomplete="off">
+                    <input type="text" id="aiInputText" placeholder="Tanya materi halaman ini, hal 55, atau seputar modul ini..." autocomplete="off">
                     <button type="submit" id="aiSubmitBtn" class="ai-send-btn" title="Kirim Pertanyaan">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
@@ -1125,15 +1125,17 @@
         const btnCloseAiDrawer = document.getElementById('btnCloseAiDrawer');
 
         function toggleAiDrawer() {
+            if (!aiDrawer) return;
             aiDrawer.classList.toggle('open');
             if (aiDrawer.classList.contains('open')) {
-                document.getElementById('aiInputText').focus();
+                const input = document.getElementById('aiInputText');
+                if (input) input.focus();
             }
         }
 
-        btnFloatingAi.addEventListener('click', toggleAiDrawer);
-        btnToggleAiHeader.addEventListener('click', toggleAiDrawer);
-        btnCloseAiDrawer.addEventListener('click', () => aiDrawer.classList.remove('open'));
+        if (btnFloatingAi) btnFloatingAi.addEventListener('click', toggleAiDrawer);
+        if (btnToggleAiHeader) btnToggleAiHeader.addEventListener('click', toggleAiDrawer);
+        if (btnCloseAiDrawer) btnCloseAiDrawer.addEventListener('click', () => aiDrawer && aiDrawer.classList.remove('open'));
 
         function appendMessage(role, text) {
             const container = document.getElementById('aiMessagesContainer');

@@ -35,6 +35,7 @@
         </a>
         @endcan
         
+        @can('emodul.view')
         <div class="nav-section-label" style="margin-top:16px;">E-Modul</div>
         <a href="{{ route('admin.e-modul.index') }}" class="nav-item {{ request()->routeIs('admin.e-modul.*') ? 'active' : '' }}" title="E-Modul">
             <div class="nav-icon" style="color:var(--accent, #6366f1);">
@@ -42,6 +43,7 @@
             </div>
             <span class="nav-text">E-Modul</span>
         </a>
+        @endcan
 
         <div class="nav-section-label" style="margin-top:16px;">Internal Management</div>
         @can('calendar.view')

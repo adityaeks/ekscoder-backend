@@ -152,6 +152,10 @@
                                         <span class="badge badge-accent" style="font-size: 9px; padding: 1px 6px;">UPDATE</span>
                                     @elseif($log->action === 'delete')
                                         <span class="badge badge-rose" style="font-size: 9px; padding: 1px 6px;">DELETE</span>
+                                    @elseif($log->action === 'login')
+                                        <span class="badge" style="font-size: 9px; padding: 1px 6px; background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.25);">LOGIN</span>
+                                    @elseif($log->action === 'logout')
+                                        <span class="badge badge-amber" style="font-size: 9px; padding: 1px 6px;">LOGOUT</span>
                                     @else
                                         <span class="badge badge-amber" style="font-size: 9px; padding: 1px 6px;">{{ strtoupper($log->action) }}</span>
                                     @endif

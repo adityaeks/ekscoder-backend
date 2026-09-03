@@ -65,6 +65,10 @@
                                     <span class="badge badge-accent"><span class="badge-dot"></span> UPDATE</span>
                                 @elseif($log->action === 'delete')
                                     <span class="badge badge-rose"><span class="badge-dot"></span> DELETE</span>
+                                @elseif($log->action === 'login')
+                                    <span class="badge" style="background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.25);"><span class="badge-dot"></span> LOGIN</span>
+                                @elseif($log->action === 'logout')
+                                    <span class="badge badge-amber"><span class="badge-dot"></span> LOGOUT</span>
                                 @else
                                     <span class="badge badge-amber"><span class="badge-dot"></span> {{ strtoupper($log->action) }}</span>
                                 @endif

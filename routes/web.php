@@ -322,7 +322,9 @@ Route::middleware('auth')->group(function () {
         // E-Modul Management Routes
         Route::post('e-modul/ask-ai', [EModulController::class, 'askAi'])->name('e-modul.ask-ai-general');
         Route::post('e-modul/{e_modul}/ask-ai', [EModulController::class, 'askAi'])->name('e-modul.ask-ai');
-        Route::patch('e-modul/{e_modul}/toggle-active', [EModulController::class, 'toggleActive'])->name('e-modul.toggle-active');
+        Route::patch('e-modul/{e_modul}/toggle-active', [EModulController::class, 'toggleActive'])
+            ->middleware('can:emodul.toggle-active')
+            ->name('e-modul.toggle-active');
         Route::resource('e-modul', EModulController::class);
 
     });
