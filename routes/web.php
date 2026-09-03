@@ -362,6 +362,14 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// Public E-Modul Reader & AI Routes (for sharing & Next.js rewrite)
+Route::prefix('modul')->name('public.e-modul.')->group(function () {
+    Route::get('{slug}', [EModulController::class, 'publicShow'])->name('show');
+    Route::get('{slug}/pdf', [EModulController::class, 'publicPdf'])->name('pdf');
+    Route::post('{slug}/ask-ai', [EModulController::class, 'publicAskAi'])
+        ->middleware('throttle:30,1')
+        ->name('ask-ai');
+});
 
 // Dynamic VPS Agent Installation Script Route
 Route::get('/vps-agent/{token}/install.sh', [VpsServerController::class, 'installScript'])->name('vps.install-script');

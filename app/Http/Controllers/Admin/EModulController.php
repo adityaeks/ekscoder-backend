@@ -109,7 +109,49 @@ class EModulController extends Controller
      */
     public function show(EModul $e_modul)
     {
-        return view('admin.e-modul.show', compact('e_modul'));
+        $isPublic = false;
+        return view('admin.e-modul.show', compact('e_modul', 'isPublic'));
+    }
+
+    /**
+     * Display the public e-modul reader by slug (No Auth Required).
+     */
+    public function publicShow(string $slug)
+    {
+        $e_modul = EModul::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        $isPublic = true;
+        return view('admin.e-modul.show', compact('e_modul', 'isPublic'));
+    }
+
+    /**
+     * Stream PDF file publicly with permissive CORS for flipbook rendering.
+     */
+    public function publicPdf(string $slug)
+    {
+        $e_modul = EModul::where('slug', $slug)->where('is_active', true)->firstOrFail();
+
+        if (!$e_modul->file_path || !Storage::disk('public')->exists($e_modul->file_path)) {
+            abort(404, 'File modul tidak ditemukan.');
+        }
+
+        $fullPath = Storage::disk('public')->path($e_modul->file_path);
+
+        return response()->file($fullPath, [
+            'Content-Type' => 'application/pdf',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
+            'Access-Control-Allow-Headers' => '*',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
+    /**
+     * Public AI Assistant question endpoint for the shared e-modul.
+     */
+    public function publicAskAi(Request $request, string $slug)
+    {
+        $e_modul = EModul::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        return $this->askAi($request, $e_modul);
     }
 
     /**

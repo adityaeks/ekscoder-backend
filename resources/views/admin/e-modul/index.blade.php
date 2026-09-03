@@ -137,6 +137,15 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
 
+                    <!-- Copy Share Link (ekscoder.com) -->
+                    <button type="button" 
+                        class="topbar-btn" 
+                        title="Salin Link Publik (ekscoder.com)" 
+                        style="padding:7px 9px; font-size:12px; cursor:pointer; color:#b8ff00; border:1px solid rgba(184, 255, 0, 0.25); background:rgba(184, 255, 0, 0.06); display:inline-flex; align-items:center; justify-content:center;"
+                        onclick="copyModulShareLink('{{ $modul->public_share_url }}', this)">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+
                     <!-- Edit -->
                     @can('emodul.edit')
                     <a href="{{ route('admin.e-modul.edit', $modul->id) }}" class="topbar-btn" title="Edit Modul" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
@@ -1121,5 +1130,20 @@
                 }
             }
         });
+
+        // Copy Public Share Link (ekscoder.com/modul/{slug})
+        function copyModulShareLink(url, btn) {
+            navigator.clipboard.writeText(url).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b8ff00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+                btn.title = 'Tautan Berhasil Disalin!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.title = 'Salin Link Publik (ekscoder.com)';
+                }, 2000);
+            }).catch(() => {
+                prompt('Salin link e-modul:', url);
+            });
+        }
     </script>
 </x-admin-layout>

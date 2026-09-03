@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'vps.pin'        => \App\Http\Middleware\VerifyVpsPin::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'modul/*/ask-ai',
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

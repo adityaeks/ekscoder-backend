@@ -635,10 +635,17 @@
     <!-- Header -->
     <header class="flip-header">
         <div class="flip-brand">
+            @if(!empty($isPublic))
+            <a href="{{ config('app.frontend_url', env('FRONTEND_URL', 'https://ekscoder.com')) }}" title="Beranda Ekscoder" style="font-weight:700; color:#b8ff00;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Ekscoder
+            </a>
+            @else
             <a href="{{ route('admin.e-modul.index') }}">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
                 Kembali
             </a>
+            @endif
             <span style="opacity:0.3; margin:0 4px;">|</span>
             <span style="font-size:12px; color:#94a3b8;">📖 FLIPBOOK AI EKSCODER</span>
         </div>
@@ -648,13 +655,14 @@
         </div>
 
         <div class="flip-header-actions">
-            <!-- AI Toggle Header Button -->
-            <!-- <button class="ctrl-btn" id="btnToggleAiHeader" title="Tanya AI Asisten Modul" style="color:#38bdf8; background:rgba(56, 189, 248, 0.12); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;">
-                <span>✨</span> Tanya AI
-            </button> -->
+            <!-- Share Public Link Button -->
+            <button class="ctrl-btn" id="btnShareModul" title="Bagikan E-Modul (Salin Tautan)" style="color:#b8ff00; background:rgba(184, 255, 0, 0.12); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;" onclick="copyShareUrl()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <span id="shareBtnText">Bagikan</span>
+            </button>
 
             @if($e_modul->pdf_url)
-            <a href="{{ $e_modul->pdf_url }}" download class="ctrl-btn" title="Download PDF" style="text-decoration:none;">
+            <a href="{{ !empty($isPublic) ? route('public.e-modul.pdf', $e_modul->slug) : $e_modul->pdf_url }}" download class="ctrl-btn" title="Download PDF" style="text-decoration:none;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </a>
             @endif
@@ -807,11 +815,30 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const PDF_URL = @json($e_modul->pdf_url);
+        const IS_PUBLIC = @json(!empty($isPublic));
+        const PDF_URL = IS_PUBLIC 
+            ? "{{ route('public.e-modul.pdf', $e_modul->slug) }}" 
+            : @json($e_modul->pdf_url);
         const MODUL_ID = @json($e_modul->id);
         const MODUL_TITLE = @json($e_modul->title);
-        const ASK_AI_URL = "{{ route('admin.e-modul.ask-ai', $e_modul->id) }}";
-        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const ASK_AI_URL = IS_PUBLIC 
+            ? "{{ route('public.e-modul.ask-ai', $e_modul->slug) }}" 
+            : "{{ route('admin.e-modul.ask-ai', $e_modul->id) }}";
+        const SHARE_URL = @json($e_modul->public_share_url);
+        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+        function copyShareUrl() {
+            navigator.clipboard.writeText(SHARE_URL).then(() => {
+                const textSpan = document.getElementById('shareBtnText');
+                if (textSpan) {
+                    const prev = textSpan.textContent;
+                    textSpan.textContent = 'Tersalin!';
+                    setTimeout(() => { textSpan.textContent = prev; }, 2500);
+                }
+            }).catch(() => {
+                prompt("Salin tautan modul:", SHARE_URL);
+            });
+        }
 
         let pageFlip = null;
         let pdfDoc = null;

@@ -41,6 +41,23 @@ class EModul extends Model
     }
 
     /**
+     * Get public share URL pointing to main frontend domain (e.g. ekscoder.com/modul/{slug}).
+     */
+    public function getPublicShareUrlAttribute(): string
+    {
+        $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://ekscoder.com')), '/');
+        return "{$frontend}/modul/{$this->slug}";
+    }
+
+    /**
+     * Get internal portal URL for previewing the public route.
+     */
+    public function getPublicInternalUrlAttribute(): string
+    {
+        return route('public.e-modul.show', $this->slug);
+    }
+
+    /**
      * Format file size for human readability.
      */
     public function getFormattedSizeAttribute()
