@@ -82,7 +82,7 @@ class GoogleAuthController extends Controller
         ])->save();
 
         // Login pengguna ke dalam sistem
-        Auth::login($user, true);
+        Auth::login($user, false);
 
         $request->session()->regenerate();
 
