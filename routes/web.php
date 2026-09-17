@@ -358,6 +358,19 @@ Route::middleware('auth')->group(function () {
         });
 
         // E-Modul Management Routes
+        Route::get('e-modul/ai-settings', [EModulController::class, 'settings'])
+            ->middleware('can:emodul.edit')
+            ->name('e-modul.settings');
+        Route::get('e-modul-settings', [EModulController::class, 'getAiSettings'])
+            ->middleware('can:emodul.edit')
+            ->name('e-modul.settings.get');
+        Route::post('e-modul-settings', [EModulController::class, 'saveAiSettings'])
+            ->middleware('can:emodul.edit')
+            ->name('e-modul.settings.save');
+        Route::post('e-modul/test-prompt', [EModulController::class, 'testPrompt'])
+            ->middleware('can:emodul.edit')
+            ->name('e-modul.test-prompt');
+
         Route::post('e-modul/ask-ai', [EModulController::class, 'askAi'])->name('e-modul.ask-ai-general');
         Route::post('e-modul/{e_modul}/ask-ai', [EModulController::class, 'askAi'])->name('e-modul.ask-ai');
         Route::patch('e-modul/{e_modul}/toggle-active', [EModulController::class, 'toggleActive'])

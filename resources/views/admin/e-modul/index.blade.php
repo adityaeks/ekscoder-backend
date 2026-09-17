@@ -1,10 +1,4 @@
 <x-admin-layout title="E-Modul & Flipbook" breadcrumb="Kelola modul pembelajaran interaktif dengan format 3D Flipbook & AI Assistant">
-    <x-slot name="topbarAction">
-        <button type="button" class="topbar-btn topbar-btn-primary" onclick="openUploadModal()" style="border:none; cursor:pointer;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Upload PDF E-Modul
-        </button>
-    </x-slot>
 
     <!-- PDF.js, StPageFlip & Marked Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -13,7 +7,7 @@
 
     <!-- Upload Hero Dropzone Section -->
     @can('emodul.create')
-    <div class="card" style="padding:28px; margin-bottom:28px; background:linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%); border:1px solid rgba(99, 102, 241, 0.2);">
+    <div class="card" style="padding:28px; margin-bottom:28px; background:linear-gradient(135deg, var(--accent-soft) 0%, rgba(184, 255, 0, 0.02) 100%); border:1px solid rgba(184, 255, 0, 0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
             <div>
                 <h2 style="font-size:18px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
@@ -23,7 +17,14 @@
                     Unggah file PDF modul Anda. Otomatis dikonversi menjadi <strong>Interactive 3D Flipbook</strong> dengan <strong>AI Asisten Modul</strong>.
                 </p>
             </div>
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                @can('emodul.edit')
+                <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:8px 16px; font-size:13px; border:1px solid rgba(184, 255, 0, 0.3); background:var(--accent-soft); color:var(--badge-accent-text, var(--accent)); cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; border-radius:8px;" title="Buka Halaman Setting Prompt & AI E-Modul">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                    <span>Setting Prompt AI</span>
+                </a>
+                @endcan
+
                 <button type="button" onclick="openUploadModal()" class="topbar-btn topbar-btn-primary" style="padding:8px 18px; font-size:13px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                     Pilih File PDF
@@ -46,10 +47,18 @@
     </div>
     @endcan
 
-    <!-- E-Modul Library Grid -->
-    <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="font-size:16px; font-weight:700; color:var(--text-primary);">Koleksi E-Modul</h3>
-        <span style="font-size:12.5px; color:var(--text-secondary);">{{ $moduls->count() }} modul tersedia</span>
+    <!-- E-Modul Library Grid Header -->
+    <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">Koleksi E-Modul</h3>
+            <span style="font-size:12.5px; color:var(--text-secondary);">{{ $moduls->count() }} modul tersedia</span>
+        </div>
+        @can('emodul.edit')
+        <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:6px 14px; font-size:12px; color:var(--badge-accent-text, var(--accent)); border:1px solid rgba(184, 255, 0, 0.25); background:var(--accent-soft); font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer; border-radius:8px;" title="Buka Halaman Setting Prompt AI">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+            <span>Setting Prompt AI</span>
+        </a>
+        @endcan
     </div>
 
     @if($moduls->count() > 0)
@@ -133,7 +142,8 @@
                     </button>
 
                     <!-- Open in New Tab Fullscreen -->
-                    <a href="{{ route('admin.e-modul.show', $modul->id) }}" target="_blank" class="topbar-btn" title="Buka Fullscreen FlipHTML5" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                    <a href="
+                    {{ route('admin.e-modul.show', $modul->id) }}" target="_blank" class="topbar-btn" title="Buka Fullscreen FlipHTML5" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
 
@@ -145,6 +155,16 @@
                         onclick="copyModulShareLink('{{ $modul->public_share_url }}', this)">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     </button>
+
+                    <!-- Test Prompt AI with this Modul -->
+                    @can('emodul.edit')
+                    <a href="{{ route('admin.e-modul.settings', ['modul_id' => $modul->id]) }}" 
+                        class="topbar-btn" 
+                        title="Setting & Uji Simulator AI dengan Modul Ini" 
+                        style="text-decoration:none; padding:7px 9px; font-size:12px; cursor:pointer; color:var(--accent); border:1px solid rgba(99,102,241,0.3); background:rgba(99,102,241,0.06); display:inline-flex; align-items:center; justify-content:center;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                    </a>
+                    @endcan
 
                     <!-- Edit -->
                     @can('emodul.edit')
@@ -183,6 +203,8 @@
         @endcan
     </div>
     @endif
+
+
 
     <!-- Upload Modal -->
     @can('emodul.create')
@@ -1145,5 +1167,7 @@
                 prompt('Salin link e-modul:', url);
             });
         }
+
+
     </script>
 </x-admin-layout>

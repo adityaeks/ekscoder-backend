@@ -46,12 +46,20 @@
         
         @can('emodul.view')
         <div class="nav-section-label" style="margin-top:16px;">E-Modul</div>
-        <a href="{{ route('admin.e-modul.index') }}" class="nav-item {{ request()->routeIs('admin.e-modul.*') ? 'active' : '' }}" title="E-Modul">
+        <a href="{{ route('admin.e-modul.index') }}" class="nav-item {{ request()->routeIs('admin.e-modul.index') || request()->routeIs('admin.e-modul.show') || request()->routeIs('admin.e-modul.edit') ? 'active' : '' }}" title="E-Modul">
             <div class="nav-icon" style="color:var(--accent, #6366f1);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <span class="nav-text">E-Modul</span>
         </a>
+        <!-- @can('emodul.edit')
+        <a href="{{ route('admin.e-modul.settings') }}" class="nav-item {{ request()->routeIs('admin.e-modul.settings*') ? 'active' : '' }}" title="Setting Prompt AI">
+            <div class="nav-icon" style="color:var(--accent, #6366f1);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+            </div>
+            <span class="nav-text">Setting AI Modul</span>
+        </a>
+        @endcan -->
         @endcan
 
         @canany(['calendar.view', 'orders.view', 'finance.view', 'notes.view'])

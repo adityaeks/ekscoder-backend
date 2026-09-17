@@ -761,17 +761,7 @@
                 <div class="ai-header-title">
                     <span style="font-size:16px;">✨</span> AI Asisten Modul
                 </div>
-                <button type="button" id="btnCloseAiDrawer" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer; padding:4px 8px; line-height:1;">✕</button>
-            </div>
-
-            <!-- Context Scope Selector -->
-            <div class="ai-scope-pills">
-                <button type="button" id="scopeActiveBtn" onclick="setAiScope('active')" class="ai-scope-btn active">
-                    📍 <span id="scopeActiveLabel">Halaman Aktif</span>
-                </button>
-                <button type="button" id="scopeGlobalBtn" onclick="setAiScope('global')" class="ai-scope-btn">
-                    🌐 Seluruh Modul
-                </button>
+                <button type="button" id="btnCloseAiDrawer" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer; padding:4px 8px; line-height:1;" title="Tutup AI Asisten">✕</button>
             </div>
         </div>
 
@@ -779,23 +769,23 @@
         <div class="ai-messages" id="aiMessagesContainer">
             <div class="ai-msg assistant">
                 <p>Halo! Saya adalah <strong>AI Asisten Modul</strong> untuk buku <em>{{ $e_modul->title }}</em>.</p>
-                <p>Anda bisa bertanya materi pada <strong>halaman saat ini</strong>, meminta pencarian di <strong>halaman lain (misal: hal 55)</strong>, atau menanyakan <strong>seluruh isi modul secara global</strong>!</p>
+                <p>Saya siap mendampingi dan membimbing belajar Anda seputar <strong>seluruh isi modul</strong> ini. Silakan ajukan pertanyaan materi atau konsep yang ingin Anda diskusikan!</p>
             </div>
         </div>
 
         <!-- Suggestion Chips -->
         <div class="ai-chips-container">
-            <button type="button" class="ai-chip" onclick="askQuickPrompt('Jelaskan rangkuman materi pada halaman yang sedang dibuka ini')">
-                💡 Rangkum Halaman Ini
-            </button>
-            <button type="button" class="ai-chip" onclick="askQuickPrompt('Jelaskan garis besar dan pokok bahasan dari seluruh modul ini secara global')">
+            <button type="button" class="ai-chip" onclick="askQuickPrompt('Jelaskan garis besar dan rangkuman pokok materi dari seluruh modul ini')">
                 🌐 Rangkuman Seluruh Modul
             </button>
-            <button type="button" class="ai-chip" onclick="askQuickPrompt('Buatkan 3 pertanyaan kuis pilihan ganda beserta kunci jawabannya dari materi ini')">
+            <button type="button" class="ai-chip" onclick="askQuickPrompt('Buatkan 3 pertanyaan kuis pilihan ganda beserta pembahasannya dari materi modul ini')">
                 ❓ Buat 3 Soal Kuis
             </button>
-            <button type="button" class="ai-chip" onclick="askQuickPrompt('Jelaskan konsep dan istilah penting yang terdapat pada materi ini')">
+            <button type="button" class="ai-chip" onclick="askQuickPrompt('Jelaskan konsep dan istilah penting yang terdapat di dalam modul ini')">
                 📝 Konsep Penting
+            </button>
+            <button type="button" class="ai-chip" onclick="askQuickPrompt('Bimbing saya mempelajari konsep utama modul ini langkah demi langkah')">
+                🔬 Panduan Belajar
             </button>
         </div>
 
@@ -803,7 +793,7 @@
         <div class="ai-input-area">
             <form id="aiChatForm" onsubmit="handleSendAiMessage(event)">
                 <div class="ai-input-box">
-                    <input type="text" id="aiInputText" placeholder="Tanya materi halaman ini, hal 55, atau seputar modul ini..." autocomplete="off">
+                    <input type="text" id="aiInputText" placeholder="Tanya apa saja seputar isi modul pembelajaran ini..." autocomplete="off">
                     <button type="submit" id="aiSubmitBtn" class="ai-send-btn" title="Kirim Pertanyaan">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
@@ -847,12 +837,10 @@
         let currentZoom = 1;
         let pageTexts = {}; // Store extracted page text per page number
         let chatHistory = [];
-        let currentScope = 'active'; // 'active' or 'global'
+        let currentScope = 'global'; // default to entire module
 
         function setAiScope(scope) {
             currentScope = scope;
-            document.getElementById('scopeActiveBtn').classList.toggle('active', scope === 'active');
-            document.getElementById('scopeGlobalBtn').classList.toggle('active', scope === 'global');
         }
 
         // Realistic Page Flip Sound Synthesizer
@@ -1027,7 +1015,7 @@
             return combined;
         }
 
-        // Smart Context Search: can search across entire module or specific page number mentioned in prompt
+        // Smart Context Search: Defaults to entire module (global context), or specific page if mentioned
         function getSmartContextData(question) {
             // 1. Check if user explicitly mentioned a page number (e.g. "halaman 55", "hal 12", "page 30")
             const pageMatch = question.match(/(?:halaman|hal|page)\s*(\d+)/i);
@@ -1041,27 +1029,8 @@
                 }
             }
 
-            // 2. If Global Scope selected OR general query:
-            if (currentScope === 'global') {
-                return getGlobalContext(question);
-            }
-
-            // 3. Active Page Scope with automatic relevant keyword booster
-            const activeLabel = getActivePageLabel();
-            const activeText = getActivePagesOnlyText();
-
-            // Extract keywords to find if relevant terms exist elsewhere in the module
-            const relevantExtra = searchModulePages(question, 2, [pageFlip ? pageFlip.getCurrentPageIndex() + 1 : 1]);
-            
-            let combined = `[MATERI HALAMAN AKTIF (${activeLabel})]:\n` + activeText;
-            if (relevantExtra) {
-                combined += "\n\n[BAGIAN LAIN DALAM MODUL YANG TERKAIT]:\n" + relevantExtra;
-            }
-
-            return {
-                label: activeLabel,
-                text: combined
-            };
+            // 2. Default: Entire module context (Seluruh Modul)
+            return getGlobalContext(question);
         }
 
         function getGlobalContext(question) {
@@ -1128,8 +1097,6 @@
             } else {
                 indicator.textContent = `${pageNum} / ${totalPages}`;
             }
-
-            document.getElementById('scopeActiveLabel').textContent = activePageLabel;
 
             document.querySelectorAll('.thumb-item').forEach(th => {
                 const p = parseInt(th.getAttribute('data-page'), 10);
