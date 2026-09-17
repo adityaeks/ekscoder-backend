@@ -192,11 +192,25 @@
     </nav>
 
     <div class="sidebar-footer">
-        <div class="user-card">
+        @if(session()->has('impersonator_id'))
+        <div style="padding: 0 4px 10px 4px;">
+            <form method="POST" action="{{ route('impersonate.leave') }}" style="margin:0;">
+                @csrf
+                <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(245, 158, 11, 0.18); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 6px 10px; border-radius: 8px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.2s;" title="Kembali ke akun Administrator Anda">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Kembali ke Admin</span>
+                </button>
+            </form>
+        </div>
+        @endif
+
+        <div class="user-card" style="{{ session()->has('impersonator_id') ? 'border-color: rgba(245, 158, 11, 0.35);' : '' }}">
             <div class="user-avatar" title="{{ Auth::user()->name }}">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
             <div class="user-info">
                 <div class="user-name">{{ Auth::user()->name }}</div>
-                <div class="user-role">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</div>
+                <div class="user-role" style="{{ session()->has('impersonator_id') ? 'color:#f59e0b; font-weight:600;' : '' }}">
+                    {{ session()->has('impersonator_id') ? '👤 ' : '' }}{{ Auth::user()->getRoleNames()->first() ?? 'User' }}
+                </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

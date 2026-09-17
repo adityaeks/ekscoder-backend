@@ -181,29 +181,33 @@
         });
     }
 
-    // Global Interceptor for Delete Forms with SweetAlert Confirmation
+    // Global Interceptor for Confirm & Delete Forms with SweetAlert Confirmation
     document.addEventListener('submit', function(e) {
         const form = e.target;
         if (!form) return;
 
         const isDeleteForm = form.classList.contains('delete-form') || 
-            form.querySelector('input[name="_method"][value="DELETE"]') !== null ||
-            form.hasAttribute('data-confirm-text') ||
+            form.querySelector('input[name="_method"][value="DELETE"]') !== null;
+
+        const hasConfirmAttributes = form.hasAttribute('data-confirm-text') ||
             form.hasAttribute('data-confirm-title');
 
-        if (isDeleteForm && !form.dataset.swalConfirmed) {
+        if ((isDeleteForm || hasConfirmAttributes) && !form.dataset.swalConfirmed) {
             e.preventDefault();
 
             const title = form.getAttribute('data-confirm-title') || 'Apakah Anda Yakin?';
-            const text  = form.getAttribute('data-confirm-text')  || 'Data yang dihapus tidak dapat dikembalikan!';
+            const text  = form.getAttribute('data-confirm-text')  || (isDeleteForm ? 'Data yang dihapus tidak dapat dikembalikan!' : 'Apakah Anda ingin melanjutkan tindakan ini?');
+            const icon  = form.getAttribute('data-confirm-icon')  || (isDeleteForm ? 'warning' : 'question');
+            const confirmBtnText = form.getAttribute('data-confirm-btn') || (isDeleteForm ? 'Ya, Hapus!' : 'Ya, Lanjutkan');
+            const cancelBtnText  = form.getAttribute('data-confirm-cancel') || 'Batal';
 
             SwalCustom.fire({
                 title: title,
                 text: text,
-                icon: 'warning',
+                icon: icon,
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal',
+                confirmButtonText: confirmBtnText,
+                cancelButtonText: cancelBtnText,
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {

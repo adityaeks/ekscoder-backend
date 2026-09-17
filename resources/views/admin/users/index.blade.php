@@ -121,6 +121,22 @@
                         </td>
                         <td style="text-align:right">
                             <div style="display:inline-flex; gap:6px; align-items:center;">
+                                @if($user->id !== auth()->id())
+                                @can('users.edit')
+                                <form action="{{ route('admin.users.impersonate', $user->id) }}" method="POST" style="display:inline;"
+                                      data-confirm-title="Masuk sebagai {{ $user->name }}?"
+                                      data-confirm-text="Anda akan masuk ke dashboard akun ini untuk melihat tampilan menu dan hak aksesnya."
+                                      data-confirm-btn="Masuk ke User"
+                                      data-confirm-icon="question">
+                                    @csrf
+                                    <button type="submit" class="btn btn-ghost" style="color:var(--accent); border-color:rgba(99,102,241,0.35); background:rgba(99,102,241,0.08);" title="Masuk ke dashboard sebagai {{ $user->name }}">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                                        Masuk User
+                                    </button>
+                                </form>
+                                @endcan
+                                @endif
+
                                 @can('users.edit')
                                 <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-ghost" title="Edit User">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>

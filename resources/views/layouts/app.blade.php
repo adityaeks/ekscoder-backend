@@ -661,6 +661,8 @@
     @include('layouts.sidebar')
 
     <div class="main-wrapper">
+        <x-impersonation-banner />
+
         <header class="topbar">
             <div class="topbar-left">
                 <button class="hamburger-btn" onclick="toggleSidebar()">
@@ -697,7 +699,7 @@
                         </div>
                         <div class="topbar-user-meta">
                             <span class="topbar-user-name">{{ Auth::user()->name ?? 'Admin' }}</span>
-                            <span class="topbar-user-role">Administrator</span>
+                            <span class="topbar-user-role">{{ Auth::user()->getRoleNames()->first() ?? 'User' }}</span>
                         </div>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 2px; color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
@@ -707,6 +709,16 @@
                             <div class="user-fullname">{{ Auth::user()->name ?? 'Admin' }}</div>
                             <div class="user-email">{{ Auth::user()->email ?? 'admin@ekscoder.com' }}</div>
                         </div>
+                        @if(session()->has('impersonator_id'))
+                        <div class="profile-dropdown-divider"></div>
+                        <form method="POST" action="{{ route('impersonate.leave') }}" style="margin: 0;">
+                            @csrf
+                            <button type="submit" class="profile-dropdown-item" style="width: 100%; border: none; background: rgba(245,158,11,0.12); color: #f59e0b; cursor: pointer; text-align: left; font-weight: 700; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Kembali ke Akun Admin
+                            </button>
+                        </form>
+                        @endif
                         <div class="profile-dropdown-divider"></div>
                         <a href="{{ route('profile.edit') }}" class="profile-dropdown-item">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

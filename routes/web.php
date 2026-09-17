@@ -80,6 +80,8 @@ use App\Http\Controllers\Admin\CloudflarePinController;
 use App\Http\Controllers\Admin\FinancialController;
 
 Route::middleware('auth')->group(function () {
+    Route::post('/impersonate/leave', [UserController::class, 'leaveImpersonation'])->name('impersonate.leave');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -126,6 +128,10 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:logs.clear');
 
         // User Access Management
+        Route::post('users/{user}/impersonate', [UserController::class, 'impersonate'])
+            ->name('users.impersonate')
+            ->middleware('can:users.edit');
+
         Route::resource('users', UserController::class)->middleware([
             'index'   => 'can:users.view',
             'show'    => 'can:users.view',
