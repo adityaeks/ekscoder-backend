@@ -53,12 +53,12 @@
             <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">Koleksi E-Modul</h3>
             <span style="font-size:12.5px; color:var(--text-secondary);">{{ $moduls->count() }} modul tersedia</span>
         </div>
-        @can('emodul.edit')
-        <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:6px 14px; font-size:12px; color:var(--badge-accent-text, var(--accent)); border:1px solid rgba(184, 255, 0, 0.25); background:var(--accent-soft); font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer; border-radius:8px;" title="Buka Halaman Setting Prompt AI">
+        <!-- @can('emodul.edit') -->
+        <!-- <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:6px 14px; font-size:12px; color:var(--badge-accent-text, var(--accent)); border:1px solid rgba(184, 255, 0, 0.25); background:var(--accent-soft); font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer; border-radius:8px;" title="Buka Halaman Setting Prompt AI">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
             <span>Setting Prompt AI</span>
         </a>
-        @endcan
+        @endcan --> 
     </div>
 
     @if($moduls->count() > 0)
@@ -117,18 +117,22 @@
                 </p>
 
                 <!-- Meta Details -->
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-muted); margin-bottom:14px; padding-top:10px; border-top:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-muted); margin-bottom:14px; padding-top:10px; border-top:1px solid var(--border); flex-wrap:wrap; gap:6px;">
                     <span style="display:inline-flex; align-items:center; gap:4px;">
                         📄 {{ $modul->total_pages > 0 ? $modul->total_pages . ' Hal' : 'PDF' }}
                     </span>
                     <span>💾 {{ $modul->formatted_size }}</span>
-                    <span>🕒 {{ $modul->created_at->format('d M Y') }}</span>
+                    @if($modul->hasCache())
+                        <span style="font-size:10px; font-weight:700; color:#b8ff00; background:rgba(184,255,0,0.12); border:1px solid rgba(184,255,0,0.25); border-radius:4px; padding:1px 6px;" title="Cache WebP siap: buka modul instan tanpa download ulang PDF">⚡ Cached</span>
+                    @else
+                        <span style="font-size:10px; color:var(--text-muted); background:var(--bg-surface); border:1px solid var(--border-light); border-radius:4px; padding:1px 6px;" title="Belum di-cache: akan otomatis di-cache saat dibuka pertama kali">PDF Asli</span>
+                    @endif
                 </div>
 
                 <!-- Actions -->
                 <div style="display:flex; gap:8px;">
                     <!-- Preview Flipbook Button -->
-                    <button type="button" 
+                    <!-- <button type="button" 
                         id="btn-flip-{{ $modul->id }}"
                         data-id="{{ $modul->id }}"
                         data-title="{{ $modul->title }}" 
@@ -139,12 +143,12 @@
                         style="flex:1; padding:7px 10px; font-size:12px; border:none; cursor:pointer; justify-content:center; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         Flipbook
-                    </button>
+                    </button> -->
 
                     <!-- Open in New Tab Fullscreen -->
-                    <a href="
-                    {{ route('admin.e-modul.show', $modul->id) }}" target="_blank" class="topbar-btn" title="Buka Fullscreen FlipHTML5" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+                    <a href="{{ route('admin.e-modul.show', $modul->id) }}" target="_blank" class="topbar-btn" title="Buka Fullscreen Flipbook" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        <p>Buka</p>
                     </a>
 
                     <!-- Copy Share Link (ekscoder.com) -->
@@ -156,15 +160,6 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     </button>
 
-                    <!-- Test Prompt AI with this Modul -->
-                    @can('emodul.edit')
-                    <a href="{{ route('admin.e-modul.settings', ['modul_id' => $modul->id]) }}" 
-                        class="topbar-btn" 
-                        title="Setting & Uji Simulator AI dengan Modul Ini" 
-                        style="text-decoration:none; padding:7px 9px; font-size:12px; cursor:pointer; color:var(--accent); border:1px solid rgba(99,102,241,0.3); background:rgba(99,102,241,0.06); display:inline-flex; align-items:center; justify-content:center;">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-                    </a>
-                    @endcan
 
                     <!-- Edit -->
                     @can('emodul.edit')

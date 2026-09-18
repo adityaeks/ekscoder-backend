@@ -3,9 +3,63 @@
     :breadcrumb="($isAdmin ?? false) ? 'Executive Command Center & Business Pipeline' : 'Workspace / Selamat Datang'">
 
 @if($isAdmin ?? false)
+    <style>
+        .dashboard-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1200px) {
+            .dashboard-stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+                margin-bottom: 18px !important;
+            }
+            .dashboard-stats-grid .stat-card-hero {
+                grid-column: span 2;
+                background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(184, 255, 0, 0.05) 100%);
+                border-color: rgba(184, 255, 0, 0.25);
+            }
+            .dashboard-stats-grid .stat-card-hero .stat-value {
+                font-size: 22px !important;
+            }
+            .dashboard-stats-grid .stat-card-currency .stat-value {
+                font-size: clamp(14px, 3.8vw, 17px) !important;
+                letter-spacing: -0.3px;
+            }
+        }
+        @media (max-width: 360px) {
+            .dashboard-stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .dashboard-stats-grid .stat-card-hero {
+                grid-column: span 1;
+            }
+        }
+        .dashboard-main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-main-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+
     <!-- Top Stats Grid -->
-    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom: 24px;">
-        <div class="stat-card accent">
+    <div class="stats-grid dashboard-stats-grid">
+        <div class="stat-card accent stat-card-hero">
             <div class="stat-top">
                 <div class="stat-label">Pipeline Value</div>
                 <div class="stat-icon accent">💰</div>
@@ -14,7 +68,7 @@
             <div class="stat-meta">Gross contract value (excl. cancelled)</div>
         </div>
 
-        <div class="stat-card green">
+        <div class="stat-card green stat-card-currency">
             <div class="stat-top">
                 <div class="stat-label">Collected Payments</div>
                 <div class="stat-icon green">💵</div>
@@ -52,7 +106,7 @@
     </div>
 
     <!-- 2-Column Dashboard Grid: Orders Pipeline + Audit Feed -->
-    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 20px; margin-bottom: 24px;">
+    <div class="dashboard-main-grid">
         
         <!-- Left: Recent Project Orders -->
         <div class="card" style="margin-bottom: 0;">
@@ -66,7 +120,7 @@
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
             </div>
-            <div style="overflow-x: auto;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -195,7 +249,7 @@
             </a>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
             <table class="data-table">
                 <thead>
                     <tr>

@@ -77,4 +77,29 @@ class EModul extends Model
             return '0 bytes';
         }
     }
+
+    /**
+     * Check if this e-modul has complete pre-rendered page cache.
+     */
+    public function hasCache(): bool
+    {
+        $manifestPath = "emoduls/cache/{$this->id}/manifest.json";
+        if (!Storage::disk('public')->exists($manifestPath)) {
+            return false;
+        }
+        $manifest = json_decode(Storage::disk('public')->get($manifestPath), true);
+        return !empty($manifest['is_complete']);
+    }
+
+    /**
+     * Get the cache manifest array if exists.
+     */
+    public function getCacheManifest(): ?array
+    {
+        $manifestPath = "emoduls/cache/{$this->id}/manifest.json";
+        if (!Storage::disk('public')->exists($manifestPath)) {
+            return null;
+        }
+        return json_decode(Storage::disk('public')->get($manifestPath), true);
+    }
 }

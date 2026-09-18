@@ -562,4 +562,204 @@ PROMPT;
             ], 500);
         }
     }
+
+    /**
+     * Check cache status of an e-modul.
+     */
+    public function getCacheStatus(EModul $e_modul): JsonResponse
+    {
+        return response()->json($this->resolveCacheStatus($e_modul));
+    }
+
+    /**
+     * Public endpoint to check cache status by slug.
+     */
+    public function publicGetCacheStatus(string $slug): JsonResponse
+    {
+        $e_modul = EModul::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        return response()->json($this->resolveCacheStatus($e_modul));
+    }
+
+    /**
+     * Resolve cache manifest and status for an e-modul.
+     */
+    protected function resolveCacheStatus(EModul $e_modul): array
+    {
+        $dir = "emoduls/cache/{$e_modul->id}";
+        $manifestPath = "{$dir}/manifest.json";
+
+        if (!Storage::disk('public')->exists($manifestPath)) {
+            return [
+                'has_cache' => false,
+                'is_complete' => false,
+                'cached_pages' => [],
+                'total_pages' => (int) $e_modul->total_pages,
+            ];
+        }
+
+        try {
+            $manifest = json_decode(Storage::disk('public')->get($manifestPath), true) ?: [];
+            $cachedPages = $manifest['cached_pages'] ?? [];
+            $totalPages = (int) ($manifest['total_pages'] ?? $e_modul->total_pages ?? 0);
+            $isComplete = !empty($manifest['is_complete']) || ($totalPages > 0 && count($cachedPages) >= $totalPages);
+
+            return [
+                'has_cache' => count($cachedPages) > 0,
+                'is_complete' => $isComplete,
+                'total_pages' => $totalPages,
+                'page_width' => $manifest['page_width'] ?? null,
+                'page_height' => $manifest['page_height'] ?? null,
+                'cached_pages' => $cachedPages,
+                'base_url' => asset("storage/{$dir}"),
+                'texts' => $manifest['texts'] ?? [],
+            ];
+        } catch (\Throwable $e) {
+            Log::warning("Failed to read e-modul cache manifest: " . $e->getMessage());
+            return [
+                'has_cache' => false,
+                'is_complete' => false,
+                'cached_pages' => [],
+                'total_pages' => (int) $e_modul->total_pages,
+            ];
+        }
+    }
+
+    /**
+     * Save a batch of pre-rendered page images and texts to cache storage.
+     */
+    public function saveCacheBatch(Request $request, EModul $e_modul): JsonResponse
+    {
+        return $this->handleSaveCacheBatch($request, $e_modul);
+    }
+
+    /**
+     * Public endpoint to save cache batch.
+     */
+    public function publicSaveCacheBatch(Request $request, string $slug): JsonResponse
+    {
+        $e_modul = EModul::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        return $this->handleSaveCacheBatch($request, $e_modul);
+    }
+
+    /**
+     * Process and store rendered pages.
+     */
+    protected function handleSaveCacheBatch(Request $request, EModul $e_modul): JsonResponse
+    {
+        $request->validate([
+            'total_pages' => 'required|integer|min:1',
+            'page_width' => 'nullable|numeric',
+            'page_height' => 'nullable|numeric',
+            'pages' => 'required|array',
+            'pages.*.page_number' => 'required|integer|min:1',
+            'pages.*.image' => 'required|string',
+            'pages.*.thumb' => 'nullable|string',
+            'pages.*.text' => 'nullable|string',
+        ]);
+
+        $dir = "emoduls/cache/{$e_modul->id}";
+        if (!Storage::disk('public')->exists($dir)) {
+            Storage::disk('public')->makeDirectory($dir);
+        }
+
+        $manifestPath = "{$dir}/manifest.json";
+        $manifest = [];
+        if (Storage::disk('public')->exists($manifestPath)) {
+            $manifest = json_decode(Storage::disk('public')->get($manifestPath), true) ?: [];
+        }
+
+        $totalPages = (int) $request->input('total_pages');
+        $pageWidth = $request->input('page_width', $manifest['page_width'] ?? null);
+        $pageHeight = $request->input('page_height', $manifest['page_height'] ?? null);
+
+        $cachedPages = array_unique(array_merge($manifest['cached_pages'] ?? [], []));
+        $texts = $manifest['texts'] ?? [];
+
+        foreach ($request->input('pages') as $pageItem) {
+            $pageNum = (int) $pageItem['page_number'];
+
+            // Process high-res page image
+            if (!empty($pageItem['image'])) {
+                $imgData = $this->decodeBase64Image($pageItem['image']);
+                if ($imgData) {
+                    Storage::disk('public')->put("{$dir}/page_{$pageNum}.webp", $imgData);
+                    $cachedPages[] = $pageNum;
+                }
+            }
+
+            // Process thumbnail image
+            if (!empty($pageItem['thumb'])) {
+                $thumbData = $this->decodeBase64Image($pageItem['thumb']);
+                if ($thumbData) {
+                    Storage::disk('public')->put("{$dir}/thumb_{$pageNum}.webp", $thumbData);
+                }
+            }
+
+            // Save page text for AI
+            if (isset($pageItem['text'])) {
+                $texts[$pageNum] = trim($pageItem['text']);
+            }
+        }
+
+        $cachedPages = array_values(array_unique($cachedPages));
+        sort($cachedPages);
+
+        $isComplete = count($cachedPages) >= $totalPages;
+
+        $manifest = [
+            'modul_id' => $e_modul->id,
+            'total_pages' => $totalPages,
+            'page_width' => $pageWidth,
+            'page_height' => $pageHeight,
+            'cached_pages' => $cachedPages,
+            'is_complete' => $isComplete,
+            'texts' => $texts,
+            'updated_at' => now()->toIso8601String(),
+        ];
+
+        Storage::disk('public')->put($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        // Update total_pages on model if not set
+        if ($e_modul->total_pages !== $totalPages) {
+            $e_modul->total_pages = $totalPages;
+            $e_modul->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'cached_count' => count($cachedPages),
+            'total_pages' => $totalPages,
+            'is_complete' => $isComplete,
+        ]);
+    }
+
+    /**
+     * Decode base64 image data (data:image/webp;base64,...).
+     */
+    protected function decodeBase64Image(string $base64String): ?string
+    {
+        if (str_contains($base64String, ',')) {
+            $base64String = explode(',', $base64String)[1];
+        }
+        $data = base64_decode($base64String, true);
+        return $data !== false ? $data : null;
+    }
+
+    /**
+     * Clear pre-rendered page cache for an e-modul.
+     */
+    public function clearCache(EModul $e_modul): JsonResponse
+    {
+        Gate::authorize('emodul.edit');
+
+        $dir = "emoduls/cache/{$e_modul->id}";
+        if (Storage::disk('public')->exists($dir)) {
+            Storage::disk('public')->deleteDirectory($dir);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache halaman e-modul berhasil dibersihkan! Modul akan dirender ulang saat dibuka berikutnya.',
+        ]);
+    }
 }

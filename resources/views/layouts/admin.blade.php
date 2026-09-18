@@ -282,35 +282,56 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
-            padding: 0 28px;
+            padding: 0 24px;
             height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
+            gap: 14px;
         }
 
         .topbar-left {
             display: flex;
             align-items: center;
             gap: 12px;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .topbar-heading {
+            min-width: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .topbar-title {
             font-size: 15px;
             font-weight: 700;
             color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
         }
 
         .topbar-breadcrumb {
             font-size: 12px;
             color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+            margin-top: 1px;
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-shrink: 0;
         }
 
         .topbar-btn {
@@ -885,11 +906,168 @@
                 margin-left: 0;
             }
             .hamburger-btn {
-                display: flex;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                background: var(--bg-elevated);
+                border: 1px solid var(--border);
+                color: var(--text-primary);
+                border-radius: 9px;
+                cursor: pointer;
+                flex-shrink: 0;
+                padding: 0;
+                transition: all 0.2s ease;
             }
-            .topbar { padding: 0 16px; }
-            .page-content { padding: 16px; }
+            .hamburger-btn:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-light);
+            }
+            .topbar {
+                padding: 0 14px;
+                gap: 8px;
+                height: 58px;
+            }
+            .topbar-left {
+                gap: 8px;
+                min-width: 0;
+                flex: 1;
+            }
+            .topbar-heading {
+                min-width: 0;
+                flex: 1;
+            }
+            .topbar-title {
+                font-size: 14px;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .topbar-breadcrumb {
+                display: none !important;
+            }
+            .topbar-right {
+                gap: 6px;
+                flex-shrink: 0;
+            }
+            .api-status-pill {
+                display: none !important;
+            }
+            .page-content { padding: 14px; }
             .form-grid { grid-template-columns: 1fr; }
+
+            /* Cards & Stats Mobile Responsiveness */
+            .card {
+                border-radius: 14px;
+            }
+
+            .card-header {
+                padding: 14px 16px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .card-title {
+                font-size: 13.5px;
+            }
+
+            .card-subtitle {
+                font-size: 11px;
+            }
+
+            .card-body {
+                padding: 14px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+                margin-bottom: 18px !important;
+            }
+
+            .stat-card {
+                padding: 14px 14px 12px !important;
+                border-radius: 14px !important;
+            }
+
+            .stat-top {
+                margin-bottom: 10px !important;
+                gap: 6px;
+            }
+
+            .stat-label {
+                font-size: 10px !important;
+                letter-spacing: 0.5px !important;
+                line-height: 1.2 !important;
+            }
+
+            .stat-icon {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 15px !important;
+                border-radius: 8px !important;
+                flex-shrink: 0;
+            }
+
+            .stat-value {
+                font-size: 20px !important;
+                letter-spacing: -0.5px !important;
+                margin-bottom: 4px !important;
+                line-height: 1.15 !important;
+                word-break: break-word;
+            }
+
+            .stat-meta {
+                font-size: 10.5px !important;
+                line-height: 1.25 !important;
+                white-space: normal;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .data-table th, .data-table td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-content {
+                padding: 10px;
+            }
+            .stats-grid {
+                gap: 8px !important;
+            }
+            .stat-card {
+                padding: 12px 10px !important;
+            }
+            .stat-value {
+                font-size: 18px !important;
+            }
+            .stat-icon {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 13px !important;
+            }
+            .topbar {
+                padding: 0 10px;
+                gap: 6px;
+            }
+            .topbar-left {
+                gap: 6px;
+            }
+            .topbar-title {
+                font-size: 13px;
+                max-width: 160px;
+            }
+            .hamburger-btn {
+                width: 34px;
+                height: 34px;
+            }
         }
     </style>
 </head>
@@ -1018,7 +1196,7 @@
         <!-- Topbar -->
         <header class="topbar">
             <div class="topbar-left">
-                <button class="hamburger-btn" onclick="toggleSidebar()">
+                <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation Menu">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="3" y1="6" x2="21" y2="6"/>
                         <line x1="3" y1="12" x2="21" y2="12"/>
@@ -1026,10 +1204,10 @@
                     </svg>
                 </button>
 
-                <div>
-                    <div class="topbar-title">{{ $title ?? 'Dashboard' }}</div>
+                <div class="topbar-heading">
+                    <div class="topbar-title" title="{{ $title ?? 'Dashboard' }}">{{ $title ?? 'Dashboard' }}</div>
                     @if(isset($breadcrumb))
-                        <div class="topbar-breadcrumb">{{ $breadcrumb }}</div>
+                        <div class="topbar-breadcrumb" title="{{ $breadcrumb }}">{{ $breadcrumb }}</div>
                     @endif
                 </div>
             </div>

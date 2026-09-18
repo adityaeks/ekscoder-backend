@@ -265,16 +265,60 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
-            padding: 0 28px; height: 60px;
-            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            padding: 0 24px; height: 60px;
+            display: flex; align-items: center; justify-content: space-between; gap: 14px;
             transition: background 0.25s ease, border-color 0.25s ease;
             width: 100%;
         }
 
-        .topbar-left { display: flex; align-items: center; gap: 12px; }
-        .topbar-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-        .topbar-breadcrumb { font-size: 12px; color: var(--text-muted); }
-        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1 1 auto;
+        }
+
+        .topbar-heading {
+            min-width: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .topbar-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+        }
+
+        .topbar-breadcrumb {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.25;
+            margin-top: 1px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .topbar-action-slot {
+            display: flex;
+            align-items: center;
+        }
 
         .topbar-btn {
             display: inline-flex; align-items: center; gap: 7px;
@@ -283,12 +327,18 @@
             cursor: pointer; transition: all 0.2s;
             text-decoration: none; border: 1px solid transparent;
             font-family: 'Inter', sans-serif;
+            white-space: nowrap;
         }
 
         .topbar-btn-primary { background: var(--accent); color: var(--accent-text); box-shadow: 0 0 20px var(--accent-glow); }
         .topbar-btn-primary:hover { opacity: 0.9; }
         .topbar-btn-ghost { background: var(--bg-elevated); color: var(--text-secondary); border-color: var(--border); }
         .topbar-btn-ghost:hover { color: var(--text-primary); border-color: var(--border-light); }
+
+        .topbar-profile-container {
+            position: relative;
+            flex-shrink: 0;
+        }
 
         .topbar-profile-btn {
             display: flex;
@@ -300,7 +350,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: background 0.2s, border-color 0.2s;
-            margin-left: 4px;
+            margin-left: 2px;
             color: var(--text-primary);
             font-family: inherit;
         }
@@ -321,6 +371,7 @@
             justify-content: center;
             font-weight: 800;
             font-size: 12px;
+            flex-shrink: 0;
         }
 
         .topbar-user-meta {
@@ -328,17 +379,33 @@
             flex-direction: column;
             line-height: 1.15;
             text-align: left;
+            white-space: nowrap;
         }
 
         .topbar-user-name {
             font-size: 12px;
             font-weight: 700;
             color: var(--text-primary);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .topbar-user-role {
             font-size: 10px;
             color: var(--text-muted);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .topbar-profile-chevron {
+            margin-left: 2px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
         }
 
         .topbar-profile-dropdown {
@@ -735,16 +802,280 @@
         .hamburger-btn { display: none; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 6px; border-radius: 8px; transition: background 0.2s; }
         .hamburger-btn:hover { background: var(--bg-elevated); }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+        .sidebar-mobile-close-btn { display: none; }
 
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .sidebar-overlay.open { display: block; }
             .main-wrapper { margin-left: 0; }
-            .hamburger-btn { display: flex; }
-            .topbar { padding: 0 16px; }
-            .page-content { padding: 16px; }
+
+            /* Topbar Mobile Styles */
+            .topbar {
+                padding: 0 14px;
+                gap: 8px;
+                height: 58px;
+            }
+
+            .topbar-left {
+                gap: 8px;
+                min-width: 0;
+                flex: 1;
+            }
+
+            .hamburger-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                background: var(--bg-elevated);
+                border: 1px solid var(--border);
+                color: var(--text-primary);
+                border-radius: 9px;
+                cursor: pointer;
+                flex-shrink: 0;
+                padding: 0;
+                transition: all 0.2s ease;
+            }
+
+            .hamburger-btn:hover {
+                background: var(--bg-hover);
+                border-color: var(--border-light);
+            }
+
+            /* Hide desktop sidebar width collapse button on mobile */
+            .topbar-collapse-btn {
+                display: none !important;
+            }
+
+            .topbar-heading {
+                min-width: 0;
+                flex: 1;
+            }
+
+            .topbar-title {
+                font-size: 14px;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            /* Hide breadcrumb subtitle on mobile to prevent navbar overflow */
+            .topbar-breadcrumb {
+                display: none !important;
+            }
+
+            .topbar-right {
+                gap: 6px;
+                flex-shrink: 0;
+            }
+
+            /* Hide digital clock on mobile — native device status bar already shows it */
+            .topbar-clock-pill {
+                display: none !important;
+            }
+
+            /* Theme toggle button: icon only */
+            .theme-toggle-btn {
+                width: 36px;
+                height: 36px;
+                padding: 0;
+                justify-content: center;
+                border-radius: 9px;
+                flex-shrink: 0;
+            }
+
+            .theme-toggle-label {
+                display: none !important;
+            }
+
+            /* Profile button: compact avatar circle */
+            .topbar-profile-btn {
+                padding: 3px;
+                border-radius: 50%;
+                background: var(--bg-elevated);
+                border: 1px solid var(--border);
+                margin-left: 0;
+            }
+
+            .topbar-user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+
+            .topbar-user-meta {
+                display: none !important;
+            }
+
+            .topbar-profile-chevron {
+                display: none !important;
+            }
+
+            .topbar-profile-dropdown {
+                right: 0;
+                width: 210px;
+                max-width: calc(100vw - 24px);
+                top: calc(100% + 8px);
+            }
+
+            /* Topbar action slot on mobile */
+            .topbar-action-slot .topbar-btn {
+                padding: 6px 10px;
+                font-size: 11.5px;
+                border-radius: 8px;
+            }
+
+            /* Sidebar mobile close button */
+            .sidebar-mobile-close-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 32px;
+                height: 32px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #94a3b8;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .sidebar-mobile-close-btn:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #fff;
+            }
+
+            .page-content { padding: 14px; }
             .form-grid { grid-template-columns: 1fr; }
+
+            /* Cards & Stats Mobile Responsiveness */
+            .card {
+                border-radius: 14px;
+            }
+
+            .card-header {
+                padding: 14px 16px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .card-title {
+                font-size: 13.5px;
+            }
+
+            .card-subtitle {
+                font-size: 11px;
+            }
+
+            .card-body {
+                padding: 14px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 10px !important;
+                margin-bottom: 18px !important;
+            }
+
+            .stat-card {
+                padding: 14px 14px 12px !important;
+                border-radius: 14px !important;
+            }
+
+            .stat-top {
+                margin-bottom: 10px !important;
+                gap: 6px;
+            }
+
+            .stat-label {
+                font-size: 10px !important;
+                letter-spacing: 0.5px !important;
+                line-height: 1.2 !important;
+            }
+
+            .stat-icon {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 15px !important;
+                border-radius: 8px !important;
+                flex-shrink: 0;
+            }
+
+            .stat-value {
+                font-size: 20px !important;
+                letter-spacing: -0.5px !important;
+                margin-bottom: 4px !important;
+                line-height: 1.15 !important;
+                word-break: break-word;
+            }
+
+            .stat-meta {
+                font-size: 10.5px !important;
+                line-height: 1.25 !important;
+                white-space: normal;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .data-table th, .data-table td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-content {
+                padding: 10px;
+            }
+            .stats-grid {
+                gap: 8px !important;
+            }
+            .stat-card {
+                padding: 12px 10px !important;
+            }
+            .stat-value {
+                font-size: 18px !important;
+            }
+            .stat-icon {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 13px !important;
+            }
+            .topbar {
+                padding: 0 10px;
+                gap: 6px;
+            }
+            .topbar-left {
+                gap: 6px;
+            }
+            .topbar-title {
+                font-size: 13px;
+                max-width: 150px;
+            }
+            .topbar-right {
+                gap: 4px;
+            }
+            .hamburger-btn {
+                width: 34px;
+                height: 34px;
+            }
+            .theme-toggle-btn {
+                width: 34px;
+                height: 34px;
+            }
+            .topbar-user-avatar {
+                width: 28px;
+                height: 28px;
+            }
         }
     </style>
 </head>
@@ -765,24 +1096,30 @@
 
         <header class="topbar">
             <div class="topbar-left">
-                <button class="hamburger-btn" onclick="toggleSidebar()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation Menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
                 <button type="button" class="topbar-collapse-btn" onclick="toggleSidebarCollapse()" title="Toggle Sidebar Width (Full Width)">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><path d="M15 10l-3 3 3 3"/></svg>
                 </button>
-                <div>
-                    <div class="topbar-title">{{ $title }}</div>
+                <div class="topbar-heading">
+                    <div class="topbar-title" title="{{ $title }}">{{ $title }}</div>
                     @if($breadcrumb)
-                        <div class="topbar-breadcrumb">{{ $breadcrumb }}</div>
+                        <div class="topbar-breadcrumb" title="{{ $breadcrumb }}">{{ $breadcrumb }}</div>
                     @endif
                 </div>
             </div>
             <div class="topbar-right">
+                @isset($topbarAction)
+                    <div class="topbar-action-slot">
+                        {{ $topbarAction }}
+                    </div>
+                @endisset
+
                 <!-- Theme Toggle Button -->
                 <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
                     <span id="themeIcon">🌙</span>
-                    <span id="themeLabel">Dark</span>
+                    <span id="themeLabel" class="theme-toggle-label">Dark</span>
                 </button>
 
                 <!-- Live Digital Clock Pill -->
@@ -792,7 +1129,7 @@
                 </div>
 
                 <!-- Profile Widget & Dropdown on Right Navbar -->
-                <div class="topbar-profile-container" style="position:relative;">
+                <div class="topbar-profile-container">
                     <button type="button" class="topbar-profile-btn" onclick="toggleProfileDropdown(event)" title="Account Menu">
                         <div class="topbar-user-avatar">
                             {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -801,7 +1138,7 @@
                             <span class="topbar-user-name">{{ Auth::user()->name ?? 'Admin' }}</span>
                             <span class="topbar-user-role">{{ Auth::user()->roles->first()->name ?? 'Member' }}</span>
                         </div>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: 2px; color: var(--text-muted);"><polyline points="6 9 12 15 18 9"/></svg>
+                        <svg class="topbar-profile-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
 
                     <div class="topbar-profile-dropdown" id="topbarProfileDropdown">

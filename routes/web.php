@@ -376,6 +376,14 @@ Route::middleware('auth')->group(function () {
         Route::patch('e-modul/{e_modul}/toggle-active', [EModulController::class, 'toggleActive'])
             ->middleware('can:emodul.toggle-active')
             ->name('e-modul.toggle-active');
+
+        // E-Modul Server Cache Routes (WebP Page Cache)
+        Route::get('e-modul/{e_modul}/cache-status', [EModulController::class, 'getCacheStatus'])->name('e-modul.cache-status');
+        Route::post('e-modul/{e_modul}/save-cache-batch', [EModulController::class, 'saveCacheBatch'])->name('e-modul.save-cache-batch');
+        Route::post('e-modul/{e_modul}/clear-cache', [EModulController::class, 'clearCache'])
+            ->middleware('can:emodul.edit')
+            ->name('e-modul.clear-cache');
+
         Route::resource('e-modul', EModulController::class);
 
     });
@@ -385,6 +393,8 @@ Route::middleware('auth')->group(function () {
 Route::prefix('modul')->name('public.e-modul.')->group(function () {
     Route::get('{slug}', [EModulController::class, 'publicShow'])->name('show');
     Route::get('{slug}/pdf', [EModulController::class, 'publicPdf'])->name('pdf');
+    Route::get('{slug}/cache-status', [EModulController::class, 'publicGetCacheStatus'])->name('cache-status');
+    Route::post('{slug}/save-cache-batch', [EModulController::class, 'publicSaveCacheBatch'])->name('save-cache-batch');
     Route::post('{slug}/ask-ai', [EModulController::class, 'publicAskAi'])
         ->middleware('throttle:30,1')
         ->name('ask-ai');

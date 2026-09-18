@@ -296,7 +296,7 @@
             width: 44px;
             height: 44px;
             border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #6366f1;
+            border-top-color: #b8ff00;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -352,13 +352,24 @@
         }
 
         .thumb-item.active {
-            border-color: #6366f1;
-            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+            border-color: #b8ff00;
+            box-shadow: 0 0 10px rgba(184, 255, 0, 0.5);
         }
 
-        .thumb-item canvas {
+        .thumb-item canvas, .thumb-item img {
             max-width: 100%;
             max-height: 85px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .page-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         .thumb-page-num {
@@ -650,8 +661,9 @@
             <span style="font-size:12px; color:#94a3b8;">📖 FLIPBOOK AI EKSCODER</span>
         </div>
 
-        <div class="flip-title" title="{{ $e_modul->title }}">
-            {{ $e_modul->title }}
+        <div class="flip-title" title="{{ $e_modul->title }}" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $e_modul->title }}</span>
+            <!-- <span id="cacheBadge" style="display:none; font-size:10.5px; font-weight:700; border-radius:12px; padding:2px 8px; font-family:'JetBrains Mono',monospace; flex-shrink:0;"></span> -->
         </div>
 
         <div class="flip-header-actions">
@@ -815,6 +827,12 @@
             ? "{{ route('public.e-modul.ask-ai', $e_modul->slug) }}" 
             : "{{ route('admin.e-modul.ask-ai', $e_modul->id) }}";
         const SHARE_URL = @json($e_modul->public_share_url);
+        const CACHE_STATUS_URL = IS_PUBLIC 
+            ? "{{ route('public.e-modul.cache-status', $e_modul->slug) }}" 
+            : "{{ route('admin.e-modul.cache-status', $e_modul->id) }}";
+        const SAVE_CACHE_URL = IS_PUBLIC 
+            ? "{{ route('public.e-modul.save-cache-batch', $e_modul->slug) }}" 
+            : "{{ route('admin.e-modul.save-cache-batch', $e_modul->id) }}";
         const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
         function copyShareUrl() {
@@ -877,18 +895,114 @@
             const loadingText = document.getElementById('loadingText');
             const flipbookEl = document.getElementById('flipbook');
             const thumbsDrawer = document.getElementById('thumbsDrawer');
+            const cacheBadge = document.getElementById('cacheBadge');
 
             if (!PDF_URL) {
                 loadingText.textContent = "File PDF belum diunggah untuk modul ini.";
                 return;
             }
 
+            // 1. Cek Server Cache Terlebih Dahulu
+            loadingText.textContent = "Memeriksa cache halaman modul...";
+            let cacheInfo = null;
+            try {
+                const cacheRes = await fetch(CACHE_STATUS_URL, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (cacheRes.ok) {
+                    cacheInfo = await cacheRes.json();
+                }
+            } catch (e) {
+                console.warn("Gagal mengecek status cache:", e);
+            }
+
+            // 2. JALUR SUPER CEPAT: Jika Server Cache Sudah Ada & Lengkap (Untuk Pengunjung Ke-2 dst)
+            if (cacheInfo && cacheInfo.has_cache && cacheInfo.is_complete) {
+                try {
+                    loadingText.textContent = "Memuat modul dari cache cepat (WebP)...";
+                    totalPages = cacheInfo.total_pages;
+                    pageTexts = cacheInfo.texts || {};
+
+                    const aspect = (cacheInfo.page_height && cacheInfo.page_width) 
+                        ? (cacheInfo.page_height / cacheInfo.page_width) 
+                        : (842 / 595); // Standard A4 ratio
+                    const pageWidth = Math.min(550, window.innerWidth * 0.45);
+                    const pageHeight = pageWidth * aspect;
+
+                    flipbookEl.innerHTML = '';
+                    thumbsDrawer.innerHTML = '';
+
+                    for (let i = 1; i <= totalPages; i++) {
+                        const pageDiv = document.createElement('div');
+                        pageDiv.className = `page ${i % 2 === 0 ? '--left' : '--right'}`;
+
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'page-content';
+
+                        const img = document.createElement('img');
+                        img.src = `${cacheInfo.base_url}/page_${i}.webp`;
+                        img.alt = `Halaman ${i}`;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'contain';
+                        img.style.display = 'block';
+                        img.loading = i <= 4 ? 'eager' : 'lazy';
+
+                        contentDiv.appendChild(img);
+                        pageDiv.appendChild(contentDiv);
+                        flipbookEl.appendChild(pageDiv);
+
+                        // Thumbnail
+                        const thumbItem = document.createElement('div');
+                        thumbItem.className = `thumb-item ${i === 1 ? 'active' : ''}`;
+                        thumbItem.setAttribute('data-page', i);
+
+                        const thumbImg = document.createElement('img');
+                        thumbImg.src = `${cacheInfo.base_url}/thumb_${i}.webp`;
+                        thumbImg.alt = `${i}`;
+                        thumbImg.style.maxWidth = '100%';
+                        thumbImg.style.maxHeight = '90px';
+                        thumbImg.style.objectFit = 'contain';
+                        thumbImg.loading = 'lazy';
+
+                        const thumbLabel = document.createElement('div');
+                        thumbLabel.className = 'thumb-page-num';
+                        thumbLabel.textContent = i;
+
+                        thumbItem.appendChild(thumbImg);
+                        thumbItem.appendChild(thumbLabel);
+                        thumbItem.addEventListener('click', () => {
+                            if (pageFlip) pageFlip.flip(i - 1);
+                        });
+                        thumbsDrawer.appendChild(thumbItem);
+                    }
+
+                    setupPageFlipInstance(flipbookEl, pageWidth, pageHeight, totalPages);
+
+                    if (cacheBadge) {
+                        // cacheBadge.textContent = '⚡ Cache Aktif';
+                        cacheBadge.style.display = 'inline-block';
+                        cacheBadge.style.background = 'rgba(184, 255, 0, 0.15)';
+                        cacheBadge.style.color = '#b8ff00';
+                        cacheBadge.style.border = '1px solid rgba(184, 255, 0, 0.3)';
+                    }
+
+                    loadingOverlay.style.display = 'none';
+                    flipbookEl.style.display = 'block';
+                    return; // Selesai dalam 1-2 detik!
+                } catch (cacheErr) {
+                    console.error("Gagal load dari cache, fallback ke PDF:", cacheErr);
+                }
+            }
+
+            // 3. JALUR ORANG PERTAMA BUKA: Progressive Lazy Startup + Background Caching Worker
             try {
                 loadingText.textContent = "Mengunduh file PDF...";
                 const res = await fetch(PDF_URL);
                 if (!res.ok) throw new Error("Gagal mengunduh PDF status: " + res.status);
                 const pdfData = await res.arrayBuffer();
 
+                loadingText.textContent = "Mempersiapkan dokumen...";
                 const loadingTask = pdfjsLib.getDocument({ data: pdfData });
                 pdfDoc = await loadingTask.promise;
                 totalPages = pdfDoc.numPages;
@@ -901,92 +1015,244 @@
                 flipbookEl.innerHTML = '';
                 thumbsDrawer.innerHTML = '';
 
+                // Buat kerangka halaman terlebih dahulu
                 for (let i = 1; i <= totalPages; i++) {
-                    loadingText.textContent = `Merender halaman ${i} dari ${totalPages}...`;
-                    const page = await pdfDoc.getPage(i);
-                    const scale = 2.0;
-                    const pageViewport = page.getViewport({ scale: scale });
-
-                    // Asynchronously extract page text for AI Context
-                    page.getTextContent().then(textContent => {
-                        const str = textContent.items.map(item => item.str).join(' ');
-                        pageTexts[i] = str;
-                    }).catch(e => {});
-
                     const pageDiv = document.createElement('div');
                     pageDiv.className = `page ${i % 2 === 0 ? '--left' : '--right'}`;
-                    
+                    pageDiv.id = `pageWrapper_${i}`;
+
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'page-content';
+                    contentDiv.id = `pageContent_${i}`;
 
-                    const canvas = document.createElement('canvas');
-                    canvas.width = pageViewport.width;
-                    canvas.height = pageViewport.height;
-                    const ctx = canvas.getContext('2d');
+                    const placeholder = document.createElement('div');
+                    placeholder.style.display = 'flex';
+                    placeholder.style.alignItems = 'center';
+                    placeholder.style.justifyContent = 'center';
+                    placeholder.style.height = '100%';
+                    placeholder.style.color = '#94a3b8';
+                    placeholder.style.fontSize = '12px';
+                    placeholder.innerHTML = `<span>Memuat Hal ${i}...</span>`;
+                    contentDiv.appendChild(placeholder);
 
-                    await page.render({ canvasContext: ctx, viewport: pageViewport }).promise;
-
-                    contentDiv.appendChild(canvas);
                     pageDiv.appendChild(contentDiv);
                     flipbookEl.appendChild(pageDiv);
 
-                    // Add thumbnail item
+                    // Thumbnail item
                     const thumbItem = document.createElement('div');
                     thumbItem.className = `thumb-item ${i === 1 ? 'active' : ''}`;
+                    thumbItem.id = `thumbItem_${i}`;
                     thumbItem.setAttribute('data-page', i);
-                    
-                    const thumbCanvas = document.createElement('canvas');
-                    thumbCanvas.width = canvas.width;
-                    thumbCanvas.height = canvas.height;
-                    thumbCanvas.getContext('2d').drawImage(canvas, 0, 0);
 
                     const thumbLabel = document.createElement('div');
                     thumbLabel.className = 'thumb-page-num';
                     thumbLabel.textContent = i;
 
-                    thumbItem.appendChild(thumbCanvas);
                     thumbItem.appendChild(thumbLabel);
-
                     thumbItem.addEventListener('click', () => {
                         if (pageFlip) pageFlip.flip(i - 1);
                     });
-
                     thumbsDrawer.appendChild(thumbItem);
                 }
 
+                // Progressive: Langsung render 2 halaman pertama (< 1 detik)
+                loadingText.textContent = "Merender sampul depan...";
+                await renderSinglePdfPage(1, 2.0);
+                if (totalPages >= 2) {
+                    await renderSinglePdfPage(2, 2.0);
+                }
+
+                // Langsung buka flipbook agar pengguna bisa mulai membaca!
                 loadingOverlay.style.display = 'none';
                 flipbookEl.style.display = 'block';
 
-                pageFlip = new St.PageFlip(flipbookEl, {
-                    width: pageWidth,
-                    height: pageHeight,
-                    size: 'stretch',
-                    minWidth: 300,
-                    maxWidth: 800,
-                    minHeight: 400,
-                    maxHeight: 1100,
-                    maxShadowOpacity: 0.5,
-                    showCover: true,
-                    mobileScrollSupport: false,
-                    usePortrait: window.innerWidth < 768
-                });
+                setupPageFlipInstance(flipbookEl, pageWidth, pageHeight, totalPages);
 
-                pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+                // Tampilkan badge status caching di header
+                if (cacheBadge) {
+                    cacheBadge.textContent = `⏳ Menyimpan Cache (2/${totalPages})`;
+                    cacheBadge.style.display = 'inline-block';
+                    cacheBadge.style.background = 'rgba(255, 255, 255, 0.1)';
+                    cacheBadge.style.color = '#cbd5e1';
+                    cacheBadge.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+                }
 
-                const slider = document.getElementById('pageSlider');
-                slider.max = totalPages;
-                slider.value = 1;
-
-                updateIndicator(0);
-
-                pageFlip.on('flip', (e) => {
-                    playFlipSound();
-                    updateIndicator(e.data);
-                });
+                // Jalankan worker latar belakang untuk render halaman sisa & simpan ke server
+                startBackgroundCachingWorker(viewport.width, viewport.height);
 
             } catch (err) {
                 console.error("PDF Load Error:", err);
                 loadingText.textContent = "Gagal memuat PDF: " + err.message;
+            }
+        }
+
+        function setupPageFlipInstance(flipbookEl, pageWidth, pageHeight, totalPages) {
+            if (pageFlip) {
+                try { pageFlip.destroy(); } catch (e) {}
+            }
+
+            pageFlip = new St.PageFlip(flipbookEl, {
+                width: pageWidth,
+                height: pageHeight,
+                size: 'stretch',
+                minWidth: 300,
+                maxWidth: 800,
+                minHeight: 400,
+                maxHeight: 1100,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: false,
+                usePortrait: window.innerWidth < 768
+            });
+
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+            const slider = document.getElementById('pageSlider');
+            if (slider) {
+                slider.max = totalPages;
+                slider.value = 1;
+            }
+
+            updateIndicator(0);
+
+            pageFlip.on('flip', (e) => {
+                playFlipSound();
+                updateIndicator(e.data);
+            });
+        }
+
+        async function renderSinglePdfPage(pageNum, scale = 2.0) {
+            if (!pdfDoc) return null;
+            try {
+                const page = await pdfDoc.getPage(pageNum);
+                const pageViewport = page.getViewport({ scale: scale });
+
+                const canvas = document.createElement('canvas');
+                canvas.width = pageViewport.width;
+                canvas.height = pageViewport.height;
+                const ctx = canvas.getContext('2d');
+
+                await page.render({ canvasContext: ctx, viewport: pageViewport }).promise;
+
+                // Ekstrak teks untuk konteks AI
+                let textStr = '';
+                try {
+                    const textContent = await page.getTextContent();
+                    textStr = textContent.items.map(item => item.str).join(' ');
+                    pageTexts[pageNum] = textStr;
+                } catch (e) {}
+
+                // Gantikan placeholder pada container halaman
+                const contentDiv = document.getElementById(`pageContent_${pageNum}`);
+                if (contentDiv) {
+                    contentDiv.innerHTML = '';
+                    contentDiv.appendChild(canvas);
+                }
+
+                // Render thumbnail
+                const thumbItem = document.getElementById(`thumbItem_${pageNum}`);
+                if (thumbItem && !thumbItem.querySelector('canvas')) {
+                    const thumbScale = 150 / canvas.width;
+                    const thumbCanvas = document.createElement('canvas');
+                    thumbCanvas.width = 150;
+                    thumbCanvas.height = Math.round(canvas.height * thumbScale);
+                    const tCtx = thumbCanvas.getContext('2d');
+                    tCtx.drawImage(canvas, 0, 0, thumbCanvas.width, thumbCanvas.height);
+                    thumbItem.prepend(thumbCanvas);
+                }
+
+                return {
+                    page_number: pageNum,
+                    canvas: canvas,
+                    text: textStr
+                };
+            } catch (e) {
+                console.warn(`Gagal render halaman ${pageNum}:`, e);
+                return null;
+            }
+        }
+
+        async function startBackgroundCachingWorker(origWidth, origHeight) {
+            const cacheBadge = document.getElementById('cacheBadge');
+            const BATCH_SIZE = 4;
+            let currentBatch = [];
+
+            // Masukkan halaman 1 & 2 yang sudah selesai dirender
+            for (let i = 1; i <= Math.min(2, totalPages); i++) {
+                const contentDiv = document.getElementById(`pageContent_${i}`);
+                const canvas = contentDiv ? contentDiv.querySelector('canvas') : null;
+                const thumbItem = document.getElementById(`thumbItem_${i}`);
+                const thumbCanvas = thumbItem ? thumbItem.querySelector('canvas') : null;
+
+                if (canvas) {
+                    currentBatch.push({
+                        page_number: i,
+                        image: canvas.toDataURL('image/webp', 0.85),
+                        thumb: thumbCanvas ? thumbCanvas.toDataURL('image/webp', 0.7) : '',
+                        text: pageTexts[i] || ''
+                    });
+                }
+            }
+
+            for (let i = 3; i <= totalPages; i++) {
+                const rendered = await renderSinglePdfPage(i, 2.0);
+                if (rendered && rendered.canvas) {
+                    const thumbItem = document.getElementById(`thumbItem_${i}`);
+                    const thumbCanvas = thumbItem ? thumbItem.querySelector('canvas') : null;
+
+                    currentBatch.push({
+                        page_number: i,
+                        image: rendered.canvas.toDataURL('image/webp', 0.85),
+                        thumb: thumbCanvas ? thumbCanvas.toDataURL('image/webp', 0.7) : '',
+                        text: rendered.text || ''
+                    });
+                }
+
+                if (cacheBadge) {
+                    cacheBadge.textContent = `⏳ Menyimpan Cache (${i}/${totalPages})`;
+                }
+
+                // Kirim batch jika sudah mencapai batas atau di akhir halaman
+                if (currentBatch.length >= BATCH_SIZE || i === totalPages) {
+                    await sendCacheBatchToServer(currentBatch, origWidth, origHeight);
+                    currentBatch = [];
+                }
+
+                // Beri jeda kecil agar browser tetap responsif & lancar
+                await new Promise(r => setTimeout(r, 80));
+            }
+
+            if (currentBatch.length > 0) {
+                await sendCacheBatchToServer(currentBatch, origWidth, origHeight);
+            }
+
+            if (cacheBadge) {
+                // cacheBadge.textContent = '⚡ Cache Aktif';
+                cacheBadge.style.background = 'rgba(184, 255, 0, 0.15)';
+                cacheBadge.style.color = '#b8ff00';
+                cacheBadge.style.border = '1px solid rgba(184, 255, 0, 0.3)';
+            }
+        }
+
+        async function sendCacheBatchToServer(pagesBatch, width, height) {
+            if (!pagesBatch.length) return;
+            try {
+                await fetch(SAVE_CACHE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': CSRF_TOKEN
+                    },
+                    body: JSON.stringify({
+                        total_pages: totalPages,
+                        page_width: width,
+                        page_height: height,
+                        pages: pagesBatch
+                    })
+                });
+            } catch (err) {
+                console.warn("Gagal mengirim batch cache ke server:", err);
             }
         }
 
