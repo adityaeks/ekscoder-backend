@@ -55,6 +55,17 @@
                             </select>
                         </div>
                     </div>
+
+                    <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color, rgba(255,255,255,0.08));">
+                        <input type="hidden" name="otp_enabled_submitted" value="1">
+                        <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer;">
+                            <input type="checkbox" name="otp_enabled" value="1" {{ old('otp_enabled', '1') ? 'checked' : '' }} style="margin-top:3px; accent-color:var(--accent);">
+                            <div>
+                                <div style="font-weight:600; color:var(--text-primary); font-size:13px;">Wajibkan Verifikasi OTP saat Login</div>
+                                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Jika tidak dicentang, pengguna ini dapat login langsung dengan password tanpa memerlukan kode OTP (Bypass OTP).</div>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 

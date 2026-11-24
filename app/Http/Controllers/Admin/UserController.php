@@ -50,6 +50,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', Password::defaults()],
             'role' => 'required|string|exists:roles,name',
+            'otp_enabled' => 'nullable|boolean',
         ]);
 
         $user = User::create([
@@ -57,6 +58,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'email_verified_at' => now(),
+            'otp_enabled' => $request->has('otp_enabled_submitted') ? $request->boolean('otp_enabled') : true,
         ]);
 
         $user->assignRole($validated['role']);
@@ -97,6 +99,7 @@ class UserController extends Controller
             'role' => 'required|string|exists:roles,name',
             'direct_permissions' => 'nullable|array',
             'direct_permissions.*' => 'string|exists:permissions,name',
+            'otp_enabled' => 'nullable|boolean',
         ]);
 
         $user->name = $validated['name'];
@@ -104,6 +107,10 @@ class UserController extends Controller
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
+        }
+
+        if ($request->has('otp_enabled_submitted')) {
+            $user->otp_enabled = $request->boolean('otp_enabled');
         }
 
         $user->save();
@@ -115,6 +122,34 @@ class UserController extends Controller
         $user->syncPermissions($request->direct_permissions ?? []);
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+    }
+
+    /**
+     * Toggle OTP verification requirement for the specified user.
+     */
+    public function toggleOtp(User $user)
+    {
+        $currentUser = Auth::user();
+
+        // Check permission
+        if (!$currentUser || (!$currentUser->hasRole('Super Admin') && !$currentUser->can('users.edit'))) {
+            abort(403, 'Anda tidak memiliki izin untuk melakukan aksi ini.');
+        }
+
+        $user->otp_enabled = !$user->otp_enabled;
+        $user->save();
+
+        $statusText = $user->otp_enabled ? 'diaktifkan' : 'dinonaktifkan (Bypass Aktif)';
+
+        // Record UserLog audit
+        UserLog::log(
+            action: 'update',
+            module: 'User Management',
+            description: "Admin {$currentUser->name} mengubah status OTP pengguna: {$user->name} ({$user->email}) menjadi {$statusText}",
+            model: $user
+        );
+
+        return back()->with('success', "Status OTP untuk {$user->name} berhasil {$statusText}.");
     }
 
     /**

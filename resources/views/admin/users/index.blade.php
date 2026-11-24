@@ -74,10 +74,16 @@
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
                                 <div>
-                                    <div style="font-weight:600; color:var(--text-primary); font-size:14px;">
+                                    <div style="font-weight:600; color:var(--text-primary); font-size:14px; display:flex; align-items:center; gap:6px;">
                                         {{ $user->name }}
                                         @if($user->id === auth()->id())
                                             <span style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:1px 6px; border-radius:10px; font-size:10px; font-weight:600;">You</span>
+                                        @endif
+                                        @if(!$user->otp_enabled)
+                                            <span style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:10px; font-size:10px; font-weight:600; display:inline-flex; align-items:center; gap:3px;" title="User ini tidak memerlukan OTP saat login (Bypass OTP)">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                                Bypass OTP
+                                            </span>
                                         @endif
                                     </div>
                                     <div style="font-size:12px; color:var(--text-secondary);">{{ $user->email }}</div>
@@ -121,6 +127,28 @@
                         </td>
                         <td style="text-align:right">
                             <div style="display:inline-flex; gap:6px; align-items:center;">
+                                @can('users.edit')
+                                <form action="{{ route('admin.users.toggle-otp', $user->id) }}" method="POST" style="display:inline;"
+                                      data-confirm-title="{{ $user->otp_enabled ? 'Nonaktifkan OTP untuk ' . $user->name . '?' : 'Aktifkan OTP untuk ' . $user->name . '?' }}"
+                                      data-confirm-text="{{ $user->otp_enabled ? 'Pengguna ini akan dapat login langsung tanpa verifikasi kode OTP (Bypass OTP).' : 'Pengguna ini akan diwajibkan memasukkan kode verifikasi 6-digit OTP saat login.' }}"
+                                      data-confirm-btn="{{ $user->otp_enabled ? 'Nonaktifkan OTP' : 'Aktifkan OTP' }}"
+                                      data-confirm-icon="{{ $user->otp_enabled ? 'warning' : 'question' }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    @if($user->otp_enabled)
+                                    <button type="submit" class="btn btn-ghost" style="color:#10b981; border-color:rgba(16,185,129,0.35); background:rgba(16,185,129,0.08);" title="OTP Aktif. Klik untuk menonaktifkan / bypass OTP">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                                        OTP On
+                                    </button>
+                                    @else
+                                    <button type="submit" class="btn btn-ghost" style="color:#f59e0b; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.08);" title="OTP Nonaktif (Bypass). Klik untuk mengaktifkan kembali OTP">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                        Bypass OTP
+                                    </button>
+                                    @endif
+                                </form>
+                                @endcan
+
                                 @if($user->id !== auth()->id())
                                 @can('users.edit')
                                 <form action="{{ route('admin.users.impersonate', $user->id) }}" method="POST" style="display:inline;"

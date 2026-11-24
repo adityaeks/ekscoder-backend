@@ -29,6 +29,14 @@ class AuthenticatedSessionController extends Controller
     {
         $user = $request->validateCredentials();
 
+        // Bypass OTP if OTP verification is disabled for this user
+        if (!$user->otp_enabled) {
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
         // Generate 6-digit OTP code
         $otp = sprintf('%06d', random_int(0, 999999));
 

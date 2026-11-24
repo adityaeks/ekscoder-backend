@@ -128,6 +128,10 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:logs.clear');
 
         // User Access Management
+        Route::patch('users/{user}/toggle-otp', [UserController::class, 'toggleOtp'])
+            ->name('users.toggle-otp')
+            ->middleware('can:users.edit');
+
         Route::post('users/{user}/impersonate', [UserController::class, 'impersonate'])
             ->name('users.impersonate')
             ->middleware('can:users.edit');
