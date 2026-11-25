@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div style="margin-bottom: 22px;">
-        <h1 class="auth-title text-center">Welcome Back 👋</h1>
-        <p class="auth-subtitle text-center">Sign in to access your Ekscoder Admin dashboard.</p>
+        <h1 class="auth-title text-center">Sign In</h1>
+        <p class="auth-subtitle text-center" style="margin-bottom:0;">Access your Ekscoder Admin workspace.</p>
     </div>
 
     <!-- Session Status -->
@@ -40,9 +40,9 @@
                 </span>
                 <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
                        placeholder="admin@ekscoder.com"
-                       style="width: 100%; padding: 11px 14px 11px 42px; background: #16161f; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #f8fafc; font-size: 13.5px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
-                       onfocus="this.style.borderColor='#b8ff00'; this.style.boxShadow='0 0 0 3px rgba(184, 255, 0, 0.15)';"
-                       onblur="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.boxShadow='none';">
+                       style="width: 100%; padding: 11px 14px 11px 42px; background: #14141A; border: 1px solid #1F1F27; border-radius: 10px; color: #F4F4F6; font-size: 13.5px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
+                       onfocus="this.style.borderColor='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(255, 255, 255, 0.14)';"
+                       onblur="this.style.borderColor='#1F1F27'; this.style.boxShadow='none';">
             </div>
         </div>
 
@@ -53,7 +53,7 @@
                     Password
                 </label>
                 @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" style="font-size: 12px; font-weight: 600; color: #b8ff00; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                    <a href="{{ route('password.request') }}" style="font-size: 12px; font-weight: 600; color: #FFFFFF; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
                         Forgot password?
                     </a>
                 @endif
@@ -67,9 +67,9 @@
                 </span>
                 <input id="password" type="password" name="password" required autocomplete="current-password"
                        placeholder="••••••••"
-                       style="width: 100%; padding: 11px 42px 11px 42px; background: #16161f; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: #f8fafc; font-size: 13.5px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
-                       onfocus="this.style.borderColor='#b8ff00'; this.style.boxShadow='0 0 0 3px rgba(184, 255, 0, 0.15)';"
-                       onblur="this.style.borderColor='rgba(255, 255, 255, 0.08)'; this.style.boxShadow='none';">
+                       style="width: 100%; padding: 11px 42px 11px 42px; background: #14141A; border: 1px solid #1F1F27; border-radius: 10px; color: #F4F4F6; font-size: 13.5px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;"
+                       onfocus="this.style.borderColor='#FFFFFF'; this.style.boxShadow='0 0 0 3px rgba(255, 255, 255, 0.14)';"
+                       onblur="this.style.borderColor='#1F1F27'; this.style.boxShadow='none';">
 
                 <!-- Toggle Password Visibility Button -->
                 <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 12px; background: none; border: none; color: #64748b; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#64748b'" title="Toggle Password Visibility">
@@ -83,11 +83,10 @@
 
         <!-- Submit Button -->
         <div style="margin-top: 6px;">
-            <button type="submit" style="width: 100%; padding: 12px 20px; background: linear-gradient(135deg, #b8ff00 0%, #a0eb00 100%); color: #0a0a0f; border: none; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'Inter', sans-serif; letter-spacing: -0.2px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 0 20px rgba(184, 255, 0, 0.3);"
-                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 0 28px rgba(184, 255, 0, 0.45)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0 20px rgba(184, 255, 0, 0.3)';"
-                    onmousedown="this.style.transform='translateY(1px)';">
-                Sign In to Dashboard &rarr;
+            <button type="submit" style="width: 100%; padding: 12px 20px; background: #FFFFFF; color: #08080A; border: none; border-radius: 8px; font-size: 13.5px; font-weight: 800; font-family: 'Inter', sans-serif; letter-spacing: -0.01em; cursor: pointer; transition: opacity 0.18s ease;"
+                    onmouseover="this.style.opacity='0.9';"
+                    onmouseout="this.style.opacity='1';">
+                Sign In to Dashboard
             </button>
         </div>
     </form>

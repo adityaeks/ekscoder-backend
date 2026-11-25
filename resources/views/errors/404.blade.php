@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>404 — Halaman Tidak Ditemukan | {{ config('app.name', 'Ekscoder') }}</title>
+    <title>404 // Halaman Tidak Ditemukan | {{ config('app.name', 'EKSCODER') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('ekscoder.png') }}">
@@ -22,18 +22,18 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-base:      #0a0a0f;
-            --bg-surface:   #111118;
-            --bg-elevated:  #16161f;
-            --bg-hover:     #1c1c28;
-            --border:       rgba(255, 255, 255, 0.08);
-            --border-light: rgba(255, 255, 255, 0.14);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted:   #64748b;
-            --accent:       #b8ff00;
-            --accent-glow:  rgba(184, 255, 0, 0.25);
-            --accent-soft:  rgba(184, 255, 0, 0.12);
+            --bg-base:      #08080A;
+            --bg-surface:   #111116;
+            --bg-elevated:  #14141A;
+            --bg-hover:     #1B1B22;
+            --border:       #1F1F27;
+            --border-light: #2A2A36;
+            --text-primary: #F4F4F6;
+            --text-secondary: #A1A1AE;
+            --text-muted:   #7C7C8A;
+            --accent:       #FFFFFF;
+            --accent-glow:  rgba(255, 255, 255, 0.14);
+            --accent-soft:  rgba(255, 255, 255, 0.08);
         }
 
         html, body {
@@ -56,40 +56,6 @@
             position: relative;
             overflow: hidden;
             padding: 24px;
-        }
-
-        /* Ambient Background Glows */
-        .bg-glow-1 {
-            position: absolute;
-            top: -150px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 700px;
-            height: 700px;
-            background: radial-gradient(circle, rgba(184, 255, 0, 0.08) 0%, rgba(10, 10, 15, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .bg-glow-2 {
-            position: absolute;
-            bottom: -200px;
-            right: -100px;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(184, 255, 0, 0.04) 0%, rgba(10, 10, 15, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .grid-pattern {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.6;
         }
 
         .error-container {
@@ -126,8 +92,8 @@
             align-items: center;
             gap: 8px;
             padding: 6px 14px;
-            background: rgba(184, 255, 0, 0.08);
-            border: 1px solid rgba(184, 255, 0, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 9999px;
             color: var(--accent);
             font-family: 'JetBrains Mono', monospace;
@@ -172,10 +138,6 @@
 </head>
 <body>
     <!-- Background Elements -->
-    <div class="grid-pattern"></div>
-    <div class="bg-glow-1"></div>
-    <div class="bg-glow-2"></div>
-
     <div class="error-container">
         <!-- Logo Header -->
         <div class="logo-wrapper">
@@ -205,7 +167,7 @@
                     <span>Kembali</span>
                 </button>
 
-                <a href="{{ url('/') }}" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; font-size:13.5px; font-weight:600; text-decoration:none; cursor:pointer; background:var(--accent); color:#000000; border:1px solid rgba(184,255,0,0.4); box-shadow:0 4px 14px var(--accent-glow); transition:all 0.2s;">
+                <a href="{{ url('/') }}" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:10px; font-size:13.5px; font-weight:700; text-decoration:none; cursor:pointer; background:#FFFFFF; color:#08080A; border:1px solid #FFFFFF; transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
                     </svg>

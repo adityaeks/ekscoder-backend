@@ -23,8 +23,8 @@
             }
             .dashboard-stats-grid .stat-card-hero {
                 grid-column: span 2;
-                background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(184, 255, 0, 0.05) 100%);
-                border-color: rgba(184, 255, 0, 0.25);
+                background: var(--bg-surface);
+                border-color: var(--border-light);
             }
             .dashboard-stats-grid .stat-card-hero .stat-value {
                 font-size: 22px !important;
@@ -62,7 +62,9 @@
         <div class="stat-card accent stat-card-hero">
             <div class="stat-top">
                 <div class="stat-label">Pipeline Value</div>
-                <div class="stat-icon accent">💰</div>
+                <div class="stat-icon accent">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
             </div>
             <div class="stat-value" style="font-size:22px;">Rp {{ number_format($stats['total_pipeline'] ?? 0, 0, ',', '.') }}</div>
             <div class="stat-meta">Gross contract value (excl. cancelled)</div>
@@ -71,7 +73,9 @@
         <div class="stat-card green stat-card-currency">
             <div class="stat-top">
                 <div class="stat-label">Collected Payments</div>
-                <div class="stat-icon green">💵</div>
+                <div class="stat-icon green">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+                </div>
             </div>
             <div class="stat-value" style="font-size:22px; color:var(--green);">Rp {{ number_format($stats['total_paid'] ?? 0, 0, ',', '.') }}</div>
             <div class="stat-meta">Received DP & full payments</div>
@@ -80,7 +84,9 @@
         <div class="stat-card cyan">
             <div class="stat-top">
                 <div class="stat-label">Active Orders</div>
-                <div class="stat-icon cyan">⚡</div>
+                <div class="stat-icon cyan">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['active_orders'] ?? 0 }}</div>
             <div class="stat-meta">Ongoing projects in pipeline</div>
@@ -89,7 +95,9 @@
         <div class="stat-card amber">
             <div class="stat-top">
                 <div class="stat-label">Completed Orders</div>
-                <div class="stat-icon amber">🎉</div>
+                <div class="stat-icon amber">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['completed_orders'] ?? 0 }}</div>
             <div class="stat-meta">Finished and delivered</div>
@@ -98,7 +106,9 @@
         <div class="stat-card accent">
             <div class="stat-top">
                 <div class="stat-label">Porto Projects</div>
-                <div class="stat-icon accent">📂</div>
+                <div class="stat-icon accent">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['total_projects'] ?? 0 }}</div>
             <div class="stat-meta">{{ $stats['active_projects'] ?? 0 }} live on public API</div>

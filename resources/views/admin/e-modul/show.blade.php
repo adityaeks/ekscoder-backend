@@ -296,7 +296,7 @@
             width: 44px;
             height: 44px;
             border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #b8ff00;
+            border-top-color: #FFFFFF;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -352,8 +352,7 @@
         }
 
         .thumb-item.active {
-            border-color: #b8ff00;
-            box-shadow: 0 0 10px rgba(184, 255, 0, 0.5);
+            border-color: #FFFFFF;
         }
 
         .thumb-item canvas, .thumb-item img {
@@ -647,7 +646,7 @@
     <header class="flip-header">
         <div class="flip-brand">
             @if(!empty($isPublic))
-            <a href="{{ config('app.frontend_url', env('FRONTEND_URL', 'https://ekscoder.com')) }}" title="Beranda Ekscoder" style="font-weight:700; color:#b8ff00;">
+            <a href="{{ config('app.frontend_url', env('FRONTEND_URL', 'https://ekscoder.com')) }}" title="Beranda Ekscoder" style="font-weight:700; color:#FFFFFF;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 Ekscoder
             </a>
@@ -668,7 +667,7 @@
 
         <div class="flip-header-actions">
             <!-- Share Public Link Button -->
-            <button class="ctrl-btn" id="btnShareModul" title="Bagikan E-Modul (Salin Tautan)" style="color:#b8ff00; background:rgba(184, 255, 0, 0.12); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;" onclick="copyShareUrl()">
+            <button class="ctrl-btn" id="btnShareModul" title="Bagikan E-Modul (Salin Tautan)" style="color:#FFFFFF; background:rgba(255, 255, 255, 0.10); border:1px solid rgba(255, 255, 255, 0.2); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;" onclick="copyShareUrl()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                 <span id="shareBtnText">Bagikan</span>
             </button>
@@ -982,9 +981,9 @@
                     if (cacheBadge) {
                         // cacheBadge.textContent = '⚡ Cache Aktif';
                         cacheBadge.style.display = 'inline-block';
-                        cacheBadge.style.background = 'rgba(184, 255, 0, 0.15)';
-                        cacheBadge.style.color = '#b8ff00';
-                        cacheBadge.style.border = '1px solid rgba(184, 255, 0, 0.3)';
+                        cacheBadge.style.background = 'rgba(255, 255, 255, 0.12)';
+                        cacheBadge.style.color = '#FFFFFF';
+                        cacheBadge.style.border = '1px solid rgba(255, 255, 255, 0.25)';
                     }
 
                     loadingOverlay.style.display = 'none';
@@ -1228,9 +1227,9 @@
 
             if (cacheBadge) {
                 // cacheBadge.textContent = '⚡ Cache Aktif';
-                cacheBadge.style.background = 'rgba(184, 255, 0, 0.15)';
-                cacheBadge.style.color = '#b8ff00';
-                cacheBadge.style.border = '1px solid rgba(184, 255, 0, 0.3)';
+                cacheBadge.style.background = 'rgba(255, 255, 255, 0.12)';
+                cacheBadge.style.color = '#FFFFFF';
+                cacheBadge.style.border = '1px solid rgba(255, 255, 255, 0.25)';
             }
         }
 

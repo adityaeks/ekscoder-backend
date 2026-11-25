@@ -1,22 +1,18 @@
 @if(session()->has('impersonator_id'))
     <style>
         .impersonation-alert-strip {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+            background: rgba(245, 158, 11, 0.12);
             border-bottom: 1px solid rgba(245, 158, 11, 0.35);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             padding: 9px 20px;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
             transition: all 0.2s ease;
         }
 
         html[data-theme="dark"] .impersonation-alert-strip {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%);
+            background: #1A1508;
             border-bottom-color: rgba(245, 158, 11, 0.4);
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
         }
 
         .impersonation-container {

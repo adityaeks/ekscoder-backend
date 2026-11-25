@@ -11,11 +11,11 @@
 
     /* Standard Modal Popups (Delete confirmations, etc.) */
     div.swal2-popup:not(.swal2-toast) {
-        background: var(--bg-surface, #111118) !important;
-        border: 1px solid var(--border, rgba(255,255,255,0.12)) !important;
-        border-radius: 18px !important;
-        color: var(--text-primary, #ffffff) !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+        background: var(--bg-surface, #111116) !important;
+        border: 1px solid var(--border-light, #2A2A36) !important;
+        border-radius: 12px !important;
+        color: var(--text-primary, #F4F4F6) !important;
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.7) !important;
         padding: 24px !important;
     }
 
@@ -78,7 +78,7 @@
     }
 
     div.swal2-popup.swal2-toast .swal2-timer-progress-bar {
-        background: var(--accent, #b8ff00) !important;
+        background: var(--accent, #FFFFFF) !important;
         height: 3px !important;
     }
 

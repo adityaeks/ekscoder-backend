@@ -14,7 +14,7 @@
                     <tr>
                         <td style="padding: 28px 32px 20px 32px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
                             <div style="font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">
-                                EKSCODER<span style="color: #b8ff00;">.</span>
+                                EKSCODER<span style="color: #ffffff;">.</span>
                             </div>
                             <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px;">
                                 Security Verification
@@ -26,24 +26,24 @@
                     <tr>
                         <td style="padding: 32px;">
                             <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 800; color: #f8fafc; text-align: center;">
-                                Login OTP Code 🔐
+                                Login OTP Code
                             </h2>
                             <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #94a3b8; text-align: center;">
                                 Hello, <strong style="color: #f8fafc;">{{ $name }}</strong>! You are receiving this email because a login attempt was made for your Ekscoder Admin account.
                             </p>
 
                             <!-- OTP Box -->
-                            <div style="background-color: #16161f; border: 1px solid rgba(184, 255, 0, 0.35); border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 24px; box-shadow: 0 0 20px rgba(184, 255, 0, 0.08);">
-                                <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;">
+                            <div style="background-color: #14141a; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 24px;">
+                                <div style="font-size: 11px; font-weight: 700; color: #a1a1ae; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;">
                                     Your 6-Digit Verification Code
                                 </div>
-                                <div style="font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 900; color: #b8ff00; letter-spacing: 10px; margin: 0;">
+                                <div style="font-family: 'Courier New', Courier, monospace; font-size: 38px; font-weight: 900; color: #ffffff; letter-spacing: 10px; margin: 0;">
                                     {{ $otpCode }}
                                 </div>
                             </div>
 
                             <p style="margin: 0 0 12px 0; font-size: 13px; line-height: 1.5; color: #94a3b8; text-align: center;">
-                                ⏱️ This code is valid for <strong style="color: #f8fafc;">10 minutes</strong>.
+                                This code is valid for <strong style="color: #f8fafc;">10 minutes</strong>.
                             </p>
                             <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #64748b; text-align: center;">
                                 If you did not request this code, please ignore this email or secure your account.

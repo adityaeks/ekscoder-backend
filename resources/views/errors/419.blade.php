@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>419 — Sesi Kedaluwarsa | {{ config('app.name', 'Ekscoder') }}</title>
+    <title>419 // Sesi Kedaluwarsa | {{ config('app.name', 'EKSCODER') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('ekscoder.png') }}">
@@ -22,17 +22,17 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-base:        #0a0a0f;
-            --bg-surface:     #111118;
-            --bg-elevated:    #16161f;
-            --bg-hover:       #1c1c28;
-            --border:         rgba(255, 255, 255, 0.08);
-            --border-light:   rgba(255, 255, 255, 0.14);
-            --text-primary:   #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted:     #64748b;
+            --bg-base:        #08080A;
+            --bg-surface:     #111116;
+            --bg-elevated:    #14141A;
+            --bg-hover:       #1B1B22;
+            --border:         #1F1F27;
+            --border-light:   #2A2A36;
+            --text-primary:   #F4F4F6;
+            --text-secondary: #A1A1AE;
+            --text-muted:     #7C7C8A;
             --cyan:           #06b6d4;
-            --cyan-glow:      rgba(6, 182, 212, 0.25);
+            --cyan-glow:      rgba(6, 182, 212, 0.18);
             --accent:         #6366f1;
         }
 

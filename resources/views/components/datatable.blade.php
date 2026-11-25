@@ -58,7 +58,9 @@
             @if($searchable)
             <div class="datatable-search">
                 <div class="datatable-search-group">
-                    <span class="datatable-search-icon">🔍</span>
+                    <span class="datatable-search-icon" style="display:inline-flex; align-items:center; color:var(--text-muted);">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
                     <input 
                         type="text" 
                         class="datatable-search-input" 
@@ -66,7 +68,7 @@
                         onkeyup="window.ekscoderDataTables['{{ $id }}']?.search(this.value)"
                         oninput="window.ekscoderDataTables['{{ $id }}']?.search(this.value)"
                     >
-                    <button type="button" class="datatable-search-clear" onclick="window.ekscoderDataTables['{{ $id }}']?.clearSearch(this)" style="display:none;" title="Clear search">✕</button>
+                    <button type="button" class="datatable-search-clear" onclick="window.ekscoderDataTables['{{ $id }}']?.clearSearch(this)" style="display:none;" title="Clear search" aria-label="Clear search">✕</button>
                 </div>
             </div>
             @endif

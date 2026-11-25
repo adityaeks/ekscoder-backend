@@ -13,28 +13,36 @@
         <div class="stat-card accent">
             <div class="stat-top">
                 <div class="stat-label">Total Users</div>
-                <div class="stat-icon accent">👥</div>
+                <div class="stat-icon accent">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['total'] }}</div>
         </div>
         <div class="stat-card red">
             <div class="stat-top">
                 <div class="stat-label">Super Admins</div>
-                <div class="stat-icon red">👑</div>
+                <div class="stat-icon red">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['super_admins'] }}</div>
         </div>
         <div class="stat-card green">
             <div class="stat-top">
                 <div class="stat-label">Admins</div>
-                <div class="stat-icon green">⚡</div>
+                <div class="stat-icon green">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['admins'] }}</div>
         </div>
         <div class="stat-card amber">
             <div class="stat-top">
                 <div class="stat-label">Staff</div>
-                <div class="stat-icon amber">👤</div>
+                <div class="stat-icon amber">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
             </div>
             <div class="stat-value">{{ $stats['staff'] }}</div>
         </div>
@@ -70,7 +78,7 @@
                         </td>
                         <td>
                             <div style="display:flex; align-items:center; gap:10px;">
-                                <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border-light); color:var(--text-primary); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono', monospace; font-weight:700; font-size:13px; flex-shrink:0;">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
                                 <div>
@@ -93,16 +101,16 @@
                         <td>
                             @php $primaryRole = $user->getRoleNames()->first(); @endphp
                             @if($primaryRole === 'Super Admin')
-                                <span style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
-                                    👑 Super Admin
+                                <span style="background:rgba(244,63,94,0.12); color:#f43f5e; border:1px solid rgba(244,63,94,0.28); padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                                    Super Admin
                                 </span>
                             @elseif($primaryRole === 'Admin')
-                                <span style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3); padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
-                                    ⚡ Admin
+                                <span style="background:var(--accent-soft); color:var(--badge-accent-text); border:1px solid var(--border-light); padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                                    Admin
                                 </span>
                             @elseif($primaryRole)
-                                <span style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600;">
-                                    👤 {{ $primaryRole }}
+                                <span style="background:rgba(245,158,11,0.12); color:#f59e0b; border:1px solid rgba(245,158,11,0.28); padding:4px 10px; border-radius:9999px; font-size:11.5px; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+                                    {{ $primaryRole }}
                                 </span>
                             @else
                                 <span style="color:var(--text-muted); font-size:12px; font-style:italic;">No Role</span>

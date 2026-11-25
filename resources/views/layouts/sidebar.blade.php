@@ -4,8 +4,9 @@
 <!-- Sidebar Navigation -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo" style="position: relative;">
-        <a href="{{ route('dashboard') }}" class="logo-mark" style="display: flex; align-items: center; justify-content: center; width: 100%;">
-            <img src="{{ asset('ekscoder.png') }}" alt="Ekscoder Logo" style="height: 38px; width: auto; max-width: 100%; object-fit: contain;">
+        <a href="{{ route('dashboard') }}" class="logo-mark" style="display: flex; align-items: center; justify-content: center; width: 100%; text-decoration: none;">
+            <img src="{{ asset('ekscoder.png') }}" alt="Ekscoder Logo" class="logo-full" style="height: 38px; width: auto; max-width: 100%; object-fit: contain;">
+            <img src="{{ asset('ekscoder-logo.png') }}" alt="Ekscoder" class="logo-compact" style="display: none; height: 32px; width: 32px; object-fit: contain;">
         </a>
         <button type="button" class="sidebar-mobile-close-btn" onclick="toggleSidebar()" aria-label="Close Navigation Menu">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -50,7 +51,7 @@
         @can('emodul.view')
         <div class="nav-section-label" style="margin-top:16px;">E-Modul</div>
         <a href="{{ route('admin.e-modul.index') }}" class="nav-item {{ request()->routeIs('admin.e-modul.index') || request()->routeIs('admin.e-modul.show') || request()->routeIs('admin.e-modul.edit') ? 'active' : '' }}" title="E-Modul">
-            <div class="nav-icon" style="color:var(--accent, #6366f1);">
+            <div class="nav-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
             <span class="nav-text">E-Modul</span>

@@ -7,7 +7,7 @@
 
     <!-- Upload Hero Dropzone Section -->
     @can('emodul.create')
-    <div class="card" style="padding:28px; margin-bottom:28px; background:linear-gradient(135deg, var(--accent-soft) 0%, rgba(184, 255, 0, 0.02) 100%); border:1px solid rgba(184, 255, 0, 0.2);">
+    <div class="card" style="padding:28px; margin-bottom:28px; background:var(--bg-surface); border:1px solid var(--border);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
             <div>
                 <h2 style="font-size:18px; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
@@ -19,7 +19,7 @@
             </div>
             <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 @can('emodul.edit')
-                <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:8px 16px; font-size:13px; border:1px solid rgba(184, 255, 0, 0.3); background:var(--accent-soft); color:var(--badge-accent-text, var(--accent)); cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; border-radius:8px;" title="Buka Halaman Setting Prompt & AI E-Modul">
+                <a href="{{ route('admin.e-modul.settings') }}" class="topbar-btn" style="text-decoration:none; padding:8px 16px; font-size:13px; border:1px solid var(--border-light); background:var(--bg-elevated); color:var(--text-primary); cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-weight:700; border-radius:8px;" title="Buka Halaman Setting Prompt & AI E-Modul">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
                     <span>Setting Prompt AI</span>
                 </a>
@@ -123,7 +123,7 @@
                     </span>
                     <span>💾 {{ $modul->formatted_size }}</span>
                     @if($modul->hasCache())
-                        <span style="font-size:10px; font-weight:700; color:#b8ff00; background:rgba(184,255,0,0.12); border:1px solid rgba(184,255,0,0.25); border-radius:4px; padding:1px 6px;" title="Cache WebP siap: buka modul instan tanpa download ulang PDF">⚡ Cached</span>
+                        <span style="font-size:10px; font-weight:700; color:var(--text-primary); background:var(--bg-elevated); border:1px solid var(--border-light); border-radius:4px; padding:1px 6px;" title="Cache WebP siap: buka modul instan tanpa download ulang PDF">Cached</span>
                     @else
                         <span style="font-size:10px; color:var(--text-muted); background:var(--bg-surface); border:1px solid var(--border-light); border-radius:4px; padding:1px 6px;" title="Belum di-cache: akan otomatis di-cache saat dibuka pertama kali">PDF Asli</span>
                     @endif
@@ -155,7 +155,7 @@
                     <button type="button" 
                         class="topbar-btn" 
                         title="Salin Link Publik (ekscoder.com)" 
-                        style="padding:7px 9px; font-size:12px; cursor:pointer; color:#b8ff00; border:1px solid rgba(184, 255, 0, 0.25); background:rgba(184, 255, 0, 0.06); display:inline-flex; align-items:center; justify-content:center;"
+                        style="padding:7px 9px; font-size:12px; cursor:pointer; color:var(--text-primary); border:1px solid var(--border-light); background:var(--bg-elevated); display:inline-flex; align-items:center; justify-content:center;"
                         onclick="copyModulShareLink('{{ $modul->public_share_url }}', this)">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     </button>
@@ -1152,7 +1152,7 @@
         function copyModulShareLink(url, btn) {
             navigator.clipboard.writeText(url).then(() => {
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b8ff00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+                btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
                 btn.title = 'Tautan Berhasil Disalin!';
                 setTimeout(() => {
                     btn.innerHTML = originalHtml;

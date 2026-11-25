@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Ekscoder Admin — {{ $title ?? 'Dashboard' }}</title>
+    <title>EKSCODER // {{ $title ?? 'Dashboard' }}</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('ekscoder-logo.png') }}">
@@ -19,18 +19,18 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg-base:      #0a0a0f;
-            --bg-surface:   #111118;
-            --bg-elevated:  #16161f;
-            --bg-hover:     #1c1c28;
-            --border:       rgba(255,255,255,0.07);
-            --border-light: rgba(255,255,255,0.12);
-            --text-primary: #f0f0f5;
-            --text-secondary: #8b8ba0;
-            --text-muted:   #55555f;
-            --accent:       #6c63ff;
-            --accent-glow:  rgba(108,99,255,0.25);
-            --accent-soft:  rgba(108,99,255,0.12);
+            --bg-base:      #08080A;
+            --bg-surface:   #111116;
+            --bg-elevated:  #14141A;
+            --bg-hover:     #1B1B22;
+            --border:       #1F1F27;
+            --border-light: #2A2A36;
+            --text-primary: #F4F4F6;
+            --text-secondary: #A1A1AE;
+            --text-muted:   #7C7C8A;
+            --accent:       #FFFFFF;
+            --accent-glow:  rgba(255,255,255,0.14);
+            --accent-soft:  rgba(255,255,255,0.08);
             --green:        #22c55e;
             --green-soft:   rgba(34,197,94,0.12);
             --amber:        #f59e0b;
@@ -392,8 +392,8 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), #7ecb00);
-            color: #0a0a0f;
+            background: #FFFFFF;
+            color: #08080A;
             display: flex;
             align-items: center;
             justify-content: center;
