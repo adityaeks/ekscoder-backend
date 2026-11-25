@@ -388,6 +388,13 @@ Route::middleware('auth')->group(function () {
             ->middleware('can:emodul.edit')
             ->name('e-modul.clear-cache');
 
+        // E-Modul Chat History Routes
+        Route::get('e-modul/{e_modul}/chat-history', [EModulController::class, 'chatHistory'])
+            ->name('e-modul.chat-history');
+        Route::delete('e-modul/{e_modul}/chat-history', [EModulController::class, 'clearChatHistory'])
+            ->middleware('can:emodul.delete')
+            ->name('e-modul.chat-history.clear');
+
         Route::resource('e-modul', EModulController::class);
 
     });

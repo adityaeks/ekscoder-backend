@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class EModul extends Model
@@ -89,6 +90,14 @@ class EModul extends Model
         }
         $manifest = json_decode(Storage::disk('public')->get($manifestPath), true);
         return !empty($manifest['is_complete']);
+    }
+
+    /**
+     * Get the chat logs for the e-modul.
+     */
+    public function chatLogs(): HasMany
+    {
+        return $this->hasMany(EModulChatLog::class, 'e_modul_id')->latest();
     }
 
     /**

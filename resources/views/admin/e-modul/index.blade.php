@@ -160,6 +160,14 @@
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
                     </button>
 
+                    <!-- Student-AI Chat History -->
+                    <a href="{{ route('admin.e-modul.chat-history', $modul->id) }}" class="topbar-btn" title="Riwayat Percakapan Siswa & AI ({{ $modul->chat_logs_count ?? 0 }})" style="padding:7px 9px; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:5px; position:relative;">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        @if(($modul->chat_logs_count ?? 0) > 0)
+                            <span style="font-size:10.5px; font-weight:700; color:var(--accent);">{{ $modul->chat_logs_count }}</span>
+                        @endif
+                    </a>
+
 
                     <!-- Edit -->
                     @can('emodul.edit')

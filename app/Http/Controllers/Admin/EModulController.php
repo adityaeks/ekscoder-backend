@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AiSetting;
 use App\Models\EModul;
+use App\Models\EModulChatLog;
 use App\Models\UserLog;
 use App\Services\NineRouterService;
 use Illuminate\Http\JsonResponse;
@@ -29,7 +30,7 @@ class EModulController extends Controller
     {
         Gate::authorize('emodul.view');
 
-        $moduls = EModul::latest()->get();
+        $moduls = EModul::withCount('chatLogs')->latest()->get();
 
         $stats = [
             'total' => $moduls->count(),
@@ -114,6 +115,62 @@ class EModulController extends Controller
     {
         $isPublic = false;
         return view('admin.e-modul.show', compact('e_modul', 'isPublic'));
+    }
+
+    /**
+     * Display student-AI chat history for the specified e-modul.
+     */
+    public function chatHistory(Request $request, EModul $e_modul)
+    {
+        Gate::authorize('emodul.view');
+
+        $search = trim((string) $request->query('search', ''));
+        $studentFilter = trim((string) $request->query('student_name', ''));
+
+        $query = $e_modul->chatLogs();
+
+        if ($studentFilter !== '') {
+            $query->where('student_name', $studentFilter);
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('student_name', 'like', "%{$search}%")
+                    ->orWhere('question', 'like', "%{$search}%")
+                    ->orWhere('answer', 'like', "%{$search}%")
+                    ->orWhere('page_number', 'like', "%{$search}%");
+            });
+        }
+
+        $chatLogs = $query->paginate(20)->withQueryString();
+
+        $students = EModulChatLog::where('e_modul_id', $e_modul->id)
+            ->select('student_name')
+            ->distinct()
+            ->orderBy('student_name')
+            ->pluck('student_name');
+
+        $stats = [
+            'total_chats' => EModulChatLog::where('e_modul_id', $e_modul->id)->count(),
+            'unique_students' => $students->count(),
+            'last_chat_at' => EModulChatLog::where('e_modul_id', $e_modul->id)->latest()->value('created_at'),
+        ];
+
+        return view('admin.e-modul.chat-history', compact('e_modul', 'chatLogs', 'students', 'stats', 'search', 'studentFilter'));
+    }
+
+    /**
+     * Clear all student-AI chat history for the specified e-modul.
+     */
+    public function clearChatHistory(EModul $e_modul)
+    {
+        Gate::authorize('emodul.delete');
+
+        $e_modul->chatLogs()->delete();
+
+        return redirect()
+            ->route('admin.e-modul.chat-history', $e_modul->id)
+            ->with('success', 'Seluruh riwayat percakapan AI untuk modul ini berhasil dihapus.');
     }
 
     /**
@@ -317,12 +374,14 @@ PROMPT;
     {
         $validated = $request->validate([
             'question' => 'required|string|max:2000',
+            'student_name' => 'nullable|string|max:150',
             'modul_title' => 'nullable|string|max:255',
             'page_number' => 'nullable|string|max:50',
             'page_text' => 'nullable|string|max:20000',
             'history' => 'nullable|array',
         ]);
 
+        $studentName = trim($validated['student_name'] ?? '') ?: 'Siswa';
         $modulTitle = $e_modul ? $e_modul->title : ($validated['modul_title'] ?? 'E-Modul Pembelajaran');
         $pageNumber = $validated['page_number'] ?? 'Semua Halaman';
         $pageText = $validated['page_text'] ?? '';
@@ -349,6 +408,11 @@ PROMPT;
             );
         }
 
+        // Add student context to the system prompt if available
+        if ($studentName && $studentName !== 'Siswa') {
+            $systemPrompt .= "\nNama siswa yang sedang membaca dan bertanya adalah: {$studentName}. Sapa siswa dengan ramah dan panggil namanya jika relevan.";
+        }
+
         $messages = [
             ['role' => 'system', 'content' => $systemPrompt],
         ];
@@ -370,7 +434,7 @@ PROMPT;
         if (!empty($pageText)) {
             $userContent .= "[KONTEKS MATERI E-MODUL ({$pageNumber})]:\n\"\"\"\n" . Str::limit($pageText, 10000) . "\n\"\"\"\n\n";
         }
-        $userContent .= "[PERTANYAAN PEMBACA]:\n" . $question;
+        $userContent .= "[PERTANYAAN DARI {$studentName}]:\n" . $question;
 
         $messages[] = [
             'role' => 'user',
@@ -383,10 +447,28 @@ PROMPT;
         try {
             $aiReply = $this->aiService->getChatCompletions($messages, $model);
 
+            // Save conversation log to database
+            if ($e_modul) {
+                try {
+                    EModulChatLog::create([
+                        'e_modul_id'   => $e_modul->id,
+                        'student_name' => $studentName,
+                        'page_number'  => $pageNumber,
+                        'question'     => $question,
+                        'answer'       => $aiReply,
+                        'ip_address'   => $request->ip(),
+                        'user_agent'   => Str::limit($request->userAgent() ?? '', 500),
+                    ]);
+                } catch (\Throwable $logErr) {
+                    Log::warning("Failed to save EModulChatLog: " . $logErr->getMessage());
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'reply' => $aiReply,
                 'page' => $pageNumber,
+                'student_name' => $studentName,
             ]);
         } catch (\Throwable $e) {
             Log::error("E-Modul AI Error: " . $e->getMessage());
@@ -425,7 +507,7 @@ PROMPT;
         ];
 
         $defaultPrompt = self::getDefaultSystemPrompt();
-        $moduls = EModul::latest()->get();
+        $moduls = EModul::withCount('chatLogs')->latest()->get();
         $selectedModulId = $request->query('modul_id');
 
         return view('admin.e-modul.settings', compact('models', 'settings', 'defaultPrompt', 'moduls', 'selectedModulId'));

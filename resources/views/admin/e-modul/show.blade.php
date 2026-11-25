@@ -638,9 +638,143 @@
             0%, 80%, 100% { transform: translateY(0); }
             40% { transform: translateY(-6px); }
         }
+
+        /* Student Name Modal */
+        .student-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .student-modal-card {
+            background: #18191c;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            max-width: 420px;
+            width: 100%;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+            animation: cardScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardScaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .student-modal-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(96, 165, 250, 0.12);
+            border: 1px solid rgba(96, 165, 250, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: #60a5fa;
+        }
+
+        .student-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 6px;
+        }
+
+        .student-modal-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .student-input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .student-input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .student-input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: #f8fafc;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .student-input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .student-btn-primary {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13.5px;
+            padding: 11px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+
+        .student-btn-primary:hover {
+            background: #1d4ed8;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+        }
     </style>
 </head>
 <body>
+
+    <!-- Modal Input Nama Siswa -->
+    <div id="studentNameModal" class="student-modal-backdrop" style="display:none;" onclick="handleBackdropClick(event)">
+        <div class="student-modal-card" style="position:relative;">
+            <button type="button" id="btnCancelStudentModal" onclick="closeStudentModal()" style="display:none; position:absolute; top:14px; right:16px; background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer; line-height:1;" title="Tutup">✕</button>
+            <div class="student-modal-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <h3 class="student-modal-title">Selamat Datang di E-Modul</h3>
+            <p class="student-modal-desc">Masukkan nama Anda untuk mulai membaca modul dan berdiskusi dengan AI Asisten Pembelajaran.</p>
+            <form id="studentNameForm" onsubmit="handleSaveStudentName(event)">
+                <div class="student-input-group">
+                    <label for="studentNameInput" class="student-input-label">Nama Lengkap Siswa</label>
+                    <input type="text" id="studentNameInput" class="student-input-field" placeholder="Contoh: Muhammad Izza" required autocomplete="name" maxlength="100">
+                </div>
+                <button type="submit" class="student-btn-primary">Mulai Belajar</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Header -->
     <header class="flip-header">
@@ -666,6 +800,12 @@
         </div>
 
         <div class="flip-header-actions">
+            <!-- Student Profile Badge -->
+            <button type="button" class="ctrl-btn" id="btnStudentBadge" title="Klik untuk mengubah nama pembaca" style="color:#FFFFFF; background:rgba(255, 255, 255, 0.08); border:1px solid rgba(255, 255, 255, 0.16); width:auto; padding:0 12px; gap:6px; font-size:12px; font-weight:500; border-radius:6px;" onclick="openStudentModal()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span id="studentBadgeName">Siswa</span>
+            </button>
+
             <!-- Share Public Link Button -->
             <button class="ctrl-btn" id="btnShareModul" title="Bagikan E-Modul (Salin Tautan)" style="color:#FFFFFF; background:rgba(255, 255, 255, 0.10); border:1px solid rgba(255, 255, 255, 0.2); width:auto; padding:0 10px; gap:6px; font-size:12px; font-weight:600;" onclick="copyShareUrl()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -773,6 +913,13 @@
                     <span style="font-size:16px;">✨</span> AI Asisten Modul
                 </div>
                 <button type="button" id="btnCloseAiDrawer" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer; padding:4px 8px; line-height:1;" title="Tutup AI Asisten">✕</button>
+            </div>
+            <div style="font-size:11.5px; color:#94a3b8; margin-top:6px; display:flex; align-items:center; justify-content:space-between; padding:5px 10px; background:rgba(255,255,255,0.04); border-radius:6px; border:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e;"></span>
+                    <span>Siswa: <strong id="aiDrawerStudentName" style="color:#f8fafc;">-</strong></span>
+                </div>
+                <button type="button" onclick="openStudentModal()" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:11px; text-decoration:underline; padding:0;">Ubah Nama</button>
             </div>
         </div>
 
@@ -1424,12 +1571,88 @@
             document.getElementById('aiChatForm').dispatchEvent(new Event('submit'));
         }
 
+        // Student Name Storage & Modal Handling
+        const STUDENT_STORAGE_KEY = 'emodul_student_name';
+
+        function getStudentName() {
+            try {
+                return (localStorage.getItem(STUDENT_STORAGE_KEY) || '').trim();
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function updateStudentUi(name) {
+            const displayName = name || 'Siswa';
+            const badgeEl = document.getElementById('studentBadgeName');
+            const drawerEl = document.getElementById('aiDrawerStudentName');
+            if (badgeEl) badgeEl.textContent = displayName;
+            if (drawerEl) drawerEl.textContent = displayName;
+        }
+
+        function openStudentModal() {
+            const modal = document.getElementById('studentNameModal');
+            const input = document.getElementById('studentNameInput');
+            const cancelBtn = document.getElementById('btnCancelStudentModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                const current = getStudentName();
+                if (cancelBtn) {
+                    cancelBtn.style.display = current ? 'block' : 'none';
+                }
+                if (input) {
+                    input.value = current;
+                    setTimeout(() => input.focus(), 100);
+                }
+            }
+        }
+
+        function closeStudentModal() {
+            const modal = document.getElementById('studentNameModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function handleBackdropClick(e) {
+            if (e.target.id === 'studentNameModal' && getStudentName()) {
+                closeStudentModal();
+            }
+        }
+
+        function handleSaveStudentName(e) {
+            e.preventDefault();
+            const input = document.getElementById('studentNameInput');
+            const name = (input ? input.value : '').trim();
+            if (!name) return;
+
+            try {
+                localStorage.setItem(STUDENT_STORAGE_KEY, name);
+            } catch (err) {}
+
+            updateStudentUi(name);
+            closeStudentModal();
+        }
+
+        function initStudentName() {
+            const savedName = getStudentName();
+            if (!savedName) {
+                openStudentModal();
+            } else {
+                updateStudentUi(savedName);
+            }
+        }
+
         async function handleSendAiMessage(e) {
             e.preventDefault();
             const input = document.getElementById('aiInputText');
             const submitBtn = document.getElementById('aiSubmitBtn');
             const question = input.value.trim();
             if (!question) return;
+
+            const currentStudentName = getStudentName();
+            if (!currentStudentName) {
+                openStudentModal();
+                return;
+            }
 
             // Append User Message
             appendMessage('user', question);
@@ -1456,6 +1679,7 @@
                     },
                     body: JSON.stringify({
                         question: question,
+                        student_name: currentStudentName,
                         modul_title: MODUL_TITLE,
                         page_number: contextData.label,
                         page_text: contextData.text,
@@ -1523,7 +1747,10 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', initFlipbook);
+        window.addEventListener('DOMContentLoaded', () => {
+            initStudentName();
+            initFlipbook();
+        });
     </script>
 </body>
 </html>
