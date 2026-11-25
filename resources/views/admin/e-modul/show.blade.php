@@ -769,7 +769,7 @@
             <form id="studentNameForm" onsubmit="handleSaveStudentName(event)">
                 <div class="student-input-group">
                     <label for="studentNameInput" class="student-input-label">Nama Lengkap Siswa</label>
-                    <input type="text" id="studentNameInput" class="student-input-field" placeholder="Contoh: Muhammad Izza" required autocomplete="name" maxlength="100">
+                    <input type="text" id="studentNameInput" class="student-input-field" placeholder="Masukan nama disini" required autocomplete="name" maxlength="100">
                 </div>
                 <button type="submit" class="student-btn-primary">Mulai Belajar</button>
             </form>
@@ -919,13 +919,16 @@
                     <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#22c55e;"></span>
                     <span>Siswa: <strong id="aiDrawerStudentName" style="color:#f8fafc;">-</strong></span>
                 </div>
-                <button type="button" onclick="openStudentModal()" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:11px; text-decoration:underline; padding:0;">Ubah Nama</button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button type="button" onclick="clearLocalChatHistory()" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:11px; text-decoration:underline; padding:0;" title="Mulai obrolan baru di perangkat ini">Reset Chat</button>
+                    <button type="button" onclick="openStudentModal()" style="background:none; border:none; color:#60a5fa; cursor:pointer; font-size:11px; text-decoration:underline; padding:0;">Ubah Nama</button>
+                </div>
             </div>
         </div>
 
         <!-- Messages Chat Area -->
         <div class="ai-messages" id="aiMessagesContainer">
-            <div class="ai-msg assistant">
+            <div class="ai-msg assistant" id="aiWelcomeMsg">
                 <p>Halo! Saya adalah <strong>AI Asisten Modul</strong> untuk buku <em>{{ $e_modul->title }}</em>.</p>
                 <p>Saya siap mendampingi dan membimbing belajar Anda seputar <strong>seluruh isi modul</strong> ini. Silakan ajukan pertanyaan materi atau konsep yang ingin Anda diskusikan!</p>
             </div>
@@ -1574,6 +1577,60 @@
         // Student Name Storage & Modal Handling
         const STUDENT_STORAGE_KEY = 'emodul_student_name';
 
+        function getChatStorageKey(name) {
+            const normalized = (name || getStudentName() || 'siswa').trim().toLowerCase();
+            return `emodul_chat_history_${MODUL_ID}_${normalized}`;
+        }
+
+        function resetChatContainerToWelcome() {
+            const container = document.getElementById('aiMessagesContainer');
+            if (!container) return;
+            Array.from(container.children).forEach((child) => {
+                if (child.id !== 'aiWelcomeMsg') {
+                    child.remove();
+                }
+            });
+        }
+
+        function saveChatHistoryToStorage() {
+            const currentName = getStudentName();
+            if (!currentName) return;
+            try {
+                localStorage.setItem(getChatStorageKey(currentName), JSON.stringify(chatHistory.slice(-50)));
+            } catch (e) {}
+        }
+
+        function loadChatHistoryFromStorage() {
+            const currentName = getStudentName();
+            resetChatContainerToWelcome();
+            chatHistory = [];
+            if (!currentName) return;
+
+            try {
+                const raw = localStorage.getItem(getChatStorageKey(currentName));
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    chatHistory = parsed.filter(item => item && (item.role === 'user' || item.role === 'assistant') && typeof item.content === 'string');
+                    chatHistory.forEach(item => appendMessage(item.role, item.content));
+                }
+            } catch (e) {
+                chatHistory = [];
+            }
+        }
+
+        function clearLocalChatHistory() {
+            const currentName = getStudentName();
+            if (!confirm('Mulai obrolan baru dan bersihkan tampilan chat di perangkat ini?')) return;
+            try {
+                if (currentName) {
+                    localStorage.removeItem(getChatStorageKey(currentName));
+                }
+            } catch (e) {}
+            chatHistory = [];
+            resetChatContainerToWelcome();
+        }
+
         function getStudentName() {
             try {
                 return (localStorage.getItem(STUDENT_STORAGE_KEY) || '').trim();
@@ -1629,6 +1686,7 @@
             } catch (err) {}
 
             updateStudentUi(name);
+            loadChatHistoryFromStorage();
             closeStudentModal();
         }
 
@@ -1638,6 +1696,7 @@
                 openStudentModal();
             } else {
                 updateStudentUi(savedName);
+                loadChatHistoryFromStorage();
             }
         }
 
@@ -1694,6 +1753,7 @@
                     appendMessage('assistant', data.reply);
                     chatHistory.push({ role: 'user', content: question });
                     chatHistory.push({ role: 'assistant', content: data.reply });
+                    saveChatHistoryToStorage();
                 } else {
                     appendMessage('assistant', data.fallback_reply || data.message || 'Gagal memproses jawaban AI.');
                 }

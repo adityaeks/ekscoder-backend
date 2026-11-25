@@ -118,45 +118,101 @@ class EModulController extends Controller
     }
 
     /**
-     * Display student-AI chat history for the specified e-modul.
+     * Display student-AI chat history grouped per student for the specified e-modul.
      */
     public function chatHistory(Request $request, EModul $e_modul)
     {
         Gate::authorize('emodul.view');
 
         $search = trim((string) $request->query('search', ''));
-        $studentFilter = trim((string) $request->query('student_name', ''));
 
-        $query = $e_modul->chatLogs();
+        $studentGroupsQuery = EModulChatLog::where('e_modul_id', $e_modul->id)
+            ->selectRaw('student_name, COUNT(*) as total_chats, MAX(created_at) as last_chat_at, MAX(id) as last_log_id')
+            ->groupBy('student_name')
+            ->orderByDesc('last_chat_at');
 
-        if ($studentFilter !== '') {
-            $query->where('student_name', $studentFilter);
+        if ($search !== '') {
+            $studentGroupsQuery->where(function ($q) use ($search) {
+                $q->where('student_name', 'like', "%{$search}%")
+                    ->orWhere('question', 'like', "%{$search}%")
+                    ->orWhere('answer', 'like', "%{$search}%");
+            });
         }
+
+        $studentCards = $studentGroupsQuery->paginate(24)->withQueryString();
+
+        $lastLogIds = $studentCards->pluck('last_log_id')->filter()->all();
+        $lastLogs = EModulChatLog::whereIn('id', $lastLogIds)->get()->keyBy('id');
+
+        $studentCards->getCollection()->transform(function ($group) use ($lastLogs) {
+            $group->last_log = $lastLogs->get($group->last_log_id);
+            return $group;
+        });
+
+        $stats = [
+            'total_chats' => EModulChatLog::where('e_modul_id', $e_modul->id)->count(),
+            'unique_students' => EModulChatLog::where('e_modul_id', $e_modul->id)->distinct('student_name')->count('student_name'),
+            'last_chat_at' => EModulChatLog::where('e_modul_id', $e_modul->id)->latest()->value('created_at'),
+        ];
+
+        return view('admin.e-modul.chat-history', compact('e_modul', 'studentCards', 'stats', 'search'));
+    }
+
+    /**
+     * Display full conversation detail between a specific student and AI.
+     */
+    public function chatHistoryStudent(Request $request, EModul $e_modul)
+    {
+        Gate::authorize('emodul.view');
+
+        $studentName = trim((string) $request->query('student', ''));
+        if ($studentName === '') {
+            return redirect()->route('admin.e-modul.chat-history', $e_modul->id);
+        }
+
+        $search = trim((string) $request->query('search', ''));
+
+        $query = EModulChatLog::where('e_modul_id', $e_modul->id)
+            ->where('student_name', $studentName)
+            ->orderBy('created_at', 'asc')
+            ->orderBy('id', 'asc');
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('student_name', 'like', "%{$search}%")
-                    ->orWhere('question', 'like', "%{$search}%")
+                $q->where('question', 'like', "%{$search}%")
                     ->orWhere('answer', 'like', "%{$search}%")
                     ->orWhere('page_number', 'like', "%{$search}%");
             });
         }
 
-        $chatLogs = $query->paginate(20)->withQueryString();
+        $chatLogs = $query->paginate(30)->withQueryString();
 
-        $students = EModulChatLog::where('e_modul_id', $e_modul->id)
-            ->select('student_name')
-            ->distinct()
-            ->orderBy('student_name')
-            ->pluck('student_name');
-
-        $stats = [
-            'total_chats' => EModulChatLog::where('e_modul_id', $e_modul->id)->count(),
-            'unique_students' => $students->count(),
-            'last_chat_at' => EModulChatLog::where('e_modul_id', $e_modul->id)->latest()->value('created_at'),
+        $studentStats = [
+            'total_chats' => EModulChatLog::where('e_modul_id', $e_modul->id)->where('student_name', $studentName)->count(),
+            'first_chat_at' => EModulChatLog::where('e_modul_id', $e_modul->id)->where('student_name', $studentName)->oldest()->value('created_at'),
+            'last_chat_at' => EModulChatLog::where('e_modul_id', $e_modul->id)->where('student_name', $studentName)->latest()->value('created_at'),
         ];
 
-        return view('admin.e-modul.chat-history', compact('e_modul', 'chatLogs', 'students', 'stats', 'search', 'studentFilter'));
+        return view('admin.e-modul.chat-history-detail', compact('e_modul', 'studentName', 'chatLogs', 'studentStats', 'search'));
+    }
+
+    /**
+     * Clear chat history for a specific student on an e-modul.
+     */
+    public function clearStudentChatHistory(Request $request, EModul $e_modul)
+    {
+        Gate::authorize('emodul.delete');
+
+        $studentName = trim((string) $request->input('student', ''));
+        if ($studentName !== '') {
+            EModulChatLog::where('e_modul_id', $e_modul->id)
+                ->where('student_name', $studentName)
+                ->delete();
+        }
+
+        return redirect()
+            ->route('admin.e-modul.chat-history', $e_modul->id)
+            ->with('success', "Riwayat percakapan siswa {$studentName} berhasil dihapus.");
     }
 
     /**

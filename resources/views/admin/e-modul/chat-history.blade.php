@@ -1,6 +1,4 @@
-<x-admin-layout title="Riwayat Chat AI - {{ $e_modul->title }}" breadcrumb="Log percakapan antara siswa dan Asisten AI pada e-modul">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+<x-admin-layout :title="'Riwayat Chat AI - ' . $e_modul->title" breadcrumb="Daftar siswa yang pernah berdiskusi dengan Asisten AI pada e-modul">
     <div style="max-width:1100px; margin:0 auto;">
         <!-- Header Card -->
         <div class="card" style="padding:20px 24px; margin-bottom:20px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
@@ -66,27 +64,18 @@
             </div>
         </div>
 
-        <!-- Filter & Search -->
+        <!-- Search Student -->
         <div class="card" style="padding:16px 20px; margin-bottom:20px; border:1px solid var(--border);">
             <form method="GET" action="{{ route('admin.e-modul.chat-history', $e_modul->id) }}" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
                 <div style="flex:1; min-width:220px;">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama siswa, pertanyaan, jawaban AI, atau halaman..." style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--text-primary); outline:none;">
-                </div>
-
-                <div style="min-width:200px;">
-                    <select name="student_name" style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--text-primary); outline:none;">
-                        <option value="">Semua Siswa ({{ $students->count() }})</option>
-                        @foreach($students as $student)
-                            <option value="{{ $student }}" {{ $studentFilter === $student ? 'selected' : '' }}>{{ $student }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama siswa atau kata kunci percakapan..." style="width:100%; background:var(--bg-elevated); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-size:13px; color:var(--text-primary); outline:none;">
                 </div>
 
                 <div style="display:flex; gap:8px;">
                     <button type="submit" class="topbar-btn topbar-btn-primary" style="padding:9px 16px; font-size:13px; border:none; cursor:pointer;">
-                        Filter
+                        Cari
                     </button>
-                    @if($search !== '' || $studentFilter !== '')
+                    @if($search !== '')
                         <a href="{{ route('admin.e-modul.chat-history', $e_modul->id) }}" class="topbar-btn" style="padding:9px 14px; font-size:13px; text-decoration:none;">
                             Reset
                         </a>
@@ -95,61 +84,73 @@
             </form>
         </div>
 
-        <!-- Chat Logs List -->
-        @if($chatLogs->count() > 0)
-            <div style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;">
-                @foreach($chatLogs as $log)
-                    <div class="card" style="padding:18px 20px; border:1px solid var(--border);">
-                        <!-- Meta Header -->
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding-bottom:12px; margin-bottom:14px; border-bottom:1px solid var(--border);">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div style="width:32px; height:32px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center;">
-                                    {{ strtoupper(mb_substr($log->student_name, 0, 1)) }}
-                                </div>
-                                <div>
-                                    <div style="font-size:13.5px; font-weight:700; color:var(--text-primary);">{{ $log->student_name }}</div>
-                                    <div style="font-size:11.5px; color:var(--text-muted);">
-                                        {{ $log->created_at->format('d M Y, H:i') }} ({{ $log->created_at->diffForHumans() }})
+        <!-- Student Cards Grid -->
+        @if($studentCards->count() > 0)
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:16px; margin-bottom:24px;">
+                @foreach($studentCards as $card)
+                    @php
+                        $lastLog = $card->last_log;
+                        $lastChatTime = \Carbon\Carbon::parse($card->last_chat_at);
+                    @endphp
+                    <a href="{{ route('admin.e-modul.chat-history.student', ['e_modul' => $e_modul->id, 'student' => $card->student_name]) }}"
+                       class="card student-chat-card"
+                       style="display:flex; flex-direction:column; justify-content:space-between; padding:18px 20px; border:1px solid var(--border); text-decoration:none; transition:transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; cursor:pointer;">
+                        <div>
+                            <!-- Top Row: Avatar, Name, Count -->
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;">
+                                <div style="display:flex; align-items:center; gap:11px; min-width:0;">
+                                    <div style="width:40px; height:40px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                        {{ strtoupper(mb_substr($card->student_name, 0, 1)) }}
+                                    </div>
+                                    <div style="min-width:0;">
+                                        <div style="font-size:15px; font-weight:700; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                            {{ $card->student_name }}
+                                        </div>
+                                        <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                                            Aktif {{ $lastChatTime->diffForHumans() }}
+                                        </div>
                                     </div>
                                 </div>
+
+                                <span style="font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); white-space:nowrap;">
+                                    {{ $card->total_chats }} Chat
+                                </span>
                             </div>
 
-                            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                                @if($log->page_number)
-                                    <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:6px; background:var(--bg-elevated); border:1px solid var(--border-light); color:var(--text-primary);">
-                                        📄 {{ $log->page_number }}
-                                    </span>
+                            <!-- Last Question Preview -->
+                            @if($lastLog)
+                                <div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:12px;">
+                                    <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin-bottom:4px;">
+                                        Pertanyaan Terakhir
+                                    </div>
+                                    <div style="font-size:12.5px; color:var(--text-primary); line-height:1.45; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
+                                        {{ $lastLog->question }}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; color:var(--text-muted);">
+                            <span>
+                                @if($lastLog && $lastLog->page_number)
+                                    📄 {{ Str::limit($lastLog->page_number, 24) }}
+                                @else
+                                    {{ $lastChatTime->format('d M Y, H:i') }}
                                 @endif
-                                @if($log->ip_address)
-                                    <span style="font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">
-                                        {{ $log->ip_address }}
-                                    </span>
-                                @endif
-                            </div>
+                            </span>
+                            <span style="color:var(--accent); font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                                Lihat Obrolan
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+                            </span>
                         </div>
-
-                        <!-- Student Question -->
-                        <div style="margin-bottom:12px;">
-                            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin-bottom:6px;">
-                                Pertanyaan Siswa
-                            </div>
-                            <div style="background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-size:13.5px; color:var(--text-primary); line-height:1.55; white-space:pre-wrap;">{{ $log->question }}</div>
-                        </div>
-
-                        <!-- AI Answer -->
-                        <div>
-                            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--accent); margin-bottom:6px;">
-                                Jawaban AI
-                            </div>
-                            <div class="ai-markdown-reply" data-raw="{{ e($log->answer) }}" style="background:rgba(184, 255, 0, 0.04); border:1px solid var(--border-light); border-radius:10px; padding:12px 14px; font-size:13.5px; color:var(--text-primary); line-height:1.6; white-space:pre-wrap;">{{ $log->answer }}</div>
-                        </div>
-                    </div>
+                    </a>
                 @endforeach
             </div>
 
             <!-- Pagination -->
             <div style="margin-bottom:24px;">
-                {{ $chatLogs->links() }}
+                {{ $studentCards->links() }}
             </div>
         @else
             <div class="card" style="padding:48px 20px; text-align:center; border:1px solid var(--border);">
@@ -158,10 +159,10 @@
                     Belum Ada Riwayat Percakapan
                 </h4>
                 <p style="font-size:13px; color:var(--text-muted); max-width:440px; margin:0 auto;">
-                    @if($search !== '' || $studentFilter !== '')
-                        Tidak ada percakapan yang cocok dengan filter pencarian saat ini.
+                    @if($search !== '')
+                        Tidak ada siswa atau percakapan yang cocok dengan pencarian "{{ $search }}".
                     @else
-                        Percakapan antara siswa dan Asisten AI pada e-modul ini akan muncul di sini secara otomatis.
+                        Percakapan antara siswa dan Asisten AI pada e-modul ini akan dikelompokkan per siswa di sini secara otomatis.
                     @endif
                 </p>
             </div>
@@ -169,24 +170,10 @@
     </div>
 
     <style>
-        .ai-markdown-reply p { margin: 0 0 8px 0; }
-        .ai-markdown-reply p:last-child { margin-bottom: 0; }
-        .ai-markdown-reply ul, .ai-markdown-reply ol { margin: 6px 0 8px 18px; padding: 0; }
-        .ai-markdown-reply code { background: var(--bg-elevated); padding: 2px 5px; border-radius: 4px; font-size: 12.5px; }
-        .ai-markdown-reply pre { background: var(--bg-elevated); padding: 10px; border-radius: 8px; overflow-x: auto; }
+        .student-chat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent) !important;
+            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.25);
+        }
     </style>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof marked !== 'undefined') {
-                document.querySelectorAll('.ai-markdown-reply').forEach(function (el) {
-                    const raw = el.getAttribute('data-raw');
-                    if (raw) {
-                        el.style.whiteSpace = 'normal';
-                        el.innerHTML = marked.parse(raw);
-                    }
-                });
-            }
-        });
-    </script>
 </x-admin-layout>
