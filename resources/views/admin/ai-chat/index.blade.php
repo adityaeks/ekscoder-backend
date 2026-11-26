@@ -566,11 +566,25 @@
         .bubble-footer-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            gap: 12px;
             margin-top: 8px;
             padding-top: 6px;
             border-top: 1px solid var(--border, rgba(255, 255, 255, 0.05));
             font-size: 11px;
+        }
+
+        .chat-msg-time {
+            font-size: 11px;
+            color: var(--text-muted, #8b8ba0);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .chat-msg-time.user-time {
+            margin-top: 6px;
+            text-align: right;
+            opacity: 0.85;
         }
 
         .btn-bubble-action {
@@ -1721,7 +1735,7 @@
                     } else {
                         container.innerHTML = '';
                         messages.forEach(msg => {
-                            appendMessageBubble(msg.role, msg.content, msg.images);
+                            appendMessageBubble(msg.role, msg.content, msg.images, msg.created_at);
                         });
                     }
                     scrollToBottom();
@@ -1888,7 +1902,21 @@
             el.style.height = Math.min(el.scrollHeight, 140) + 'px';
         }
 
-        function appendMessageBubble(role, content = '', images = []) {
+        function formatChatDateTime(dateInput) {
+            const d = dateInput ? new Date(dateInput) : new Date();
+            if (isNaN(d.getTime())) return '';
+            const formatted = d.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            return formatted.replace(/(\d{2})\.(\d{2})$/, '$1:$2');
+        }
+
+        function appendMessageBubble(role, content = '', images = [], timestamp = null) {
             const container = document.getElementById('chatMessagesContainer');
             const emptyEl = container.querySelector('.chat-empty-wrapper');
             if (emptyEl) {
@@ -1900,6 +1928,7 @@
 
             const avatarIcon = role === 'user' ? SVG_ICONS.user : SVG_ICONS.bot;
             const parsedHTML = role === 'assistant' ? formatAssistantMarkdown(content) : (content ? escapeHtml(content).replace(/\n/g, '<br>') : '');
+            const timeLabel = formatChatDateTime(timestamp);
 
             let imagesHtml = '';
             if (images && images.length) {
@@ -1913,9 +1942,13 @@
                 <div class="chat-msg-bubble">
                     ${imagesHtml}
                     <div class="bubble-content-text">${parsedHTML}</div>
+                    ${role === 'user' && timeLabel ? `
+                        <div class="chat-msg-time user-time">${timeLabel}</div>
+                    ` : ''}
                     ${role === 'assistant' && content ? `
                         <div class="bubble-footer-actions">
                             <button class="btn-bubble-action" onclick="copyTextToClipboard(this)">${SVG_ICONS.copy} Salin Balasan</button>
+                            ${timeLabel ? `<span class="chat-msg-time">${timeLabel}</span>` : ''}
                         </div>
                     ` : ''}
                 </div>
@@ -2037,9 +2070,9 @@
                 }
             }
 
-            appendMessageBubble('user', userText, currentImages);
+            appendMessageBubble('user', userText, currentImages, new Date().toISOString());
 
-            const assistantBubble = appendMessageBubble('assistant', '');
+            const assistantBubble = appendMessageBubble('assistant', '', [], new Date().toISOString());
             assistantBubble.innerHTML = `
                 <div class="dots-typing">
                     <div class="dot-bounce"></div>
@@ -2106,6 +2139,16 @@
                             }
                         }
                     }
+                }
+
+                if (accumulatedText && !assistantBubble.parentElement.querySelector('.bubble-footer-actions')) {
+                    const footer = document.createElement('div');
+                    footer.className = 'bubble-footer-actions';
+                    footer.innerHTML = `
+                        <button class="btn-bubble-action" onclick="copyTextToClipboard(this)">${SVG_ICONS.copy} Salin Balasan</button>
+                        <span class="chat-msg-time">${formatChatDateTime(new Date().toISOString())}</span>
+                    `;
+                    assistantBubble.parentElement.appendChild(footer);
                 }
 
                 if (!accumulatedText && isFirstChunk) {
